@@ -20,8 +20,12 @@ function! myfiler#get_basename(lnum = 0, bufnr = 0) abort
   let bufnr = a:bufnr > 0 ? a:bufnr : bufnr()
   let lnum = a:lnum > 0 ? a:lnum : line('.')
   let line = getbufoneline(bufnr, lnum)
-  return strpart(line, 22)
-  " TODO: Handle symbolic links
+  let match_idx = match(line, '/=>')
+  if match_idx >= 24
+    return strpart(line, 22, match_idx - 23)
+  else
+    return strpart(line, 22)
+  endif
 endfunction
 
 
@@ -118,45 +122,44 @@ function! myfiler#execute() abort
     return
   endif
 
+  " TODO: Judge executed or cancelled
+
   let selection = myfiler#selection#get()
   if empty(selection.list)
-    call s:execute_single()
-    return
+    return s:execute_single()
   endif
 
   if selection.bufnr != bufnr()
-    call s:execute_single()
-    return
+    return s:execute_single()
   endif
 
   if len(selection.list) == 1
     let lnum = selection.list[0].lnum
     execute 'normal! ' . lnum . 'G'
     normal! zz
+    redraw
     let path = s:get_cursor_path()
-    call s:execute_single(path)
-    return
+    return s:execute_single(path)
   endif
 
-  let lnums = map(copy(selection.list), 'v:val.lnum')
-  let basenames = map(copy(lnums), 'myfiler#get_basename(v:val)')
-  call s:execute_multi(basenames)
+  call s:execute_multi(selection)
 endfunction
 
 " TODO: Handle visual mode
 
 function! s:execute_single(path = '') abort
   call myfiler#selection#clear()
-  " TODO: Change cwd temporarily
   let path = a:path == '' ? s:get_cursor_path() : a:path
   call feedkeys(': ' . path . "\<Home>!", 'n')
 endfunction
 
 
-function! s:execute_multi(basenames) abort
-  let joined = join(a:basenames, ',')
+function! s:execute_multi(selection) abort
+  " TODO: Change cwd temporarily
+  let basenames = map(copy(a:selection.list), { _, sel -> sel.basename })
+  let joined = join(basenames, ',')
   let dir = myfiler#get_dir()
-  let path = fnameescape(dir . '/{' . joined . '}')
+  let path = dir . '/{' . joined . '}'
   call feedkeys(': ' . path . "\<Home>!", 'n')
   " call myfiler#selection#clear()
 endfunction
@@ -287,11 +290,19 @@ function! myfiler#delete() abort
     return
   endif
 
+  " TODO: Recursive deletion
+
   let selection = myfiler#selection#get()
   if empty(selection.list) || selection.bufnr != bufnr()
     call s:delete_single()
+  elseif len(selection.list) == 1
+    let lnum = selection.list[0].lnum
+    execute 'normal! ' . lnum . 'G'
+    normal! zz
+    redraw
+    call s:delete_single()
   else
-    call s:delete_multi()
+    call s:delete_multi(selection)
   endif
 endfunction
 
@@ -303,16 +314,31 @@ function! s:delete_single() abort
     return
   endif
 
-  if delete(path) < 0
+  " TODO: Handle already deleted file
+  if delete(path) != 0
     call s:echo_error('Deletion failed.')
   else
+    call myfiler#selection#clear()
     call myfiler#buffer#render()
-    normal! j
   endif
 endfunction
 
 
-function! s:delete_multi() abort
+function! s:delete_multi(selection) abort
+  let basenames = map(copy(a:selection.list), { _, sel -> sel.basename })
+  let confirm = s:input('Delete ' . join(basenames, ', ') . ' ? (y/N): ')
+  if confirm != 'y'
+    return
+  endif
+  call myfiler#selection#clear()
+
+  for basename in basenames
+    let path = s:to_fullpath(basename)
+    if delete(path) != 0
+      call s:echo_error('Deletion of ' . basename . ' failed.')
+    endif
+  endfor
+  call myfiler#buffer#render()
 endfunction
 
 
