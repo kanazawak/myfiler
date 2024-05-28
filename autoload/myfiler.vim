@@ -4,7 +4,7 @@ set cpoptions&vim
 
 function! myfiler#get_dir(bufnr = bufnr()) abort
   " Return full path without '/' at the end
-  return resolve(bufname(a:bufnr))
+  return resolve(fnamemodify(resolve(bufname(a:bufnr)), ':p'))
 endfunction
 
 
@@ -14,12 +14,10 @@ function! s:echo_error(message) abort
   echohl None
 endfunction
 
-"TODO: fnameescape
 
-function! myfiler#get_basename(lnum = 0, bufnr = 0) abort
-  let bufnr = a:bufnr > 0 ? a:bufnr : bufnr()
+function! myfiler#get_basename(lnum = 0) abort
   let lnum = a:lnum > 0 ? a:lnum : line('.')
-  let line = getbufoneline(bufnr, lnum)
+  let line = getbufoneline('', lnum)
   let match_idx = match(line, '/=>')
   if match_idx >= 24
     return strpart(line, 22, match_idx - 23)
@@ -49,23 +47,19 @@ endfunction
 
 
 function! myfiler#open_current() abort
-  if myfiler#buffer#is_empty()
-    return
+  if !myfiler#buffer#is_empty()
+    let path = s:get_cursor_path()
+    call myfiler#open(s:get_cursor_path())
   endif
-
-  let path = s:get_cursor_path()
-  call myfiler#open(path)
 endfunction
 
 
 function! myfiler#open_dir() abort
-  if myfiler#buffer#is_empty()
-    return
-  endif
-
-  let path = s:get_cursor_path()
-  if (isdirectory(path))
-    call myfiler#open(path)
+  if !myfiler#buffer#is_empty()
+    let path = s:get_cursor_path()
+    if (isdirectory(path))
+      call myfiler#open(path)
+    endif
   endif
 endfunction
 
@@ -90,8 +84,8 @@ endfunction
 
 
 function! myfiler#reload() abort
-  call myfiler#buffer#render()
   call myfiler#selection#clear()
+  call myfiler#buffer#render()
 endfunction
 
 
@@ -103,7 +97,7 @@ function! myfiler#toggle_selection(moves_forward) abort
   let selection = myfiler#selection#get()
   if selection.bufnr != bufnr()
     call myfiler#selection#clear()
-    let selection = #{ bufnr: bufnr(), list: [] }
+    let selection = myfiler#selection#get()
   endif
 
   let lnum = line('.')
@@ -118,52 +112,13 @@ endfunction
 
 
 function! myfiler#execute() abort
-  if myfiler#buffer#is_empty()
-    return
-  endif
-
-  " TODO: Judge executed or cancelled
-
-  let selection = myfiler#selection#get()
-  if empty(selection.list)
-    return s:execute_single()
-  endif
-
-  if selection.bufnr != bufnr()
-    return s:execute_single()
-  endif
-
-  if len(selection.list) == 1
-    let lnum = selection.list[0].lnum
-    execute 'normal! ' . lnum . 'G'
-    normal! zz
-    redraw
+  if !myfiler#buffer#is_empty()
     let path = s:get_cursor_path()
-    return s:execute_single(path)
+    call feedkeys(': ' . path . "\<Home>!", 'n')
   endif
-
-  call s:execute_multi(selection)
 endfunction
 
 " TODO: Handle visual mode
-
-function! s:execute_single(path = '') abort
-  call myfiler#selection#clear()
-  let path = a:path == '' ? s:get_cursor_path() : a:path
-  call feedkeys(': ' . path . "\<Home>!", 'n')
-endfunction
-
-
-function! s:execute_multi(selection) abort
-  " TODO: Change cwd temporarily
-  let basenames = map(copy(a:selection.list), { _, sel -> sel.basename })
-  let joined = join(basenames, ',')
-  let dir = myfiler#get_dir()
-  let path = dir . '/{' . joined . '}'
-  call feedkeys(': ' . path . "\<Home>!", 'n')
-  " call myfiler#selection#clear()
-endfunction
-
 
 function! s:check_duplication(path) abort
   if filereadable(a:path) || isdirectory(a:path)
@@ -239,18 +194,27 @@ function! myfiler#rename() abort
   call rename(old_path, new_path)
 
   let selection = myfiler#selection#get()
+  let selected = {}
   if selection.bufnr == bufnr()
+    for sel in selection.list
+      let name = myfiler#get_basename(sel.lnum)
+      if name ==# old_name
+        let selected[new_name] = v:true
+      else
+        let selected[name] = v:true
+      endif
+    endfor
     call myfiler#selection#clear()
-    let sel = filter(copy(selection.list), 'v:val.basename ==# old_name')
-    if !empty(sel)
-      let sel[0].basename = new_name
-    endif
-  else
-    let selection.list = [] 
   endif
+
   call myfiler#buffer#render()
+  for lnum in range(1, line('$'))
+    let basename = myfiler#get_basename(lnum)
+    if get(selected, basename, v:false)
+      call myfiler#selection#add(lnum)
+    endif
+  endfor
   call s:search_basename(new_name)
-  call myfiler#selection#restore(selection)
 endfunction
 
 
@@ -259,29 +223,34 @@ function! myfiler#move() abort
   if empty(selection.list) || selection.bufnr == bufnr()
     return
   endif
+  call myfiler#selection#clear()
 
-  let from_dir = myfiler#get_dir(selection.bufnr)
   let to_dir = myfiler#get_dir()
+  let to_bufnr = bufnr()
+
+  noautocmd execute 'keepjumps buffer' selection.bufnr
+  let from_dir = myfiler#get_dir()
+  " let basenames = map(copy(selection.list),
+  "       \ { _, sel -> myfiler#get_basename(sel.lnum) })
+
   " TODO: Confirm
   for sel in selection.list
-    let from_path = from_dir . '/' . sel.basename
-    let   to_path =   to_dir . '/' . sel.basename
+    let basename = myfiler#get_basename(sel.lnum)
+    let from_path = from_dir . '/' . basename
+    let   to_path =   to_dir . '/' . basename
     " TODO: Handle cases ex. /xxx/yyy -> /xxx/yyy/zzz/yyy
     if filereadable(to_path) || isdirectory(to_path)
-      call s:echo_error("'" . sel.basename . "' " . "already exists.")
+      call s:echo_error("'" . basename . "' " . "already exists.")
     else
       call rename(from_path, to_path)
     endif
   endfor
 
   call myfiler#buffer#render()
-  call s:search_basename(sel.basename)
+  noautocmd execute 'keepjumps buffer' to_bufnr
 
-  let bufnr = bufnr()
-  call myfiler#selection#clear()
-  noautocmd execute 'keepjumps buffer' selection.bufnr
   call myfiler#buffer#render()
-  noautocmd execute 'keepjumps buffer' bufnr
+  call s:search_basename(basename)
 endfunction
 
 
@@ -302,7 +271,8 @@ function! myfiler#delete() abort
     redraw
     call s:delete_single()
   else
-    call s:delete_multi(selection)
+    let lnums = map(copy(selection.list), { _, sel -> sel.lnum })
+    call s:delete_multi(lnums)
   endif
 endfunction
 
@@ -324,8 +294,8 @@ function! s:delete_single() abort
 endfunction
 
 
-function! s:delete_multi(selection) abort
-  let basenames = map(copy(a:selection.list), { _, sel -> sel.basename })
+function! s:delete_multi(lnums) abort
+  let basenames = map(copy(a:lnums), { _, lnum -> myfiler#get_basename(lnum) })
   let confirm = s:input('Delete ' . join(basenames, ', ') . ' ? (y/N): ')
   if confirm != 'y'
     return

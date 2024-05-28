@@ -25,8 +25,7 @@ function! myfiler#selection#get() abort
   let bufinfo = allinfo[0]
   let list = []
   for sign in bufinfo.signs
-    let basename = myfiler#get_basename(sign.lnum, bufinfo.bufnr)
-    call add(list, #{ id: sign.id, lnum: sign.lnum, basename: basename })
+    call add(list, #{ id: sign.id, lnum: sign.lnum })
   endfor
   return #{ bufnr: bufinfo.bufnr, list: list }
 endfunction
@@ -35,20 +34,9 @@ endfunction
 function! myfiler#selection#clear() abort
   let selection = myfiler#selection#get()
   call sign_unplacelist(selection.list)
-endfunction
-
-
-function! myfiler#selection#restore(selection) abort
-  let dict = {}
-  for sel in a:selection.list
-    let dict[sel.basename] = 1
-  endfor
-  for lnum in range(1, line('$'))
-    let basename = myfiler#get_basename(lnum)
-    if get(dict, basename, 0) == 1
-      call myfiler#selection#add(lnum)
-    endif
-  endfor
+  " TODO: Handle signcolumn behavior
+  " sign undefine MyFilerSelected
+  " sign define MyFilerSelected text=>>
 endfunction
 
 
