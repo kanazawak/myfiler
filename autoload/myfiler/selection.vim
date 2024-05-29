@@ -28,6 +28,7 @@ function! myfiler#selection#get() abort
     call add(list, #{ id: sign.id, lnum: sign.lnum })
   endfor
   return #{ bufnr: bufinfo.bufnr, list: list }
+  " return map(copy(bufinfo.signs), { _, sign -> #{ id: sign.id, lnum: sign.lnum } })
 endfunction
 
 

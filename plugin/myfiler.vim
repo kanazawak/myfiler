@@ -73,16 +73,6 @@ endfunction
 
 
 function! s:on_winleave() abort
-  let bufnrs = tabpagebuflist()
-  let selection = myfiler#selection#get()
-
-  " Clear hidden selection
-  for bufnr in bufnrs
-    if bufnr == selection.bufnr
-      return
-    endif
-  endfor
-  call myfiler#selection#clear()
 endfunction
 
 

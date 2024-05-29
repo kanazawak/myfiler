@@ -42,14 +42,19 @@ function! myfiler#open(path) abort
   " let bufnr = s:find_buffer(a:path)
   " if bufnr >= 0
   "   execute 'buffer' bufnr
-  execute 'edit' fnameescape(resolve(a:path))
+  let resolved = resolve(a:path)
+  if filereadable(resolved) || isdirectory(resolved)
+    execute 'edit' fnameescape(resolved)
+  else
+    call s:echo_error("Opening lailed.")
+  endif
 endfunction
 
 
 function! myfiler#open_current() abort
   if !myfiler#buffer#is_empty()
     let path = s:get_cursor_path()
-    call myfiler#open(s:get_cursor_path())
+    call myfiler#open(path)
   endif
 endfunction
 
@@ -64,11 +69,17 @@ function! myfiler#open_dir() abort
 endfunction
 
 
-function! s:search_basename(basename, add_jump = 0) abort
-  " TODO: Handle symbolic links
-  let pattern = '^.\{22\}' . a:basename . '$'
-  call search(pattern, a:add_jump ? 'sw' : 'w')
-  normal! zz
+function! s:search_basename(basename, updates_jumplist = v:false) abort
+  for lnum in range(1, line('$'))
+    if myfiler#get_basename(lnum) == a:basename
+      break
+    endif
+  endfor
+  if a:updates_jumplist
+    execute 'normal!' lnum . 'G'
+  else
+    execute lnum
+  endif
 endfunction
 
 

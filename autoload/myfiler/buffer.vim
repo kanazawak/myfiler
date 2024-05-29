@@ -18,11 +18,30 @@ function! myfiler#buffer#init() abort
 endfunction
 
 
+let s:units = ['B', 'K', 'M', 'G', 'T', 'P']
+function! s:make_fsize_readable(bytes) abort
+  let x = a:bytes
+  for i in range(len(s:units))
+    if x < 1024
+      if i == 0
+        return x . s:units[0]
+      elseif x < 10
+        return printf("%.1f", x) . s:units[i]
+      else
+        return printf("%.0f", x) . s:units[i]
+      endif
+    endif
+    let x = x / 1024.0
+  endfor
+endfunction
+
+
 function! myfiler#buffer#render() abort
   let old_names = myfiler#buffer#is_empty() ? []
         \ : map(range(line('$')), { i -> myfiler#get_basename(i + 1) })
   let dir = myfiler#get_dir()
-  let new_names = systemlist('ls -A1 ' . shellescape(dir))
+  let entries = readdirex(dir)
+  let new_names = map(copy(entries), { _, entry -> entry.name })
 
   setlocal modifiable
   
@@ -39,25 +58,21 @@ function! myfiler#buffer#render() abort
     endfor
   endif
 
-  " -A: Omit './', '../', -g: Omit owner, -o: Omit group, -h: Human-friendly size format
-  let cmd = 'ls -lAgohD "%y/%m/%d %H:%M" ' . shellescape(dir) . ' | tail +2'
-  let details = map(systemlist(cmd), { _, str -> split(str, '\s\+') })
-
-  for i in range(len(new_names))
-    let array = details[i]
-    let type = array[0][0]
-    let size = type ==# '-' ? array[2] : ''
-    let date = array[3]
-    let time = array[4]
-    let label = new_names[i]
+  for i in range(len(entries))
+    let entry = entries[i]
+    " TODO: More delicate handling
+    let type = entry.type[0] 
+    let size = type ==# 'f' ? s:make_fsize_readable(entry.size) : ''
+    let datetime = strftime("%y/%m/%d %H:%M", entry.time) 
+    let label = entry.name
     if type ==# 'l'
-      let resolved = resolve(dir . '/' . label)
+      let resolved = resolve(dir . '/' . entry.name)
       let suffix = filereadable(resolved) || isdirectory(resolved)
             \ ? ' /=> ' . resolved
             \ : ' /=> (BROKEN LINK)'
       let label = label . suffix
     endif
-    call setline(i + 1, printf("%s %s %5s  %s", date, time, size, label))
+    call setline(i + 1, printf("%s %5s  %s", datetime, size, label))
   endfor
 
   setlocal nomodifiable
