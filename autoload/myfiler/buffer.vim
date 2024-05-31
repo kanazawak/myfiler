@@ -37,6 +37,26 @@ function! s:make_fsize_readable(bytes) abort
 endfunction
 
 
+function! myfiler#buffer#delete_line(lnum) abort
+  " Work around a bug? of Vim:
+  "   When two windows shows same buffer and their cursors are on same line,
+  "   deleting the line in one of the windows causes the other windows's cursor moves up.
+  let cursor_lnum = line('.')
+  if a:lnum == line('$')
+    return deletebufline('', a:lnum)
+  endif
+  execute (a:lnum + 1) . 'move' . (a:lnum - 1)
+  execute 'normal!' (a:lnum == line('$') - 1 ? 'jdd' : 'jddk')
+  if cursor_lnum == line('$') + 1
+    execute line('$')
+  elseif a:lnum < cursor_lnum
+    execute (cursor_lnum - 1)
+  else
+    execute cursor_lnum
+  endif
+endfunction
+
+
 function! myfiler#buffer#render() abort
   let old_names = myfiler#buffer#is_empty() ? []
         \ : map(range(line('$')), { i -> myfiler#get_basename(i + 1) })
@@ -58,8 +78,9 @@ function! myfiler#buffer#render() abort
       if hunk.from_count == 0
         call appendbufline('', hunk.from_idx, range(hunk.to_count))
       elseif hunk.to_count == 0
-        " TODO: Vim Bug? Cursor positions on same buffer in other windows moves more than expected
-        call deletebufline('', hunk.from_idx + 1, hunk.from_idx + hunk.from_count)
+        for _ in range(hunk.from_count)
+          call myfiler#buffer#delete_line(hunk.from_idx + 1)
+        endfor
       endif
     endfor
   endif
