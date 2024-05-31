@@ -157,6 +157,10 @@ function! myfiler#new_file() abort
     return
   endif
 
+  if basename =~ '^\.' && !get(b:, 'myfiler_shows_hidden_files', v:false)
+    call myfiler#toggle_visibility()
+  endif
+
   let path = s:to_fullpath(basename)
   if s:check_duplication(path)
     return
@@ -319,6 +323,13 @@ function! s:delete_multi(lnums) abort
       call s:echo_error('Deletion of ' . basename . ' failed.')
     endif
   endfor
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#toggle_visibility() abort
+  let shows_hidden_files = get(b:, 'myfiler_shows_hidden_files', v:false)
+  let b:myfiler_shows_hidden_files = !shows_hidden_files
   call myfiler#buffer#render()
 endfunction
 

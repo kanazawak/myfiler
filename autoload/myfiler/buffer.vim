@@ -10,6 +10,7 @@ endfunction
 function! myfiler#buffer#init() abort
   mapclear <buffer>
   setlocal filetype=myfiler
+  let b:myfiler_shows_hidden_files = v:false
   call myfiler#buffer#render()
   setlocal buftype=nowrite
   setlocal bufhidden=hide
@@ -40,12 +41,16 @@ function! myfiler#buffer#render() abort
   let old_names = myfiler#buffer#is_empty() ? []
         \ : map(range(line('$')), { i -> myfiler#get_basename(i + 1) })
   let dir = myfiler#get_dir()
-  let entries = readdirex(dir)
+
+  let shows_hidden = get(b:, 'myfiler_shows_hidden_files', v:false)
+  let entries = shows_hidden
+        \ ? readdirex(dir)
+        \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
   let new_names = map(copy(entries), { _, entry -> entry.name })
 
   setlocal modifiable
   
-  " Utilize diff to not disturb cursor positions (in other windows)
+  " Utilize diff to not disturb cursor positions (on same buffer in other windows) and signs
   if !empty(old_names)
     let hunks = diff(old_names, new_names, #{ output: 'indices' })
     call sort(hunks, { h1, h2 -> h2.from_idx - h1.from_idx })
@@ -53,6 +58,7 @@ function! myfiler#buffer#render() abort
       if hunk.from_count == 0
         call appendbufline('', hunk.from_idx, range(hunk.to_count))
       elseif hunk.to_count == 0
+        " TODO: Vim Bug? Cursor positions on same buffer in other windows moves more than expected
         call deletebufline('', hunk.from_idx + 1, hunk.from_idx + hunk.from_count)
       endif
     endfor
@@ -60,7 +66,7 @@ function! myfiler#buffer#render() abort
 
   for i in range(len(entries))
     let entry = entries[i]
-    " TODO: More delicate handling
+    " TODO: Delicate handling cf. getftype()
     let type = entry.type[0] 
     let size = type ==# 'f' ? s:make_fsize_readable(entry.size) : ''
     let datetime = strftime("%y/%m/%d %H:%M", entry.time) 

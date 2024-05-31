@@ -33,25 +33,25 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> m     <Plug>(myfiler-move)
   nmap <silent><buffer><nowait> d     <Plug>(myfiler-delete)
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
-  " nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-hidden)
+  nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-visibility)
 endfunction
 
 
-nnoremap <silent> <Plug>(myfiler-open-current)     :<C-u>call myfiler#open_current()<CR>
-nnoremap <silent> <Plug>(myfiler-open-dir)         :<C-u>call myfiler#open_dir()<CR>
-nnoremap <silent> <Plug>(myfiler-open-parent)      :<C-u>call myfiler#open_parent()<CR>
-nnoremap <silent> <Plug>(myfiler-open-home)        :<C-u>call myfiler#open(expand("~"))<CR>
-nnoremap <silent> <Plug>(myfiler-reload)           :<C-u>call myfiler#reload()<CR>
-nnoremap <silent> <Plug>(myfiler-select-forward)   :<C-u>call myfiler#toggle_selection(v:true)<CR>
-nnoremap <silent> <Plug>(myfiler-select-backward)  :<C-u>call myfiler#toggle_selection(v:false)<CR>
-nnoremap <silent> <Plug>(myfiler-execute)          :<C-u>call myfiler#execute()<CR>
-nnoremap <silent> <Plug>(myfiler-new-file)         :<C-u>call myfiler#new_file()<CR>
-nnoremap <silent> <Plug>(myfiler-new-dir)          :<C-u>call myfiler#new_dir()<CR>
-nnoremap <silent> <Plug>(myfiler-rename)           :<C-u>call myfiler#rename()<CR>
-nnoremap <silent> <Plug>(myfiler-move)             :<C-u>call myfiler#move()<CR>
-nnoremap <silent> <Plug>(myfiler-delete)           :<C-u>call myfiler#delete()<CR>
-" nnoremap <silent> <Plug>(myfiler-copy)             :<C-u>call myfiler#copy()<CR>
-" nnoremap <silent> <Plug>(myfiler-toggle-hidden)    :<C-u>call myfiler#toggle_hidden()<CR>
+nnoremap <silent> <Plug>(myfiler-open-current)      :<C-u>call myfiler#open_current()<CR>
+nnoremap <silent> <Plug>(myfiler-open-dir)          :<C-u>call myfiler#open_dir()<CR>
+nnoremap <silent> <Plug>(myfiler-open-parent)       :<C-u>call myfiler#open_parent()<CR>
+nnoremap <silent> <Plug>(myfiler-open-home)         :<C-u>call myfiler#open(expand("~"))<CR>
+nnoremap <silent> <Plug>(myfiler-reload)            :<C-u>call myfiler#reload()<CR>
+nnoremap <silent> <Plug>(myfiler-select-forward)    :<C-u>call myfiler#toggle_selection(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-select-backward)   :<C-u>call myfiler#toggle_selection(v:false)<CR>
+nnoremap <silent> <Plug>(myfiler-execute)           :<C-u>call myfiler#execute()<CR>
+nnoremap <silent> <Plug>(myfiler-new-file)          :<C-u>call myfiler#new_file()<CR>
+nnoremap <silent> <Plug>(myfiler-new-dir)           :<C-u>call myfiler#new_dir()<CR>
+nnoremap <silent> <Plug>(myfiler-rename)            :<C-u>call myfiler#rename()<CR>
+nnoremap <silent> <Plug>(myfiler-move)              :<C-u>call myfiler#move()<CR>
+nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<CR>
+" nnoremap <silent> <Plug>(myfiler-copy)              :<C-u>call myfiler#copy()<CR>
+nnoremap <silent> <Plug>(myfiler-toggle-visibility) :<C-u>call myfiler#toggle_visibility()<CR>
 
 
 function! s:on_bufenter() abort
