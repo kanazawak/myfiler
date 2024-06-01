@@ -21,13 +21,12 @@ function! myfiler#get_basename(lnum = 0) abort
   let header_len = match(line, '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
   let link_pos = match(line, '/=>')
   if link_pos >= 0
-    " Link
     let name = strpart(line, header_len, link_pos - header_len - 1)
   else
     let name = strpart(line, header_len)
   endif
   if name =~ '/$'
-    return strpart(name, 0, len(name) - 1)
+    return strpart(name, 0, strlen(name) - 1)
   else
     return name
   endif
