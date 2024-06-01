@@ -37,26 +37,6 @@ function! s:make_fsize_readable(bytes) abort
 endfunction
 
 
-function! myfiler#buffer#delete_line(lnum) abort
-  " Work around a bug? of Vim:
-  "   When two windows shows same buffer and their cursors are on same line,
-  "   deleting the line in one of the windows causes the other windows's cursor moves up.
-  let cursor_lnum = line('.')
-  if a:lnum == line('$')
-    return deletebufline('', a:lnum)
-  endif
-  execute (a:lnum + 1) . 'move' . (a:lnum - 1)
-  execute 'normal!' (a:lnum == line('$') - 1 ? 'jdd' : 'jddk')
-  if cursor_lnum == line('$') + 1
-    execute line('$')
-  elseif a:lnum < cursor_lnum
-    execute (cursor_lnum - 1)
-  else
-    execute cursor_lnum
-  endif
-endfunction
-
-
 function! myfiler#buffer#render() abort
   let old_names = myfiler#buffer#is_empty() ? []
         \ : map(range(line('$')), { i -> myfiler#get_basename(i + 1) })
@@ -68,23 +48,64 @@ function! myfiler#buffer#render() abort
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
   let new_names = map(copy(entries), { _, entry -> entry.name })
 
+  let order = {}
+  for name in new_names
+    let order[name] = len(order)
+  endfor
+
   setlocal modifiable
+
+  let lnum = 1
+  while !myfiler#buffer#is_empty() && lnum <= line('$')
+    let name = myfiler#get_basename(lnum)
+    if get(order, name, -1) < 0
+      call deletebufline('', lnum)
+    else
+      let lnum = lnum + 1
+    endif
+  endwhile
+
+  let basename = myfiler#get_basename()
+  let cnum = col('.')
+
+  " Insertion sort
+  for lnum in range(2, line('$'))
+    let name1 = myfiler#get_basename(lnum)
+    let ord1 = get(order, name1)
+    let i = lnum - 1
+    while i >= 1
+      let name2 = myfiler#get_basename(i)
+      let ord2 = get(order, name2)
+      if ord2 < ord1
+        break
+      else
+        let i = i - 1
+      endif
+    endwhile
+    if i < lnum - 1
+      execute lnum . 'move' . i
+    endif
+  endfor
+
+  for lnum in range(1, line('$'))
+    if myfiler#get_basename(lnum) ==# basename
+      execute lnum
+      normal! 0
+      if cnum > 1
+        execute 'normal! ' . (cnum - 1) . 'l'
+      endif
+      break
+    endif
+  endfor
   
-  " Utilize diff to not disturb cursor positions (on same buffer in other windows) and signs
-  if !empty(old_names)
-    let hunks = diff(old_names, new_names, #{ output: 'indices' })
-    call sort(hunks, { h1, h2 -> h2.from_idx - h1.from_idx })
-    for hunk in hunks
-      if hunk.from_count == 0
-        call appendbufline('', hunk.from_idx, range(hunk.to_count))
-      elseif hunk.to_count == 0
-        for _ in range(hunk.from_count)
-          call myfiler#buffer#delete_line(hunk.from_idx + 1)
-        endfor
+  if !myfiler#buffer#is_empty()
+    for lnum in range(1, len(new_names))
+      if lnum > line('$') || myfiler#get_basename(lnum) !=# new_names[lnum - 1]
+        call appendbufline('', lnum - 1, '')
       endif
     endfor
   endif
-
+  
   for i in range(len(entries))
     let entry = entries[i]
     " TODO: Delicate handling cf. getftype()

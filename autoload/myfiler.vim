@@ -245,8 +245,6 @@ function! myfiler#move() abort
 
   noautocmd execute 'keepjumps buffer' selection.bufnr
   let from_dir = myfiler#get_dir()
-  " let basenames = map(copy(selection.list),
-  "       \ { _, sel -> myfiler#get_basename(sel.lnum) })
 
   " TODO: Confirm
   for sel in selection.list
