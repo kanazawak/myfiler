@@ -46,6 +46,9 @@ function! myfiler#buffer#render() abort
   let entries = shows_hidden
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
+  if get(b:, 'myfiler_sorts_by_time', v:false)
+    call sort(entries, { e1, e2 -> e2.time - e1.time })
+  endif
   let new_names = map(copy(entries), { _, entry -> entry.name })
 
   let order = {}

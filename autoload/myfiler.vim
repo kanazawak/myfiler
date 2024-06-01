@@ -332,4 +332,11 @@ function! myfiler#toggle_visibility() abort
 endfunction
 
 
+function! myfiler#change_sort() abort
+  let sorts_by_time = get(b:, 'myfiler_sorts_by_time', v:false)
+  let b:myfiler_sorts_by_time = !sorts_by_time
+  call myfiler#buffer#render()
+endfunction
+
+
 let &cpoptions = s:save_cpo
