@@ -24,7 +24,9 @@ function! s:make_fsize_readable(bytes) abort
   let x = a:bytes
   for i in range(len(s:units))
     if x < 1024
-      if i == 0
+      if x >= 1000
+        return '0.9' . s:units[i + 1]
+      elseif i == 0
         return x . s:units[0]
       elseif x < 10
         return printf("%.1f", x) . s:units[i]
@@ -129,7 +131,7 @@ function! myfiler#buffer#render() abort
       endif
       let label = label . suffix
     endif
-    call setline(i + 1, printf("%s %5s  %s", datetime, size, label))
+    call setline(i + 1, printf("%s %4s  %s", datetime, size, label))
   endfor
 
   setlocal nomodifiable

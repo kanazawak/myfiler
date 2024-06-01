@@ -1,6 +1,7 @@
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
+let g:myfiler_header_length = 21
 
 function! myfiler#get_dir(bufnr = bufnr()) abort
   " Return full path without '/' at the end
@@ -19,11 +20,12 @@ function! myfiler#get_basename(lnum = 0) abort
   let lnum = a:lnum > 0 ? a:lnum : line('.')
   let line = getbufoneline('', lnum)
   let match_idx = match(line, '/=>')
-  if match_idx >= 24
+  let hl = g:myfiler_header_length
+  if match_idx >= hl + 2
     " Link
-    let name = strpart(line, 22, match_idx - 23)
+    let name = strpart(line, hl, match_idx - hl - 1)
   else
-    let name = strpart(line, 22)
+    let name = strpart(line, hl)
   endif
   if name =~ '/$'
     return strpart(name, 0, len(name) - 1)
