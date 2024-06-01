@@ -10,7 +10,6 @@ endfunction
 function! myfiler#buffer#init() abort
   mapclear <buffer>
   setlocal filetype=myfiler
-  let b:myfiler_shows_hidden_files = v:false
   call myfiler#buffer#render()
   setlocal buftype=nowrite
   setlocal bufhidden=hide
@@ -116,7 +115,15 @@ function! myfiler#buffer#render() abort
     " TODO: Delicate handling cf. getftype()
     let type = entry.type[0] 
     let size = type ==# 'f' ? s:make_fsize_readable(entry.size) : ''
-    let datetime = strftime("%y/%m/%d %H:%M", entry.time) 
+    if get(b:, 'myfiler_shows_detailed_time', v:false)
+      let datetime = strftime("%y/%m/%d %H:%M", entry.time) 
+      syntax clear myfilerTime
+      syntax match myfilerTime '.\{14\}' nextgroup=myfilerSize
+    else
+      let datetime = strftime("%y/%m/%d", entry.time) 
+      syntax clear myfilerTime
+      syntax match myfilerTime '.\{8\}' nextgroup=myfilerSize
+    endif
     let label = entry.name
     if type ==# 'd'
       let label = label . '/'

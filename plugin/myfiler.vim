@@ -33,8 +33,9 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> m     <Plug>(myfiler-move)
   nmap <silent><buffer><nowait> d     <Plug>(myfiler-delete)
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
-  nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-visibility)
-  nmap <silent><buffer><nowait> t     <Plug>(myfiler-change-sort)
+  nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
+  nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
+  nmap <silent><buffer><nowait> t     <Plug>(myfiler-change-time)
 endfunction
 
 
@@ -52,8 +53,9 @@ nnoremap <silent> <Plug>(myfiler-rename)            :<C-u>call myfiler#rename()<
 nnoremap <silent> <Plug>(myfiler-move)              :<C-u>call myfiler#move()<CR>
 nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<CR>
 " nnoremap <silent> <Plug>(myfiler-copy)              :<C-u>call myfiler#copy()<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-visibility) :<C-u>call myfiler#toggle_visibility()<CR>
+nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
+nnoremap <silent> <Plug>(myfiler-change-time)       :<C-u>call myfiler#change_time()<CR>
 
 
 function! s:on_bufenter() abort

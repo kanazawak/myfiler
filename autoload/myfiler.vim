@@ -1,7 +1,6 @@
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-let g:myfiler_header_length = 21
 
 function! myfiler#get_dir(bufnr = bufnr()) abort
   " Return full path without '/' at the end
@@ -19,13 +18,13 @@ endfunction
 function! myfiler#get_basename(lnum = 0) abort
   let lnum = a:lnum > 0 ? a:lnum : line('.')
   let line = getbufoneline('', lnum)
-  let match_idx = match(line, '/=>')
-  let hl = g:myfiler_header_length
-  if match_idx >= hl + 2
+  let header_len = match(line, '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
+  let link_pos = match(line, '/=>')
+  if link_pos >= 0
     " Link
-    let name = strpart(line, hl, match_idx - hl - 1)
+    let name = strpart(line, header_len, link_pos - header_len - 1)
   else
-    let name = strpart(line, hl)
+    let name = strpart(line, header_len)
   endif
   if name =~ '/$'
     return strpart(name, 0, len(name) - 1)
@@ -166,7 +165,7 @@ function! myfiler#new_file() abort
   endif
 
   if basename =~ '^\.' && !get(b:, 'myfiler_shows_hidden_files', v:false)
-    call myfiler#toggle_visibility()
+    call myfiler#change_visibility()
   endif
 
   let path = s:to_fullpath(basename)
@@ -333,7 +332,7 @@ function! s:delete_multi(lnums) abort
 endfunction
 
 
-function! myfiler#toggle_visibility() abort
+function! myfiler#change_visibility() abort
   let shows_hidden_files = get(b:, 'myfiler_shows_hidden_files', v:false)
   let b:myfiler_shows_hidden_files = !shows_hidden_files
   call myfiler#buffer#render()
@@ -344,6 +343,24 @@ function! myfiler#change_sort() abort
   let sorts_by_time = get(b:, 'myfiler_sorts_by_time', v:false)
   let b:myfiler_sorts_by_time = !sorts_by_time
   call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#change_time() abort
+  let shows_detailed_time = get(b:, 'myfiler_shows_detailed_time', v:false)
+  if shows_detailed_time
+    if col('.') >= 15
+      normal! 6h
+    elseif col('.') >= 10
+      normal! 0
+      normal! 8l
+    endif
+  endif
+  let b:myfiler_shows_detailed_time = !shows_detailed_time
+  call myfiler#buffer#render()
+  if !shows_detailed_time && col('.') >= 10
+    normal! 6l
+  endif
 endfunction
 
 
