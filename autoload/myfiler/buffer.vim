@@ -116,11 +116,17 @@ function! myfiler#buffer#render() abort
     let size = type ==# 'f' ? s:make_fsize_readable(entry.size) : ''
     let datetime = strftime("%y/%m/%d %H:%M", entry.time) 
     let label = entry.name
-    if type ==# 'l'
+    if type ==# 'd'
+      let label = label . '/'
+    elseif type ==# 'l'
       let resolved = resolve(dir . '/' . entry.name)
-      let suffix = filereadable(resolved) || isdirectory(resolved)
-            \ ? ' /=> ' . resolved
-            \ : ' /=> (BROKEN LINK)'
+      if isdirectory(resolved)
+        let suffix = ' /=> ' . resolved . '/'
+      elseif filereadable(resolved)
+        let suffix = ' /=> ' . resolved
+      else
+        let suffix = ' /=> (BROKEN LINK)'
+      endif
       let label = label . suffix
     endif
     call setline(i + 1, printf("%s %5s  %s", datetime, size, label))

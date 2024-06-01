@@ -20,9 +20,15 @@ function! myfiler#get_basename(lnum = 0) abort
   let line = getbufoneline('', lnum)
   let match_idx = match(line, '/=>')
   if match_idx >= 24
-    return strpart(line, 22, match_idx - 23)
+    " Link
+    let name = strpart(line, 22, match_idx - 23)
   else
-    return strpart(line, 22)
+    let name = strpart(line, 22)
+  endif
+  if name =~ '/$'
+    return strpart(name, 0, len(name) - 1)
+  else
+    return name
   endif
 endfunction
 
