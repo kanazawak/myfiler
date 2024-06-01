@@ -21,16 +21,16 @@ endfunction
 let s:units = ['B', 'K', 'M', 'G', 'T', 'P']
 function! s:make_fsize_readable(bytes) abort
   let x = a:bytes
-  for i in range(len(s:units))
+  for [i, unit] in items(s:units)
     if x < 1024
       if x >= 1000
         return '0.9' . s:units[i + 1]
       elseif i == 0
-        return x . s:units[0]
+        return x . unit
       elseif x < 10
-        return printf("%.1f", x) . s:units[i]
+        return printf("%.1f", x) . unit
       else
-        return printf("%.0f", x) . s:units[i]
+        return printf("%.0f", x) . unit
       endif
     endif
     let x = x / 1024.0
@@ -39,79 +39,67 @@ endfunction
 
 
 function! myfiler#buffer#render() abort
+  setlocal modifiable
+
   let old_names = myfiler#buffer#is_empty() ? []
         \ : map(range(line('$')), { i -> myfiler#get_basename(i + 1) })
   let dir = myfiler#get_dir()
-
-  let shows_hidden = get(b:, 'myfiler_shows_hidden_files', v:false)
-  let entries = shows_hidden
+  let entries = get(b:, 'myfiler_shows_hidden_files', v:false)
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
+
+  if empty(entries)
+    call deletebufline('', 1, line('$'))
+    setlocal nomodifiable nomodified
+    return
+  endif
+
   if get(b:, 'myfiler_sorts_by_time', v:false)
     call sort(entries, { e1, e2 -> e2.time - e1.time })
   endif
   let new_names = map(copy(entries), { _, entry -> entry.name })
 
-  let order = {}
+  let new_order = {}
   for name in new_names
-    let order[name] = len(order)
+    let new_order[name] = len(new_order)
+  endfor
+  for [i, name] in reverse(items(old_names))
+    if get(new_order, name, -1) < 0
+      call deletebufline('', i + 1)
+      call remove(old_names, i)
+    endif
   endfor
 
-  setlocal modifiable
-
-  let lnum = 1
-  while !myfiler#buffer#is_empty() && lnum <= line('$')
-    let name = myfiler#get_basename(lnum)
-    if get(order, name, -1) < 0
-      call deletebufline('', lnum)
-    else
-      let lnum = lnum + 1
+  let old_order = {}
+  for name in old_names
+    let old_order[name] = len(old_order)
+  endfor
+  for name in new_names
+    if get(old_order, name, -1) < 0
+      call appendbufline('', line('$'), '')
+      call add(old_names, name)
+      let old_order[name] = len(old_order)
     endif
-  endwhile
+  endfor
 
-  let basename = myfiler#get_basename()
+  let cursor_name = old_names[line('.') - 1]
   let cnum = col('.')
 
-  " Insertion sort
-  for lnum in range(2, line('$'))
-    let name1 = myfiler#get_basename(lnum)
-    let ord1 = get(order, name1)
-    let i = lnum - 1
-    while i >= 1
-      let name2 = myfiler#get_basename(i)
-      let ord2 = get(order, name2)
-      if ord2 < ord1
-        break
-      else
-        let i = i - 1
-      endif
-    endwhile
-    if i < lnum - 1
-      execute lnum . 'move' . i
-    endif
+  for [i, name] in items(new_names)
+    let lnum = old_order[name] + 1
+    let swapped = old_names[i]
+    execute (i + 1) . 'move' . lnum
+    execute (lnum - 1) . 'move' . i
+    let old_names[lnum - 1] = swapped
+    let old_names[i] = name
+    let old_order[name] = i
+    let old_order[swapped] = lnum - 1
   endfor
 
-  for lnum in range(1, line('$'))
-    if myfiler#get_basename(lnum) ==# basename
-      execute lnum
-      normal! 0
-      if cnum > 1
-        execute 'normal! ' . (cnum - 1) . 'l'
-      endif
-      break
-    endif
-  endfor
-  
-  if !myfiler#buffer#is_empty()
-    for lnum in range(1, len(new_names))
-      if lnum > line('$') || myfiler#get_basename(lnum) !=# new_names[lnum - 1]
-        call appendbufline('', lnum - 1, '')
-      endif
-    endfor
-  endif
-  
-  for i in range(len(entries))
-    let entry = entries[i]
+  execute (new_order[cursor_name]  + 1)
+  execute 'normal! 0' . (cnum - 1) . 'l'
+
+  for [i, entry] in items(entries)
     " TODO: Delicate handling cf. getftype()
     let type = entry.type[0] 
     let size = type ==# 'f' ? s:make_fsize_readable(entry.size) : ''
@@ -141,8 +129,7 @@ function! myfiler#buffer#render() abort
     call setline(i + 1, printf("%s %4s  %s", datetime, size, label))
   endfor
 
-  setlocal nomodifiable
-  setlocal nomodified
+  setlocal nomodifiable nomodified
 endfunction
 
 
