@@ -218,7 +218,7 @@ function! myfiler#rename() abort
   let header_len = match(getline('.'), '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
   let new_line = strpart(getline('.'), 0, header_len) . new_name
   call setline('.', new_line)
-  " call myfiler#buffer#render()
+  call myfiler#buffer#render()
   setlocal nomodifiable nomodified
 endfunction
 

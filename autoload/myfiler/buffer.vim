@@ -19,13 +19,29 @@ endfunction
 
 
 function! myfiler#buffer#render() abort
+  let selection = myfiler#selection#get()
+  let is_selected = {}
+  if selection.bufnr == bufnr()
+    for sel in selection.list
+      let is_selected[myfiler#get_basename(sel.lnum)] = v:true
+    endfor
+    call myfiler#selection#clear()
+  endif
+
   let cnum = col('.')
   setlocal modifiable
   let lnum = s:render()
   setlocal nomodifiable nomodified
   call cursor(lnum, cnum)
 
-  " NOTE: Vim bug? command 'move' seems to hide some signs
+  if selection.bufnr == bufnr()
+    for lnum in range(1, line('$'))
+      if get(is_selected, myfiler#get_basename(lnum))
+        call myfiler#selection#add(lnum)
+      endif
+    endfor
+  endif
+  " NOTE: Vim BUG? command 'move' seems to hide some signs
 endfunction
 
 
@@ -47,17 +63,12 @@ function! s:render() abort
       call deletebufline('', lnum)
     endif
   endfor
-
   let cursor_name = myfiler#get_basename()
 
-  let old_count = line('$')
-  call appendbufline('', line('$'), range(len(entries)))
-  for lnum in range(1, old_count)
-    let to = old_count + get(new_lnum, myfiler#get_basename(lnum))
-    execute lnum . 'move' . to
-    execute (to - 1) . 'move' . (lnum - 1)
-  endfor
-  call deletebufline('', 1, old_count)
+  " NOTE: Vim BUG?
+  " Deletion of a line causes
+  " cursors at same line of same buffer in other windows 
+  " to move (unexpectedly) up
 
   let time_format = get(b:, 'myfiler_shows_detailed_time') ?
         \ '%y/%m/%d %H:%M' : '%y/%m/%d'
