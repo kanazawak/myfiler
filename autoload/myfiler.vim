@@ -214,28 +214,12 @@ function! myfiler#rename() abort
   let old_path = s:to_fullpath(old_name)
   call rename(old_path, new_path)
 
-  let selection = myfiler#selection#get()
-  let selected = {}
-  if selection.bufnr == bufnr()
-    for sel in selection.list
-      let name = myfiler#get_basename(sel.lnum)
-      if name ==# old_name
-        let selected[new_name] = v:true
-      else
-        let selected[name] = v:true
-      endif
-    endfor
-    call myfiler#selection#clear()
-  endif
-
-  call myfiler#buffer#render()
-  for lnum in range(1, line('$'))
-    let basename = myfiler#get_basename(lnum)
-    if get(selected, basename, v:false)
-      call myfiler#selection#add(lnum)
-    endif
-  endfor
-  call s:search_basename(new_name)
+  setlocal modifiable
+  let header_len = match(getline('.'), '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
+  let new_line = strpart(getline('.'), 0, header_len) . new_name
+  call setline('.', new_line)
+  " call myfiler#buffer#render()
+  setlocal nomodifiable nomodified
 endfunction
 
 
@@ -351,8 +335,7 @@ function! myfiler#change_time() abort
     if col('.') >= 15
       normal! 6h
     elseif col('.') >= 10
-      normal! 0
-      normal! 8l
+      call cursor('.', 9)
     endif
   endif
   let b:myfiler_shows_detailed_time = !shows_detailed_time

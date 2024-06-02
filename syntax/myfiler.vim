@@ -4,7 +4,7 @@ endif
 
 syntax match myfilerItem '.\+'     nextgroup=myfilerTime contains=myfilerDir,myfilerLink
 syntax match myfilerSize '.\{7\}'  nextgroup=myfilerItem
-syntax match myfilerTime '.\{8\}' nextgroup=myfilerSize
+syntax match myfilerTime '^.\{8\}\( \d\d:\d\d\)\?' nextgroup=myfilerSize
 syntax match myfilerDir  '.\+/$' contained contains=myfilerLink
 syntax match myfilerLink '/=>' contained
 
