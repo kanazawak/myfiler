@@ -228,7 +228,6 @@ function! myfiler#move() abort
   if empty(selection.list) || selection.bufnr == bufnr()
     return
   endif
-  call myfiler#selection#clear()
 
   let to_dir = myfiler#get_dir()
   let to_bufnr = bufnr()
@@ -236,19 +235,38 @@ function! myfiler#move() abort
   noautocmd execute 'keepjumps buffer' selection.bufnr
   let from_dir = myfiler#get_dir()
 
-  " TODO: Confirm
+  let messages = []
+  let moves = []
   for sel in selection.list
     let basename = myfiler#get_basename(sel.lnum)
     let from_path = from_dir . '/' . basename
     let   to_path =   to_dir . '/' . basename
-    " TODO: Handle cases ex. /xxx/yyy -> /xxx/yyy/zzz/yyy
-    if filereadable(to_path) || isdirectory(to_path)
-      call s:echo_error("'" . basename . "' " . "already exists.")
+    if to_dir ==# from_path || to_dir =~# '^' . from_path . '/'
+      call add(messages, "'" . basename . "' is an ancestor of destiation directory.")
+    elseif filereadable(to_path) || isdirectory(to_path)
+      call add(messages, "'" . basename . "' " . "already exists.")
     else
-      call rename(from_path, to_path)
+      call add(moves, [from_path, to_path])
     endif
   endfor
+  
+  if !empty(messages)
+    "Update jumplist to return easily to destination directory)
+    noautocmd execute 'keepjumps buffer' to_bufnr
+    execute 'buffer' selection.bufnr
+    redraw
 
+    for message in messages
+      call s:echo_error(message)
+    endfor
+    return
+  endif
+
+  for [from_path, to_path] in moves
+    call rename(from_path, to_path)
+  endfor
+
+  call myfiler#selection#clear()
   call myfiler#buffer#render()
   noautocmd execute 'keepjumps buffer' to_bufnr
 
@@ -291,7 +309,6 @@ function! s:delete_single() abort
   if delete(path) != 0
     call s:echo_error('Deletion failed.')
   else
-    call myfiler#selection#clear()
     call myfiler#buffer#render()
   endif
 endfunction
@@ -303,7 +320,6 @@ function! s:delete_multi(lnums) abort
   if confirm != 'y'
     return
   endif
-  call myfiler#selection#clear()
 
   for basename in basenames
     let path = s:to_fullpath(basename)
