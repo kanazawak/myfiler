@@ -29,9 +29,9 @@ function! myfiler#buffer#render() abort
   endif
 
   let cnum = col('.')
-  setlocal modifiable
+  setlocal noreadonly modifiable
   let lnum = s:render()
-  setlocal nomodifiable nomodified
+  setlocal readonly nomodifiable nomodified
   call cursor(lnum, cnum)
 
   if selection.bufnr == bufnr()

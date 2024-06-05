@@ -36,6 +36,7 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
   nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
   nmap <silent><buffer><nowait> t     <Plug>(myfiler-change-time)
+  nmap <silent><buffer><nowait> c     <Plug>(myfiler-change-directory)
 endfunction
 
 
@@ -56,6 +57,7 @@ nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<
 nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
 nnoremap <silent> <Plug>(myfiler-change-time)       :<C-u>call myfiler#change_time()<CR>
+nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
 
 
 function! s:on_bufenter() abort

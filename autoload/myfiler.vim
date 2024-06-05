@@ -2,9 +2,16 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#get_dir(bufnr = bufnr()) abort
-  " Return full path without '/' at the end
-  return resolve(fnamemodify(resolve(bufname(a:bufnr)), ':p'))
+function! myfiler#get_dir() abort
+  " Return full path without tailing path separator
+  let sep = (has('win32') && !&shellslash) ? '\' : '/'
+  let path = fnamemodify(resolve(bufname()), ':p')
+  " Be careful of the root directory ('/')
+  if path =~ '.' . sep . '$'
+    return fnamemodify(path, ':h')
+  else
+    return path
+  endif
 endfunction
 
 
@@ -17,7 +24,7 @@ endfunction
 
 function! myfiler#get_basename(lnum = 0) abort
   let lnum = a:lnum > 0 ? a:lnum : line('.')
-  let line = getbufoneline('', lnum)
+  let line = getline(lnum)
   let header_len = match(line, '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
   let link_pos = match(line, '/=>')
   if link_pos >= 0
@@ -359,6 +366,11 @@ function! myfiler#change_time() abort
   if !shows_detailed_time && col('.') >= 10
     normal! 6l
   endif
+endfunction
+
+
+function! myfiler#change_directory() abort
+  execute 'cd' myfiler#get_dir()
 endfunction
 
 
