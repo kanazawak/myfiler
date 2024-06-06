@@ -55,8 +55,8 @@ function! s:render() abort
   endif
 
   let new_lnum = {}
-  for [i, entry] in items(entries)
-    let new_lnum[entry.name] = i + 1
+  for entry in entries
+    let new_lnum[entry.name] = len(new_lnum) + 1
   endfor
   for lnum in range(line('$'), 1, -1)
     if !get(new_lnum, myfiler#get_basename(lnum))
@@ -72,8 +72,8 @@ function! s:render() abort
 
   let time_format = get(b:, 'myfiler_shows_detailed_time') ?
         \ '%y/%m/%d %H:%M' : '%y/%m/%d'
-  for [i, entry] in items(entries)
-    call setline(i + 1, s:create_line(entry, dir, time_format))
+  for i in range(len(entries))
+    call setline(i + 1, s:create_line(entries[i], dir, time_format))
   endfor
 
   return get(new_lnum, cursor_name)
@@ -102,7 +102,8 @@ endfunction
 let s:units = ['B', 'K', 'M', 'G', 'T', 'P']
 function! s:get_readable_fsize(bytes) abort
   let x = a:bytes
-  for [i, unit] in items(s:units)
+  for i in range(len(s:units))
+    let unit = s:units[i]
     if x < 1024
       if x >= 1000
         return '0.9' . s:units[i + 1]
