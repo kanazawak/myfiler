@@ -3,15 +3,15 @@ set cpoptions&vim
 
 
 function! myfiler#get_dir() abort
+  let path = resolve(bufname())
+  try
+    if !isdirectory(path)
+      echoerr path . ' no longer exists.'
+    endif
+  endtry
+  
   " Return full path without tailing path separator
-  let sep = (has('win32') && !&shellslash) ? '\' : '/'
-  let path = fnamemodify(resolve(bufname()), ':p')
-  " Be careful of the root directory ('/')
-  if path =~ '.' . sep . '$'
-    return fnamemodify(path, ':h')
-  else
-    return path
-  endif
+  return fnamemodify(path, ':p:h')
 endfunction
 
 
@@ -41,7 +41,7 @@ endfunction
 
 
 function! s:to_fullpath(basename) abort
-  return myfiler#get_dir() . '/' . a:basename
+  return fnamemodify(myfiler#get_dir(), ':p') . a:basename
 endfunction
 
 
@@ -246,9 +246,9 @@ function! myfiler#move() abort
   let moves = []
   for sel in selection.list
     let basename = myfiler#get_basename(sel.lnum)
-    let from_path = from_dir . '/' . basename
-    let   to_path =   to_dir . '/' . basename
-    if to_dir ==# from_path || to_dir =~# '^' . from_path . '/'
+    let from_path = fnamemodify(from_dir, ':p') . basename
+    let   to_path =   fnamemodify(to_dir, ':p') . basename
+    if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
       call add(messages, "'" . basename . "' is an ancestor of destiation directory.")
     elseif filereadable(to_path) || isdirectory(to_path)
       call add(messages, "'" . basename . "' " . "already exists.")
@@ -277,7 +277,7 @@ function! myfiler#move() abort
   call myfiler#buffer#render()
   noautocmd execute 'keepjumps buffer' to_bufnr
 
-  call myfiler#buffer#render()
+    call myfiler#buffer#render()
   call s:search_basename(basename)
 endfunction
 

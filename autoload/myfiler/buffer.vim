@@ -88,9 +88,9 @@ function! s:create_line(entry, dir, time_format) abort
   if a:entry.type =~ '^d'
     let label .= '/'
   elseif a:entry.type =~ '^l'
-    let resolved = resolve(a:dir . '/' . a:entry.name)
+    let resolved = resolve(fnamemodify(a:dir, ':p') . a:entry.name)
     let suffix =
-        \ isdirectory(resolved)  ? ' /=> ' . resolved . '/' :
+        \ isdirectory(resolved)  ? ' /=> ' . fnamemodify(resolved, ':p') :
         \ filereadable(resolved) ? ' /=> ' . resolved :
         \ ' /=> (BROKEN LINK)'
     let label .= suffix
