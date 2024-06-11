@@ -15,9 +15,9 @@ endfunction
 function! myfiler#selection#get() abort
   let allinfo = sign_getplaced()
   for bufinfo in allinfo
-    call filter(bufinfo.signs, 'v:val.name == "MyFilerSelected"')
+    call filter(bufinfo.signs, { _, sign -> sign.name ==# "MyFilerSelected" })
   endfor
-  call filter(allinfo, '!empty(v:val.signs)')
+  call filter(allinfo, { _, x -> !empty(x.signs) })
   if empty(allinfo)
     return #{ bufnr: bufnr(), list: [] }
   endif

@@ -8,6 +8,9 @@ set cpoptions&vim
 let g:loaded_myfiler = 1
 
 
+let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
+
+
 augroup myfiler
   autocmd!
   autocmd FileType myfiler call s:setup_mappings()

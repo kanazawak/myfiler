@@ -24,19 +24,7 @@ endfunction
 
 function! myfiler#get_basename(lnum = 0) abort
   let lnum = a:lnum > 0 ? a:lnum : line('.')
-  let line = getline(lnum)
-  let header_len = match(line, '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
-  let link_pos = match(line, '/=>')
-  if link_pos >= 0
-    let name = strpart(line, header_len, link_pos - header_len - 1)
-  else
-    let name = strpart(line, header_len)
-  endif
-  if name =~ '/$'
-    return strpart(name, 0, strlen(name) - 1)
-  else
-    return name
-  endif
+  return b:myfiler_entries[lnum - 1].name
 endfunction
 
 
@@ -52,14 +40,13 @@ endfunction
 
 
 function! myfiler#open(path) abort
-  " let bufnr = s:find_buffer(a:path)
-  " if bufnr >= 0
-  "   execute 'buffer' bufnr
   let resolved = resolve(a:path)
   if filereadable(resolved) || isdirectory(resolved)
-    execute 'edit' fnameescape(resolved)
+    let ext = fnamemodify(a:path, ':e')
+    let command = get(g:myfiler_open_command, ext, 'edit')
+    execute command fnameescape(resolved)
   else
-    call s:echo_error("Opening lailed.")
+    call s:echo_error("Opening failed.")
   endif
 endfunction
 
