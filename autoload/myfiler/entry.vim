@@ -2,6 +2,18 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
+function! myfiler#entry#create(finfo, dir, idx) abort
+  return #{
+      \ name: a:finfo.name,
+      \ type: a:finfo.type,
+      \ size: a:finfo.size,
+      \ time: a:finfo.time,
+      \ path: fnamemodify(a:dir, ':p') . a:finfo.name,
+      \ idx: a:idx 
+      \ }
+endfunction
+
+
 let s:time_format_long  = '%y/%m/%d %H:%M'
 let s:time_format_short = '%y/%m/%d'
 

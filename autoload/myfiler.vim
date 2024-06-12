@@ -22,20 +22,24 @@ function! s:echo_error(message) abort
 endfunction
 
 
-function! myfiler#get_basename(lnum = 0) abort
-  let lnum = a:lnum > 0 ? a:lnum : line('.')
-  return b:myfiler_entries[lnum - 1].name
+function! myfiler#get_entry(lnum = 0) abort
+  if myfiler#buffer#is_empty()
+    return {}
+  else
+    let lnum = a:lnum > 0 ? a:lnum : line('.')
+    return b:myfiler_entries[lnum - 1]
+  endif
 endfunction
 
 
-function! s:to_fullpath(basename) abort
+function! s:to_path(basename) abort
   return fnamemodify(myfiler#get_dir(), ':p') . a:basename
 endfunction
 
 
-function! s:get_cursor_path() abort
-  let basename = myfiler#get_basename()
-  return s:to_fullpath(basename)
+function! s:get_path() abort
+  let entry = b:myfiler_entries[line('.') - 1]
+  return entry.path
 endfunction
 
 
@@ -53,15 +57,15 @@ endfunction
 
 function! myfiler#open_current() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_cursor_path()
-    call myfiler#open(path)
+    let entry = b:myfiler_entries[line('.') - 1]
+    call myfiler#open(entry.path)
   endif
 endfunction
 
 
 function! myfiler#open_dir() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_cursor_path()
+    let path = s:get_path()
     if (isdirectory(path))
       call myfiler#open(path)
     endif
@@ -70,8 +74,9 @@ endfunction
 
 
 function! s:search_basename(basename, updates_jumplist = v:false) abort
+  let entries = b:myfiler_entries
   for lnum in range(1, line('$'))
-    if myfiler#get_basename(lnum) == a:basename
+    if entries[lnum - 1].name ==# a:basename
       break
     endif
   endfor
@@ -124,7 +129,7 @@ endfunction
 
 function! myfiler#execute() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_cursor_path()
+    let path = s:get_path()
     call feedkeys(': ' . path . "\<Home>!", 'n')
   endif
 endfunction
@@ -161,7 +166,7 @@ function! myfiler#new_file() abort
     call myfiler#change_visibility()
   endif
 
-  let path = s:to_fullpath(basename)
+  let path = s:to_path(basename)
   if s:check_duplication(path)
     return
   endif
@@ -178,7 +183,7 @@ function! myfiler#new_dir() abort
     return
   endif
 
-  let path = s:to_fullpath(basename)
+  let path = s:to_path(basename)
   if s:check_duplication(path)
     return
   endif
@@ -194,26 +199,21 @@ function! myfiler#rename() abort
     return
   endif
 
-  let old_name = myfiler#get_basename()
+  let entry = myfiler#get_entry()
+  let old_name = entry.name
   let new_name = s:input('New name: ', old_name)
   if empty(new_name) || new_name ==# old_name
     return
   endif
 
-  let new_path = s:to_fullpath(new_name)
+  let new_path = s:to_path(new_name)
   if s:check_duplication(new_path)
     return
   endif
+  call rename(entry.path, new_path)
 
-  let old_path = s:to_fullpath(old_name)
-  call rename(old_path, new_path)
-
-  setlocal modifiable
-  let header_len = match(getline('.'), '^.\{8\}\( \d\d:\d\d\)\?.\{5\}  \zs.')
-  let new_line = strpart(getline('.'), 0, header_len) . new_name
-  call setline('.', new_line)
+  let entry.name = new_name
   call myfiler#buffer#render()
-  setlocal nomodifiable nomodified
 endfunction
 
 
@@ -232,13 +232,14 @@ function! myfiler#move() abort
   let messages = []
   let moves = []
   for sel in selection.list
-    let basename = myfiler#get_basename(sel.lnum)
-    let from_path = fnamemodify(from_dir, ':p') . basename
-    let   to_path =   fnamemodify(to_dir, ':p') . basename
+    let entry = myfiler#get_entry(sel.lnum)
+    let name = entry.name
+    let from_path = entry.path
+    let to_path = fnamemodify(to_dir, ':p') . name
     if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
-      call add(messages, "'" . basename . "' is an ancestor of destiation directory.")
+      call add(messages, "'" . name . "' is an ancestor of destiation directory.")
     elseif filereadable(to_path) || isdirectory(to_path)
-      call add(messages, "'" . basename . "' " . "already exists.")
+      call add(messages, "'" . name . "' " . "already exists.")
     else
       call add(moves, [from_path, to_path])
     endif
@@ -253,6 +254,7 @@ function! myfiler#move() abort
     for message in messages
       call s:echo_error(message)
     endfor
+    " TODO: jump
     return
   endif
 
@@ -265,7 +267,7 @@ function! myfiler#move() abort
   noautocmd execute 'keepjumps buffer' to_bufnr
 
     call myfiler#buffer#render()
-  call s:search_basename(basename)
+  call s:search_basename(name)
 endfunction
 
 
@@ -293,7 +295,7 @@ endfunction
 
 
 function! s:delete_single() abort
-  let path = s:get_cursor_path()
+  let path = s:get_path()
   let confirm = s:input('Delete ' . path . ' ? (y/N): ')
   if confirm != 'y'
     return
@@ -309,16 +311,16 @@ endfunction
 
 
 function! s:delete_multi(lnums) abort
-  let basenames = map(copy(a:lnums), { _, lnum -> myfiler#get_basename(lnum) })
-  let confirm = s:input('Delete ' . join(basenames, ', ') . ' ? (y/N): ')
+  let entries = map(copy(a:lnums), { _, lnum -> myfiler#get_entry(lnum)})
+  let names = map(copy(entries), { _, entry -> entry.name })
+  let confirm = s:input('Delete ' . join(names, ', ') . ' ? (y/N): ')
   if confirm != 'y'
     return
   endif
 
-  for basename in basenames
-    let path = s:to_fullpath(basename)
-    if delete(path) != 0
-      call s:echo_error('Deletion of ' . basename . ' failed.')
+  for entry in entries
+    if delete(entry.path) != 0
+      call s:echo_error('Deletion of ' . entry.name . ' failed.')
     endif
   endfor
   call myfiler#buffer#render()

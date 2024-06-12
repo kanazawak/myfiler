@@ -3,7 +3,7 @@ set cpoptions&vim
 
 
 function! myfiler#buffer#is_empty() abort
-  return search('.', 'n') == 0
+  return empty(get(b:, 'myfiler_entries', []))
 endfunction
 
 
@@ -23,7 +23,8 @@ function! myfiler#buffer#render() abort
   let is_selected = {}
   if selection.bufnr == bufnr()
     for sel in selection.list
-      let is_selected[myfiler#get_basename(sel.lnum)] = v:true
+      let name = myfiler#get_entry(sel.lnum).name
+      let is_selected[name] = v:true
     endfor
     call myfiler#selection#clear()
   endif
@@ -35,9 +36,9 @@ function! myfiler#buffer#render() abort
   call cursor(lnum, cnum)
 
   if selection.bufnr == bufnr()
-    for lnum in range(1, line('$'))
-      if get(is_selected, myfiler#get_basename(lnum))
-        call myfiler#selection#add(lnum)
+    for entry in b:myfiler_entries
+      if get(is_selected, entry.name)
+        call myfiler#selection#add(entry.idx + 1)
       endif
     endfor
   endif
@@ -47,19 +48,20 @@ endfunction
 
 function! s:render() abort
   let dir = myfiler#get_dir()
-  let new_entries = get(b:, 'myfiler_shows_hidden_files')
+  let info = get(b:, 'myfiler_shows_hidden_files')
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
   if get(b:, 'myfiler_sorts_by_time')
-    call sort(new_entries, { e1, e2 -> e2.time - e1.time })
+    call sort(info, { i1, i2 -> i2.time - i1.time })
   endif
+  let new_entries = map(info, { i, finfo -> myfiler#entry#create(finfo, dir, i) })
 
   let old_entries = get(b:, 'myfiler_entries', [])
   let b:myfiler_entries = new_entries
 
   let new_lnum = {}
   for entry in new_entries
-    let new_lnum[entry.name] = len(new_lnum) + 1
+    let new_lnum[entry.name] = entry.idx + 1
   endfor
   for i in range(len(old_entries) - 1, 0, -1)
     if !get(new_lnum, old_entries[i].name)
@@ -75,12 +77,12 @@ function! s:render() abort
   " to move (unexpectedly) up
 
   let shows_detailed_time = get(b:, 'myfiler_shows_detailed_time')
-  for i in range(len(new_entries))
-    let line = myfiler#entry#to_line(new_entries[i], dir, shows_detailed_time)
-    call setline(i + 1, line)
+  for entry in new_entries
+    let line = myfiler#entry#to_line(entry, dir, shows_detailed_time)
+    call setline(entry.idx + 1, line)
   endfor
 
-  return get(new_lnum, cursor_name)
+  return get(new_lnum, cursor_name, 0)
 endfunction
 
 
