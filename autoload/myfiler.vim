@@ -32,14 +32,22 @@ function! myfiler#get_entry(lnum = 0) abort
 endfunction
 
 
+function! myfiler#get_entries() abort
+  if myfiler#buffer#is_empty()
+    return []
+  else
+    return b:myfiler_entries
+  endif
+endfunction
+
+
 function! s:to_path(basename) abort
   return fnamemodify(myfiler#get_dir(), ':p') . a:basename
 endfunction
 
 
 function! s:get_path() abort
-  let entry = b:myfiler_entries[line('.') - 1]
-  return entry.path
+  return myfiler#get_entry().path
 endfunction
 
 
@@ -73,18 +81,22 @@ function! myfiler#open_dir() abort
 endfunction
 
 
-function! s:search_basename(basename, updates_jumplist = v:false) abort
-  let entries = b:myfiler_entries
-  for lnum in range(1, line('$'))
-    if entries[lnum - 1].name ==# a:basename
-      break
+function! myfiler#search_name(name, updates_jumplist = v:false) abort
+  if !get(b:, 'myfiler_shows_hidden_files') && a:name[0] == '.'
+    call myfiler#change_visibility()
+  endif
+
+  for entry in myfiler#get_entries()
+    if entry.name ==# a:name
+      let lnum = entry.idx + 1
+      if a:updates_jumplist
+        execute 'normal!' lnum . 'G'
+      else
+        execute lnum
+      endif
+      return
     endif
   endfor
-  if a:updates_jumplist
-    execute 'normal!' lnum . 'G'
-  else
-    execute lnum
-  endif
 endfunction
 
 
@@ -94,7 +106,7 @@ function! myfiler#open_parent() abort
   if parent_dir !=# current_dir
     call myfiler#open(parent_dir)
     let basename = fnamemodify(current_dir, ':t')
-    call s:search_basename(basename)
+    call myfiler#search_name(basename)
   endif
 endfunction
 
@@ -141,7 +153,7 @@ function! s:check_duplication(path) abort
     call s:echo_error("The name already exists.")
     call myfiler#buffer#render()
     let basename = fnamemodify(a:path, ':t')
-    call s:search_basename(basename, v:true)
+    call myfiler#search_name(basename, v:true)
     return v:true
   endif
   return v:false
@@ -157,13 +169,8 @@ endfunction
 
 function! myfiler#new_file() abort
   let basename = s:input('New file name: ')
-  call feedkeys(':', 'nx') " TODO: More simple way
   if empty(basename)
     return
-  endif
-
-  if basename =~ '^\.' && !get(b:, 'myfiler_shows_hidden_files', v:false)
-    call myfiler#change_visibility()
   endif
 
   let path = s:to_path(basename)
@@ -173,7 +180,7 @@ function! myfiler#new_file() abort
 
   call writefile([''], path, 'b')
   call myfiler#buffer#render()
-  call s:search_basename(basename)
+  call myfiler#search_name(basename)
 endfunction
 
 
@@ -190,7 +197,7 @@ function! myfiler#new_dir() abort
 
   call mkdir(path)
   call myfiler#buffer#render()
-  call s:search_basename(basename)
+  call myfiler#search_name(basename)
 endfunction
 
 
@@ -267,7 +274,7 @@ function! myfiler#move() abort
   noautocmd execute 'keepjumps buffer' to_bufnr
 
     call myfiler#buffer#render()
-  call s:search_basename(name)
+  call myfiler#search_name(name)
 endfunction
 
 

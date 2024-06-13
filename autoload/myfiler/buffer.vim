@@ -66,7 +66,7 @@ function! s:render() abort
   for i in range(len(old_entries) - 1, 0, -1)
     if !get(new_lnum, old_entries[i].name)
       call remove(old_entries, i)
-      call deletebufline('', i+ 1)
+      call deletebufline('', i + 1)
     endif
   endfor
   let cursor_name = empty(old_entries) ? '' : old_entries[line('.') - 1].name
