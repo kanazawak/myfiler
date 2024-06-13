@@ -5,14 +5,13 @@ set cpoptions&vim
 function! myfiler#entry#create(finfo, dir, idx) abort
   let entry = #{
       \ name: a:finfo.name,
-      \ type: a:finfo.type,
       \ size: a:finfo.size,
       \ time: a:finfo.time,
       \ path: fnamemodify(a:dir, ':p') . a:finfo.name,
       \ idx: a:idx 
       \ }
 
-  if s:is_link(a:finfo)
+  if s:is_link(a:finfo.type)
     let resolved = resolve(fnamemodify(a:dir, ':p') . entry.name)
     if isdirectory(resolved)
       let entry.type = 'linkd'
@@ -23,27 +22,29 @@ function! myfiler#entry#create(finfo, dir, idx) abort
     else
       let entry.type = 'broken'
     endif
+  else
+    let entry.type = a:finfo.type
   endif
 
   return entry
 endfunction
 
 
-function! myfiler#entry#to_line(entry, dir, shows_detailed_time) abort
+function! myfiler#entry#to_line(entry, shows_detailed_time) abort
   let time = s:get_time_display(a:entry, a:shows_detailed_time)
   let size = s:get_size_display(a:entry)
   let name = s:get_name_display(a:entry)
-  let link = s:get_link_display(a:entry, a:dir)
+  let link = s:get_link_display(a:entry)
   return printf("%s %4s  %s%s", time, size, name, link)
 endfunction
 
 
-function! s:is_link(finfo) abort
-  return   a:finfo.type ==# 'link'
-      \ || a:finfo.type ==# 'linkd'
-      \ || a:finfo.type ==# 'junction'
-      \ || a:finfo.type ==# 'reparse'
-      \ || a:finfo.type ==# 'broken'
+function! s:is_link(ftype) abort
+  return   a:ftype ==# 'link'
+      \ || a:ftype ==# 'linkd'
+      \ || a:ftype ==# 'junction'
+      \ || a:ftype ==# 'reparse'
+      \ || a:ftype ==# 'broken'
 endfunction
 
 
@@ -90,7 +91,7 @@ function! s:get_name_display(entry) abort
 endfunction
 
 
-function! s:get_link_display(entry, dir) abort
+function! s:get_link_display(entry) abort
   if a:entry.type ==# 'linkf' || a:entry.type ==# 'linkd' 
     return ' /=> ' . a:entry.resolved
   elseif a:entry.type == 'broken'

@@ -3,7 +3,7 @@ set cpoptions&vim
 
 
 function! myfiler#buffer#is_empty() abort
-  return empty(get(b:, 'myfiler_entries', []))
+  return empty(get(b:, 'myfiler_entries', [])) || search('.', 'n') == 0
 endfunction
 
 
@@ -78,7 +78,7 @@ function! s:render() abort
 
   let shows_detailed_time = get(b:, 'myfiler_shows_detailed_time')
   for entry in new_entries
-    let line = myfiler#entry#to_line(entry, dir, shows_detailed_time)
+    let line = myfiler#entry#to_line(entry, shows_detailed_time)
     call setline(entry.idx + 1, line)
   endfor
 
