@@ -2,13 +2,12 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#entry#create(finfo, dir, idx) abort
+function! myfiler#entry#create(finfo, dir) abort
   let entry = #{
       \ name: a:finfo.name,
       \ size: a:finfo.size,
       \ time: a:finfo.time,
-      \ path: fnamemodify(a:dir, ':p') . a:finfo.name,
-      \ idx: a:idx 
+      \ path: fnamemodify(a:dir, ':p') . a:finfo.name
       \ }
 
   if s:is_link(a:finfo.type)
@@ -27,6 +26,22 @@ function! myfiler#entry#create(finfo, dir, idx) abort
   endif
 
   return entry
+endfunction
+
+
+function! myfiler#entry#compare(e1, e2) abort
+  let cmp1 = (a:e2.type ==# 'dir' || a:e2.type ==# 'linkd')
+         \ - (a:e1.type ==# 'dir' || a:e1.type ==# 'linkd')
+  if cmp1 != 0
+    return cmp1
+  endif
+  if a:e1.name < a:e2.name
+    return -1
+  elseif a:e1.name > a:e2.name
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 

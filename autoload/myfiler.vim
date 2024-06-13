@@ -86,9 +86,13 @@ function! myfiler#search_name(name, updates_jumplist = v:false) abort
     call myfiler#change_visibility()
   endif
 
-  for entry in myfiler#get_entries()
-    if entry.name ==# a:name
-      let lnum = entry.idx + 1
+  if myfiler#buffer#is_empty()
+    call s:echo_error('hogehoge')
+    return
+  endif
+
+  for lnum in range(1, line('$'))
+    if myfiler#get_entry(lnum).name ==# a:name
       if a:updates_jumplist
         execute 'normal!' lnum . 'G'
       else

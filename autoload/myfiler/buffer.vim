@@ -20,11 +20,11 @@ endfunction
 
 function! myfiler#buffer#render() abort
   let selection = myfiler#selection#get()
-  let is_selected = {}
+  let dict = {}
   if selection.bufnr == bufnr()
     for sel in selection.list
       let name = myfiler#get_entry(sel.lnum).name
-      let is_selected[name] = v:true
+      let dict[name] = sel.lnum
     endfor
     call myfiler#selection#clear()
   endif
@@ -37,8 +37,9 @@ function! myfiler#buffer#render() abort
 
   if selection.bufnr == bufnr()
     for entry in b:myfiler_entries
-      if get(is_selected, entry.name)
-        call myfiler#selection#add(entry.idx + 1)
+      let name = entry.name
+      if has_key(dict, name)
+        call myfiler#selection#add(dict[name])
       endif
     endfor
   endif
@@ -51,17 +52,20 @@ function! s:render() abort
   let info = get(b:, 'myfiler_shows_hidden_files')
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
+
+  let new_entries = map(info, { i, finfo -> myfiler#entry#create(finfo, dir) })
   if get(b:, 'myfiler_sorts_by_time')
-    call sort(info, { i1, i2 -> i2.time - i1.time })
+    call sort(new_entries, { e1, e2 -> e2.time - e1.time })
+  else
+    call sort(new_entries, funcref('myfiler#entry#compare'))
   endif
-  let new_entries = map(info, { i, finfo -> myfiler#entry#create(finfo, dir, i) })
 
   let old_entries = get(b:, 'myfiler_entries', [])
   let b:myfiler_entries = new_entries
 
   let new_lnum = {}
-  for entry in new_entries
-    let new_lnum[entry.name] = entry.idx + 1
+  for lnum in range(1, len(new_entries))
+    let new_lnum[new_entries[lnum - 1].name] = lnum
   endfor
   for i in range(len(old_entries) - 1, 0, -1)
     if !get(new_lnum, old_entries[i].name)
@@ -77,9 +81,9 @@ function! s:render() abort
   " to move (unexpectedly) up
 
   let shows_detailed_time = get(b:, 'myfiler_shows_detailed_time')
-  for entry in new_entries
-    let line = myfiler#entry#to_line(entry, shows_detailed_time)
-    call setline(entry.idx + 1, line)
+  for lnum in range(1, len(new_entries))
+    let line = myfiler#entry#to_line(new_entries[lnum - 1], shows_detailed_time)
+    call setline(lnum, line)
   endfor
 
   return get(new_lnum, cursor_name, 0)
