@@ -3,7 +3,7 @@ set cpoptions&vim
 
 
 function! myfiler#entry#create(finfo, dir, idx) abort
-  return #{
+  let entry = #{
       \ name: a:finfo.name,
       \ type: a:finfo.type,
       \ size: a:finfo.size,
@@ -11,41 +11,63 @@ function! myfiler#entry#create(finfo, dir, idx) abort
       \ path: fnamemodify(a:dir, ':p') . a:finfo.name,
       \ idx: a:idx 
       \ }
+
+  if s:is_link(a:finfo)
+    let resolved = resolve(fnamemodify(a:dir, ':p') . entry.name)
+    if isdirectory(resolved)
+      let entry.type = 'linkd'
+      let entry.resolved = fnamemodify(resolved, ':p')
+    elseif filereadable(resolved)
+      let entry.type = 'linkf'
+      let entry.resolved = resolved
+    else
+      let entry.type = 'broken'
+    endif
+  endif
+
+  return entry
+endfunction
+
+
+function! myfiler#entry#to_line(entry, dir, shows_detailed_time) abort
+  let time = s:get_time_display(a:entry, a:shows_detailed_time)
+  let size = s:get_size_display(a:entry)
+  let name = s:get_name_display(a:entry)
+  let link = s:get_link_display(a:entry, a:dir)
+  return printf("%s %4s  %s%s", time, size, name, link)
+endfunction
+
+
+function! s:is_link(finfo) abort
+  return   a:finfo.type ==# 'link'
+      \ || a:finfo.type ==# 'linkd'
+      \ || a:finfo.type ==# 'junction'
+      \ || a:finfo.type ==# 'reparse'
+      \ || a:finfo.type ==# 'broken'
 endfunction
 
 
 let s:time_format_long  = '%y/%m/%d %H:%M'
 let s:time_format_short = '%y/%m/%d'
-
-
-function! myfiler#entry#to_line(entry, dir, shows_detailed_time) abort
+function! s:get_time_display(entry, shows_detailed_time) abort
   let format = a:shows_detailed_time ? s:time_format_long : s:time_format_short
-  let time = strftime(format, a:entry.time) 
-  let size = a:entry.type =~ '^f' ? s:get_readable_fsize(a:entry.size) : ''
-  let label = a:entry.name
-  if a:entry.type =~ '^d'
-    let label .= '/'
-  elseif a:entry.type =~ '^l'
-    let resolved = resolve(fnamemodify(a:dir, ':p') . a:entry.name)
-    let suffix =
-        \ isdirectory(resolved)  ? ' /=> ' . fnamemodify(resolved, ':p') :
-        \ filereadable(resolved) ? ' /=> ' . resolved :
-        \ ' /=> (BROKEN LINK)'
-    let label .= suffix
-  endif
-  return printf("%s %4s  %s", time, size, label)
+  return strftime(format, a:entry.time) 
 endfunction
 
 
-let s:units = ['B', 'K', 'M', 'G', 'T', 'P']
-function! s:get_readable_fsize(bytes) abort
-  let x = a:bytes
-  for i in range(len(s:units))
-    let unit = s:units[i]
+let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
+function! s:get_size_display(entry) abort
+  if a:entry.type !=# 'file' && a:entry.type !=# 'linkf'
+     return ''
+   endif
+
+  let x = a:entry.size
+  for i in range(len(s:size_units))
+    let unit = s:size_units[i]
     if x < 1024
       if x >= 1000
         " Ex. 1000 Bytes => 0.9K
-        return '0.9' . s:units[i + 1]
+        return '0.9' . s:size_units[i + 1]
       elseif i == 0
         " Ex. 999 Bytes => 999B
         return x . unit
@@ -59,6 +81,23 @@ function! s:get_readable_fsize(bytes) abort
     endif
     let x /= 1024.0
   endfor
+endfunction
+
+
+function! s:get_name_display(entry) abort
+  let suffix = a:entry.type ==# 'dir' ? '/' : ''
+  return a:entry.name . suffix
+endfunction
+
+
+function! s:get_link_display(entry, dir) abort
+  if a:entry.type ==# 'linkf' || a:entry.type ==# 'linkd' 
+    return ' /=> ' . a:entry.resolved
+  elseif a:entry.type == 'broken'
+    return ' /=> (BROKEN LINK)'
+  else
+    return ''
+  endif
 endfunction
 
 
