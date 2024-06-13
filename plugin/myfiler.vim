@@ -40,6 +40,8 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
   nmap <silent><buffer><nowait> t     <Plug>(myfiler-change-time)
   nmap <silent><buffer><nowait> c     <Plug>(myfiler-change-directory)
+  nmap <silent><buffer><nowait> y$    <Plug>(myfiler-yank-path)
+  nmap <silent><buffer><nowait> yy    <Plug>(myfiler-yank-path-with-nl)
 endfunction
 
 
@@ -61,6 +63,8 @@ nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_vi
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
 nnoremap <silent> <Plug>(myfiler-change-time)       :<C-u>call myfiler#change_time()<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
+nnoremap <silent> <Plug>(myfiler-yank-path)         :<C-u>call myfiler#yank_path(v:false)<CR>
+nnoremap <silent> <Plug>(myfiler-yank-path-with-nl) :<C-u>call myfiler#yank_path(v:true)<CR>
 
 
 function! s:on_bufenter() abort

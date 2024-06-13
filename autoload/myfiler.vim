@@ -370,4 +370,24 @@ function! myfiler#change_directory() abort
 endfunction
 
 
+function! myfiler#yank_path(with_newline) abort
+  if myfiler#buffer#is_empty()
+    return
+  endif
+
+  let yanked = myfiler#get_entry().path
+  if a:with_newline
+    let yanked .=
+        \ &fileformat ==# 'dos' ? "\r\n" :
+        \ &fileformat ==# 'unix' ? "\n" : "\r"
+  endif
+
+  for i in range(8, 0, -1)
+    execute 'let @' . (i + 1) . '=@' . i
+  endfor
+  let @0 = yanked
+  let @" = yanked
+endfunction
+
+
 let &cpoptions = s:save_cpo
