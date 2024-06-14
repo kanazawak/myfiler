@@ -22,7 +22,7 @@ function! s:echo_error(message) abort
 endfunction
 
 
-function! myfiler#get_entry(lnum = 0) abort
+function! s:get_entry(lnum = 0) abort
   if myfiler#buffer#is_empty()
     return {}
   else
@@ -32,11 +32,12 @@ function! myfiler#get_entry(lnum = 0) abort
 endfunction
 
 
-function! myfiler#get_entries() abort
+function! myfiler#get_name(lnum = 0) abort
   if myfiler#buffer#is_empty()
-    return []
+    return ''
   else
-    return b:myfiler_entries
+    let entry = s:get_entry(a:lnum)
+    return entry.name
   endif
 endfunction
 
@@ -47,7 +48,7 @@ endfunction
 
 
 function! s:get_path() abort
-  let basename = myfiler#get_entry().name
+  let basename = myfiler#get_name()
   return s:to_path(basename)
 endfunction
 
@@ -66,8 +67,7 @@ endfunction
 
 function! myfiler#open_current() abort
   if !myfiler#buffer#is_empty()
-    let entry = b:myfiler_entries[line('.') - 1]
-    let path = s:to_path(entry.name)
+    let path = s:get_path()
     call myfiler#open(path)
   endif
 endfunction
@@ -93,7 +93,7 @@ function! myfiler#search_name(name, updates_jumplist = v:false) abort
   endif
 
   for lnum in range(1, line('$'))
-    if myfiler#get_entry(lnum).name ==# a:name
+    if myfiler#get_name(lnum) ==# a:name
       if a:updates_jumplist
         execute 'normal!' lnum . 'G'
       else
@@ -204,7 +204,7 @@ function! myfiler#rename() abort
     return
   endif
 
-  let entry = myfiler#get_entry()
+  let entry = s:get_entry()
   let old_name = entry.name
   let new_name = s:input('New name: ', old_name)
   if empty(new_name) || new_name ==# old_name
@@ -215,6 +215,7 @@ function! myfiler#rename() abort
   if s:check_duplication(new_path)
     return
   endif
+
   let old_path = s:to_path(old_name)
   call rename(old_path, new_path)
 
@@ -304,7 +305,6 @@ function! s:delete_single() abort
     return
   endif
 
-  " TODO: Handle already deleted file
   if delete(path) != 0
     call s:echo_error('Deletion failed.')
   else
@@ -372,8 +372,7 @@ function! myfiler#yank_path(with_newline) abort
     return
   endif
 
-  let name = myfiler#get_entry()
-  let yanked = s:to_path(name)
+  let yanked = s:get_path()
   if a:with_newline
     let yanked .=
         \ &fileformat ==# 'dos' ? "\r\n" :

@@ -14,7 +14,7 @@ endfunction
 
 function! myfiler#selection#toggle(selection) abort
   let lnum = line('.')
-  let name = myfiler#get_entry(lnum).name
+  let name = myfiler#get_name(lnum)
   let sign_id = get(a:selection._dict, name)
   if sign_id > 0
     call s:delete(sign_id)
@@ -84,7 +84,7 @@ function! myfiler#selection#restore(selection) abort
   endif
 
   for lnum in range(1, line('$'))
-    let name = myfiler#get_entry(lnum).name
+    let name = myfiler#get_name(lnum)
     if has_key(a:selection._dict, name)
       call s:add(lnum)
     endif
