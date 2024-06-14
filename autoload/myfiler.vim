@@ -47,7 +47,8 @@ endfunction
 
 
 function! s:get_path() abort
-  return myfiler#get_entry().path
+  let basename = myfiler#get_entry().name
+  return s:to_path(basename)
 endfunction
 
 
@@ -66,7 +67,8 @@ endfunction
 function! myfiler#open_current() abort
   if !myfiler#buffer#is_empty()
     let entry = b:myfiler_entries[line('.') - 1]
-    call myfiler#open(entry.path)
+    let path = s:to_path(entry.name)
+    call myfiler#open(path)
   endif
 endfunction
 
@@ -87,7 +89,6 @@ function! myfiler#search_name(name, updates_jumplist = v:false) abort
   endif
 
   if myfiler#buffer#is_empty()
-    call s:echo_error('hogehoge')
     return
   endif
 
@@ -129,16 +130,9 @@ function! myfiler#toggle_selection(moves_forward) abort
   let selection = myfiler#selection#get()
   if selection.bufnr != bufnr()
     call myfiler#selection#clear()
-    let selection = myfiler#selection#get()
   endif
+  call myfiler#selection#toggle(selection)
 
-  let lnum = line('.')
-  let sel = filter(selection.list, 'v:val.lnum == lnum')
-  if empty(sel)
-    call myfiler#selection#add(lnum)
-  else
-    call myfiler#selection#delete(sel[0].id)
-  endif
   execute 'normal!' a:moves_forward ? 'j' : 'k'
 endfunction
 
@@ -221,7 +215,8 @@ function! myfiler#rename() abort
   if s:check_duplication(new_path)
     return
   endif
-  call rename(entry.path, new_path)
+  let old_path = s:to_path(old_name)
+  call rename(old_path, new_path)
 
   let entry.name = new_name
   call myfiler#buffer#render()
@@ -230,7 +225,7 @@ endfunction
 
 function! myfiler#move() abort
   let selection = myfiler#selection#get()
-  if empty(selection.list) || selection.bufnr == bufnr()
+  if myfiler#selection#is_empty(selection) || selection.bufnr == bufnr()
     return
   endif
 
@@ -242,10 +237,9 @@ function! myfiler#move() abort
 
   let messages = []
   let moves = []
-  for sel in selection.list
-    let entry = myfiler#get_entry(sel.lnum)
-    let name = entry.name
-    let from_path = entry.path
+  let names = myfiler#selection#get_names(selection)
+  for name in names
+    let from_path = fnamemodify(from_dir, ':p') . name
     let to_path = fnamemodify(to_dir, ':p') . name
     if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
       call add(messages, "'" . name . "' is an ancestor of destiation directory.")
@@ -277,7 +271,7 @@ function! myfiler#move() abort
   call myfiler#buffer#render()
   noautocmd execute 'keepjumps buffer' to_bufnr
 
-    call myfiler#buffer#render()
+  call myfiler#buffer#render()
   call myfiler#search_name(name)
 endfunction
 
@@ -290,17 +284,15 @@ function! myfiler#delete() abort
   " TODO: Recursive deletion
 
   let selection = myfiler#selection#get()
-  if empty(selection.list) || selection.bufnr != bufnr()
+  if myfiler#selection#is_empty(selection) || selection.bufnr != bufnr()
     call s:delete_single()
-  elseif len(selection.list) == 1
-    let lnum = selection.list[0].lnum
-    execute 'normal! ' . lnum . 'G'
-    normal! zz
+  elseif myfiler#selection#is_single(selection)
+    let name = myfiler#selection#get_names(selection)[0]
+    call myfiler#search_name(name, v:true)
     redraw
     call s:delete_single()
   else
-    let lnums = map(copy(selection.list), { _, sel -> sel.lnum })
-    call s:delete_multi(lnums)
+    call s:delete_multi(selection)
   endif
 endfunction
 
@@ -321,17 +313,18 @@ function! s:delete_single() abort
 endfunction
 
 
-function! s:delete_multi(lnums) abort
-  let entries = map(copy(a:lnums), { _, lnum -> myfiler#get_entry(lnum)})
-  let names = map(copy(entries), { _, entry -> entry.name })
+function! s:delete_multi(selection) abort
+  let names = myfiler#selection#get_names(a:selection)
   let confirm = s:input('Delete ' . join(names, ', ') . ' ? (y/N): ')
   if confirm != 'y'
     return
   endif
 
-  for entry in entries
-    if delete(entry.path) != 0
-      call s:echo_error('Deletion of ' . entry.name . ' failed.')
+  let path_prefix = fnamemodify(myfiler#get_dir(), ':p')
+  for name in names
+    let path = path_prefix . name
+    if delete(path) != 0
+      call s:echo_error('Deletion of ' . name . ' failed.')
     endif
   endfor
   call myfiler#buffer#render()
@@ -379,7 +372,8 @@ function! myfiler#yank_path(with_newline) abort
     return
   endif
 
-  let yanked = myfiler#get_entry().path
+  let name = myfiler#get_entry()
+  let yanked = s:to_path(name)
   if a:with_newline
     let yanked .=
         \ &fileformat ==# 'dos' ? "\r\n" :

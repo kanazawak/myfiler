@@ -3,7 +3,7 @@ set cpoptions&vim
 
 
 function! myfiler#buffer#is_empty() abort
-  return empty(get(b:, 'myfiler_entries', [])) || search('.', 'n') == 0
+  return search('.', 'n') == 0
 endfunction
 
 
@@ -20,12 +20,7 @@ endfunction
 
 function! myfiler#buffer#render() abort
   let selection = myfiler#selection#get()
-  let dict = {}
   if selection.bufnr == bufnr()
-    for sel in selection.list
-      let name = myfiler#get_entry(sel.lnum).name
-      let dict[name] = sel.lnum
-    endfor
     call myfiler#selection#clear()
   endif
 
@@ -36,14 +31,8 @@ function! myfiler#buffer#render() abort
   call cursor(lnum, cnum)
 
   if selection.bufnr == bufnr()
-    for entry in b:myfiler_entries
-      let name = entry.name
-      if has_key(dict, name)
-        call myfiler#selection#add(dict[name])
-      endif
-    endfor
+    call myfiler#selection#restore(selection)
   endif
-  " NOTE: Vim BUG? command 'move' seems to hide some signs
 endfunction
 
 

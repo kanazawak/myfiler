@@ -6,8 +6,7 @@ function! myfiler#entry#create(finfo, dir) abort
   let entry = #{
       \ name: a:finfo.name,
       \ size: a:finfo.size,
-      \ time: a:finfo.time,
-      \ path: fnamemodify(a:dir, ':p') . a:finfo.name
+      \ time: a:finfo.time
       \ }
 
   if s:is_link(a:finfo.type)
