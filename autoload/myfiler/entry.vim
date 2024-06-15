@@ -49,7 +49,7 @@ function! myfiler#entry#to_line(entry, shows_detailed_time) abort
   let size = s:get_size_display(a:entry)
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry)
-  return printf("%s %4s  %s%s", time, size, name, link)
+  return printf("%s%4s  %s%s", time, size, name, link)
 endfunction
 
 
@@ -62,10 +62,9 @@ function! s:is_link(ftype) abort
 endfunction
 
 
-let s:time_format_long  = '%y/%m/%d %H:%M'
-let s:time_format_short = '%y/%m/%d'
-function! s:get_time_display(entry, shows_detailed_time) abort
-  let format = a:shows_detailed_time ? s:time_format_long : s:time_format_short
+let s:format_dict = #{ long: '%y/%m/%d %H:%M ', short: '%y/%m/%d ', none: '' }
+function! s:get_time_display(entry, format_name) abort
+  let format = s:format_dict[a:format_name]
   return strftime(format, a:entry.time) 
 endfunction
 

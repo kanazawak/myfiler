@@ -42,6 +42,13 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> c     <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> y$    <Plug>(myfiler-yank-path)
   nmap <silent><buffer><nowait> yy    <Plug>(myfiler-yank-path-with-nl)
+
+  nmap <buffer> - <Nop>
+  nmap <silent><buffer><nowait> -t    <Plug>(myfiler-shrink-time)
+  nmap <silent><buffer><nowait> -T    <Plug>(myfiler-shrink-time-full)
+  nmap <buffer> + <Nop>
+  nmap <silent><buffer><nowait> +t    <Plug>(myfiler-expand-time)
+  nmap <silent><buffer><nowait> +T    <Plug>(myfiler-expand-time-full)
 endfunction
 
 
@@ -61,10 +68,13 @@ nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<
 " nnoremap <silent> <Plug>(myfiler-copy)              :<C-u>call myfiler#copy()<CR>
 nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
-nnoremap <silent> <Plug>(myfiler-change-time)       :<C-u>call myfiler#change_time()<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-yank-path)         :<C-u>call myfiler#yank_path(v:false)<CR>
 nnoremap <silent> <Plug>(myfiler-yank-path-with-nl) :<C-u>call myfiler#yank_path(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#shrink_time(1)<CR>
+nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#shrink_time(2)<CR>
+nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#expand_time(1)<CR>
+nnoremap <silent> <Plug>(myfiler-expand-time-full)  :<C-u>call myfiler#expand_time(2)<CR>
 
 
 function! s:on_bufenter() abort

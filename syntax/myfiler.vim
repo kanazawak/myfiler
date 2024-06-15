@@ -3,8 +3,8 @@ if exists('b:current_syntax')
 endif
 
 syntax match myfilerItem '.\+'     nextgroup=myfilerTime contains=myfilerDir,myfilerFile,myfilerLinkToFile,myfilerLinkToDir
-syntax match myfilerSize '.\{7\}'  nextgroup=myfilerItem
-syntax match myfilerTime '^.\{8\}\( \d\d:\d\d\)\?' nextgroup=myfilerSize
+syntax match myfilerSize '[ 0-9.]\{3\}[BKMGTP ]  '  nextgroup=myfilerItem
+syntax match myfilerTime '^\d\d/\d\d/\d\d\( \d\d:\d\d\)\? ' nextgroup=myfilerSize
 
 syntax match myfilerFile '[^/]*[^/]$' contained contains=myfilerExt
 syntax match myfilerDir  '[^/]\+/$'   contained
@@ -15,7 +15,7 @@ syntax match myfilerResolvedFile '.*$' contained contains=myfilerExt
 syntax match myfilerResolvedDir  '.*$' contained
 syntax match myfilerArrow ' /=> ' contained nextgroup=myfilerResolved
 syntax match myfilerName '[^/]\+\ze /' contained nextgroup=myfilerArrow
-syntax match myfilerExt '\S\.\zs[^.]\+$' contained
+syntax match myfilerExt '[^ /]\.\zs[^.]\+$' contained
 
 highlight! default link myfilerTime        Number
 highlight! default link myfilerSize        Comment
