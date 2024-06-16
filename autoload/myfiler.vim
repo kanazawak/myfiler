@@ -355,8 +355,38 @@ function! myfiler#change_time_format(diff) abort
 endfunction
 
 
-function! myfiler#change_size_format(hides_size) abort
-  let b:myfiler_hides_size = a:hides_size
+function! myfiler#change_size_visibility(bool) abort
+  let b:myfiler_hides_size = a:bool
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#change_link_visibility(bool) abort
+  let b:myfiler_hides_link = a:bool
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#change_last_slash_visibility(bool) abort
+  let b:myfiler_hides_last_slash = a:bool
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#hide_all() abort
+  let b:myfiler_time_format = 'none'
+  let b:myfiler_hides_size = v:true
+  let b:myfiler_hides_link = v:true
+  let b:myfiler_hides_last_slash = v:true
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#show_all() abort
+  let b:myfiler_time_format = 'long'
+  let b:myfiler_hides_size = v:false
+  let b:myfiler_hides_link = v:false
+  let b:myfiler_hides_last_slash = v:false
   call myfiler#buffer#render()
 endfunction
 

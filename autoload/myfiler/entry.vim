@@ -13,7 +13,7 @@ function! myfiler#entry#create(finfo, dir) abort
     let resolved = resolve(fnamemodify(a:dir, ':p') . entry.name)
     if isdirectory(resolved)
       let entry.type = 'linkd'
-      let entry.resolved = fnamemodify(resolved, ':p')
+      let entry.resolved = fnamemodify(resolved, ':p:h')
     elseif filereadable(resolved)
       let entry.type = 'linkf'
       let entry.resolved = resolved
@@ -112,14 +112,32 @@ endfunction
 
 
 function! s:get_name_display(entry) abort
-  let suffix = a:entry.type ==# 'dir' ? '/' : ''
+  if get(b:, 'myfiler_hides_last_slash')
+    let suffix = ''
+  elseif a:entry.type ==# 'dir'
+    let suffix = '/'
+  elseif a:entry.type == 'linkd' && get(b:, 'myfiler_hides_link')
+    let suffix = '/'
+  else
+    let suffix = ''
+  endif
   return a:entry.name . suffix
 endfunction
 
 
 function! s:get_link_display(entry) abort
-  if a:entry.type ==# 'linkf' || a:entry.type ==# 'linkd' 
+  if get(b:, 'myfiler_hides_link')
+    return ''
+  endif
+
+  if a:entry.type ==# 'linkf'
     return ' /=> ' . a:entry.resolved
+  elseif a:entry.type ==# 'linkd' 
+    if get(b:, 'myfiler_hides_last_slash')
+      return ' /=> ' . a:entry.resolved
+    else
+      return ' /=> ' . a:entry.resolved . '/'
+    endif
   elseif a:entry.type == 'broken'
     return ' /=> (BROKEN LINK)'
   else

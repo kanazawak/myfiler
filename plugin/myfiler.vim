@@ -50,6 +50,12 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> +T    <Plug>(myfiler-expand-time-full)
   nmap <silent><buffer><nowait> -s    <Plug>(myfiler-hide-size)
   nmap <silent><buffer><nowait> +s    <Plug>(myfiler-show-size)
+  nmap <silent><buffer><nowait> -l    <Plug>(myfiler-hide-link)
+  nmap <silent><buffer><nowait> +l    <Plug>(myfiler-show-link)
+  nmap <silent><buffer><nowait> -D    <Plug>(myfiler-hide-last-slash)
+  nmap <silent><buffer><nowait> +D    <Plug>(myfiler-show-last-slash)
+  nmap <silent><buffer><nowait> -a    <Plug>(myfiler-hide-all)
+  nmap <silent><buffer><nowait> +a    <Plug>(myfiler-show-all)
 endfunction
 
 
@@ -78,8 +84,17 @@ nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#change_ti
 nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#change_time_format(-2)<CR>
 nnoremap <silent> <Plug>(myfiler-expand-time-full)  :<C-u>call myfiler#change_time_format(+2)<CR>
 
-nnoremap <silent> <Plug>(myfiler-hide-size)         :<C-u>call myfiler#change_size_format(v:true)<CR>
-nnoremap <silent> <Plug>(myfiler-show-size)         :<C-u>call myfiler#change_size_format(v:false)<CR>
+nnoremap <silent> <Plug>(myfiler-hide-size)         :<C-u>call myfiler#change_size_visibility(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-show-size)         :<C-u>call myfiler#change_size_visibility(v:false)<CR>
+
+nnoremap <silent> <Plug>(myfiler-hide-link)         :<C-u>call myfiler#change_link_visibility(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-show-link)         :<C-u>call myfiler#change_link_visibility(v:false)<CR>
+
+nnoremap <silent> <Plug>(myfiler-hide-last-slash)   :<C-u>call myfiler#change_last_slash_visibility(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-show-last-slash)   :<C-u>call myfiler#change_last_slash_visibility(v:false)<CR>
+
+nnoremap <silent> <Plug>(myfiler-hide-all)          :<C-u>call myfiler#hide_all()<CR>
+nnoremap <silent> <Plug>(myfiler-show-all)          :<C-u>call myfiler#show_all()<CR>
 
 
 function! s:on_bufenter() abort
