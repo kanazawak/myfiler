@@ -38,17 +38,18 @@ function! s:setup_mappings() abort
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
   nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
   nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
-  nmap <silent><buffer><nowait> t     <Plug>(myfiler-change-time)
   nmap <silent><buffer><nowait> c     <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> y$    <Plug>(myfiler-yank-path)
   nmap <silent><buffer><nowait> yy    <Plug>(myfiler-yank-path-with-nl)
 
   nmap <buffer> - <Nop>
-  nmap <silent><buffer><nowait> -t    <Plug>(myfiler-shrink-time)
-  nmap <silent><buffer><nowait> -T    <Plug>(myfiler-shrink-time-full)
   nmap <buffer> + <Nop>
+  nmap <silent><buffer><nowait> -t    <Plug>(myfiler-shrink-time)
   nmap <silent><buffer><nowait> +t    <Plug>(myfiler-expand-time)
+  nmap <silent><buffer><nowait> -T    <Plug>(myfiler-shrink-time-full)
   nmap <silent><buffer><nowait> +T    <Plug>(myfiler-expand-time-full)
+  nmap <silent><buffer><nowait> -s    <Plug>(myfiler-hide-size)
+  nmap <silent><buffer><nowait> +s    <Plug>(myfiler-show-size)
 endfunction
 
 
@@ -72,9 +73,11 @@ nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_di
 nnoremap <silent> <Plug>(myfiler-yank-path)         :<C-u>call myfiler#yank_path(v:false)<CR>
 nnoremap <silent> <Plug>(myfiler-yank-path-with-nl) :<C-u>call myfiler#yank_path(v:true)<CR>
 nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#shrink_time(1)<CR>
-nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#shrink_time(2)<CR>
 nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#expand_time(1)<CR>
+nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#shrink_time(2)<CR>
 nnoremap <silent> <Plug>(myfiler-expand-time-full)  :<C-u>call myfiler#expand_time(2)<CR>
+nnoremap <silent> <Plug>(myfiler-hide-size)         :<C-u>call myfiler#hide_size()<CR>
+nnoremap <silent> <Plug>(myfiler-show-size)         :<C-u>call myfiler#show_size()<CR>
 
 
 function! s:on_bufenter() abort

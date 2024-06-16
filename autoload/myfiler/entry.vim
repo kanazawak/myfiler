@@ -44,12 +44,16 @@ function! myfiler#entry#compare(e1, e2) abort
 endfunction
 
 
-function! myfiler#entry#to_line(entry, shows_detailed_time) abort
-  let time = s:get_time_display(a:entry, a:shows_detailed_time)
-  let size = s:get_size_display(a:entry)
+function! myfiler#entry#to_line(entry) abort
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry)
-  return printf("%s%4s  %s%s", time, size, name, link)
+  if get(b:, 'myfiler_time_format') ==# 'none'
+      \ && get(b:, 'myfiler_hides_size')
+    return printf("%s%s", name, link)
+  endif
+  let time = s:get_time_display(a:entry)
+  let size = s:get_size_display(a:entry)
+  return printf("%s%s %s%s", time, size, name, link)
 endfunction
 
 
@@ -63,17 +67,21 @@ endfunction
 
 
 let s:format_dict = #{ long: '%y/%m/%d %H:%M ', short: '%y/%m/%d ', none: '' }
-function! s:get_time_display(entry, format_name) abort
-  let format = s:format_dict[a:format_name]
+function! s:get_time_display(entry) abort
+  let format = s:format_dict[get(b:, 'myfiler_time_format', 'short')]
   return strftime(format, a:entry.time) 
 endfunction
 
 
 let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
 function! s:get_size_display(entry) abort
+  if get(b:, 'myfiler_hides_size')
+    return ''
+  endif
+
   if a:entry.type !=# 'file' && a:entry.type !=# 'linkf'
-     return ''
-   endif
+     return '     '
+  endif
 
   let x = a:entry.size
   for i in range(len(s:size_units))
@@ -81,20 +89,25 @@ function! s:get_size_display(entry) abort
     if x < 1024
       if x >= 1000
         " Ex. 1000 Bytes => 0.9K
-        return '0.9' . s:size_units[i + 1]
+        let str = '0.9' . s:size_units[i + 1]
+        break
       elseif i == 0
         " Ex. 999 Bytes => 999B
-        return x . unit
+        let str = x . unit
+        break
       elseif x < 10
         " Ex. 2048 KiloBytes => 2.0M
-        return printf("%.1f", x) . unit
+        let str = printf("%.1f", x) . unit
+        break
       else
         " Ex. 10240 MegaBytes => 10G
-        return printf("%.0f", x) . unit
+        let str = printf("%.0f", x) . unit
+        break
       endif
     endif
     let x /= 1024.0
   endfor
+  return printf("%4s ", str)
 endfunction
 
 

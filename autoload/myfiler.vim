@@ -346,56 +346,50 @@ endfunction
 
 
 function! myfiler#shrink_time(n) abort
-  let current_time_format = get(b:, 'myfiler_time_format', 'short')
-
+  let time_format = get(b:, 'myfiler_time_format', 'short')
   for _ in range(a:n)
-    if current_time_format ==# 'none'
-      break
-    endif
-    if current_time_format ==# 'short'
-      normal! 9h
-      let current_time_format = 'none'
-    else " current_time_format ==# 'long'
-      if col('.') >= 15
-        normal! 6h
-      elseif col('.') >= 10
-        call cursor('.', 9)
-      endif
-      let current_time_format = 'short'
+    if time_format ==# 'long'
+      let time_format = 'short'
+    elseif time_format ==# 'short'
+      let time_format = 'none'
     endif
   endfor
-
-  let b:myfiler_time_format = current_time_format
+  let b:myfiler_time_format = time_format
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#expand_time(n) abort
-  let current_time_format = get(b:, 'myfiler_time_format', 'short')
-
-  " Delay moving cursor as the destination may not exists yet
-  let cnum = col('.')
+  let time_format = get(b:, 'myfiler_time_format', 'short')
 
   for _ in range(a:n)
-    if current_time_format ==# 'long'
-      break
-    endif
-    if current_time_format ==# 'short'
-      if cnum >= 10
-        let cnum += 6
-      endif
-      let current_time_format = 'long'
-    else " current_time_format ==# 'none'
-      if cnum > 1
-        let cnum += 9
-      endif
-      let current_time_format = 'short'
+    if time_format ==# 'short'
+      let time_format = 'long'
+    elseif time_format ==# 'none'
+      let time_format = 'short'
     endif
   endfor
 
-  let b:myfiler_time_format = current_time_format
+  let b:myfiler_time_format = time_format
   call myfiler#buffer#render()
-  call cursor('.', cnum)
+endfunction
+
+
+function! myfiler#hide_size() abort
+  if get(b:, 'myfiler_hides_size')
+    return
+  endif
+  let b:myfiler_hides_size = v:true
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#show_size() abort
+  if !get(b:, 'myfiler_hides_size')
+    return
+  endif
+  let b:myfiler_hides_size = v:false
+  call myfiler#buffer#render()
 endfunction
 
 

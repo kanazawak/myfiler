@@ -2,14 +2,14 @@ if exists('b:current_syntax')
   finish
 endif
 
-syntax match myfilerItem '.\+'     nextgroup=myfilerTime contains=myfilerDir,myfilerFile,myfilerLinkToFile,myfilerLinkToDir
-syntax match myfilerSize '[ 0-9.]\{3\}[BKMGTP ]  '  nextgroup=myfilerItem
+syntax match myfilerItem '^.\+$\| \zs.\+$' nextgroup=myfilerTime contains=myfilerDir,myfilerFile,myfilerLinkToFile,myfilerLinkToDir
+syntax match myfilerSize '[ 0-9.]\{3\}[BKMGTP ] ' nextgroup=myfilerItem
 syntax match myfilerTime '^\d\d/\d\d/\d\d\( \d\d:\d\d\)\? ' nextgroup=myfilerSize
 
 syntax match myfilerFile '[^/]*[^/]$' contained contains=myfilerExt
-syntax match myfilerDir  '[^/]\+/$'   contained
+syntax match myfilerDir  '[^/]\+/$' contained
 syntax match myfilerLinkToFile '[^/]\+ /=> .*[^/]$' contained contains=myfilerName,myfilerArrow,myfilerResolvedFile
-syntax match myfilerLinkToDir  '[^/]\+ /=> .\+/$'   contained contains=myfilerName,myfilerArrow,myfilerResolvedDir
+syntax match myfilerLinkToDir  '[^/]\+ /=> .\+/$' contained contains=myfilerName,myfilerArrow,myfilerResolvedDir
 
 syntax match myfilerResolvedFile '.*$' contained contains=myfilerExt
 syntax match myfilerResolvedDir  '.*$' contained

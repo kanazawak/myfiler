@@ -69,9 +69,8 @@ function! s:render() abort
   " cursors at same line of same buffer in other windows 
   " to move (unexpectedly) up
 
-  let time_format = get(b:, 'myfiler_time_format', 'short')
   for lnum in range(1, len(new_entries))
-    let line = myfiler#entry#to_line(new_entries[lnum - 1], time_format)
+    let line = myfiler#entry#to_line(new_entries[lnum - 1])
     call setline(lnum, line)
   endfor
 
