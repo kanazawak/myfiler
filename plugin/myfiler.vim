@@ -76,8 +76,6 @@ nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<
 nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
-nnoremap <silent> <Plug>(myfiler-yank-path)         :<C-u>call myfiler#yank_path(v:false)<CR>
-nnoremap <silent> <Plug>(myfiler-yank-path-with-nl) :<C-u>call myfiler#yank_path(v:true)<CR>
 
 nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#change_time_format(-1)<CR>
 nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#change_time_format(+1)<CR>
