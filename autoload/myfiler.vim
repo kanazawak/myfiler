@@ -345,50 +345,18 @@ function! myfiler#change_sort() abort
 endfunction
 
 
-function! myfiler#shrink_time(n) abort
+let s:time_formats = ['none', 'short', 'long']
+function! myfiler#change_time_format(diff) abort
   let time_format = get(b:, 'myfiler_time_format', 'short')
-  for _ in range(a:n)
-    if time_format ==# 'long'
-      let time_format = 'short'
-    elseif time_format ==# 'short'
-      let time_format = 'none'
-    endif
-  endfor
-  let b:myfiler_time_format = time_format
+  let idx = match(s:time_formats, time_format)
+  let idx = max([min([idx + a:diff, 2]), 0])
+  let b:myfiler_time_format = s:time_formats[idx]
   call myfiler#buffer#render()
 endfunction
 
 
-function! myfiler#expand_time(n) abort
-  let time_format = get(b:, 'myfiler_time_format', 'short')
-
-  for _ in range(a:n)
-    if time_format ==# 'short'
-      let time_format = 'long'
-    elseif time_format ==# 'none'
-      let time_format = 'short'
-    endif
-  endfor
-
-  let b:myfiler_time_format = time_format
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#hide_size() abort
-  if get(b:, 'myfiler_hides_size')
-    return
-  endif
-  let b:myfiler_hides_size = v:true
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#show_size() abort
-  if !get(b:, 'myfiler_hides_size')
-    return
-  endif
-  let b:myfiler_hides_size = v:false
+function! myfiler#change_size_format(hides_size) abort
+  let b:myfiler_hides_size = a:hides_size
   call myfiler#buffer#render()
 endfunction
 

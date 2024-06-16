@@ -72,12 +72,14 @@ nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_so
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-yank-path)         :<C-u>call myfiler#yank_path(v:false)<CR>
 nnoremap <silent> <Plug>(myfiler-yank-path-with-nl) :<C-u>call myfiler#yank_path(v:true)<CR>
-nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#shrink_time(1)<CR>
-nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#expand_time(1)<CR>
-nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#shrink_time(2)<CR>
-nnoremap <silent> <Plug>(myfiler-expand-time-full)  :<C-u>call myfiler#expand_time(2)<CR>
-nnoremap <silent> <Plug>(myfiler-hide-size)         :<C-u>call myfiler#hide_size()<CR>
-nnoremap <silent> <Plug>(myfiler-show-size)         :<C-u>call myfiler#show_size()<CR>
+
+nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#change_time_format(-1)<CR>
+nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#change_time_format(+1)<CR>
+nnoremap <silent> <Plug>(myfiler-shrink-time-full)  :<C-u>call myfiler#change_time_format(-2)<CR>
+nnoremap <silent> <Plug>(myfiler-expand-time-full)  :<C-u>call myfiler#change_time_format(+2)<CR>
+
+nnoremap <silent> <Plug>(myfiler-hide-size)         :<C-u>call myfiler#change_size_format(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-show-size)         :<C-u>call myfiler#change_size_format(v:false)<CR>
 
 
 function! s:on_bufenter() abort
