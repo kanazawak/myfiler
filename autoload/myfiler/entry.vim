@@ -100,8 +100,8 @@ function! s:get_size_display(entry) abort
         let str = printf("%.1f", x) . unit
         break
       else
-        " Ex. 10240 MegaBytes => 10G
-        let str = printf("%.0f", x) . unit
+        " Ex. 999.9 MegaBytes => 999M
+        let str = printf("%d", float2nr(x)) . unit
         break
       endif
     endif
