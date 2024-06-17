@@ -47,7 +47,7 @@ endfunction
 function! myfiler#entry#to_line(entry) abort
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry)
-  if get(b:, 'myfiler_time_format') ==# 'none'
+  if get(b:, 'myfiler_time_format', 'short') ==# 'none'
       \ && get(b:, 'myfiler_hides_size')
     return printf("%s%s", name, link)
   endif
