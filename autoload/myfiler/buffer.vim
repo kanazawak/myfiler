@@ -8,13 +8,29 @@ endfunction
 
 
 function! myfiler#buffer#init() abort
-  mapclear <buffer>
-  setlocal filetype=myfiler
+  let dir = myfiler#get_dir()
+  let conf = get(g:myfiler_default_config, dir, 'tsDl')
+  if conf =~# 'T'
+    let b:myfiler_time_format = 'long'
+  elseif conf =~# 't'
+    let b:myfiler_time_format = 'short'
+  else
+    let b:myfiler_time_format = 'none'
+  endif
+  let b:myfiler_hides_size = (conf !~# 's')
+  let b:myfiler_hides_last_slash = (conf !~# 'D')
+  let b:myfiler_hides_link = (conf !~# 'l')
+  let b:myfiler_aligns_arrows = (conf =~# 'A')
+  let b:myfiler_shows_hidden_files = (conf =~# 'h')
+
   call myfiler#buffer#render()
+
   setlocal buftype=nowrite
   setlocal bufhidden=hide
   setlocal noswapfile
   setlocal nowrap
+  mapclear <buffer>
+  setlocal filetype=myfiler
 endfunction
 
 
@@ -73,7 +89,6 @@ function! s:render() abort
   if aligns_arrows
     let max_len = max(map(copy(new_entries),
         \ { _, e  -> strdisplaywidth(e.name) }))
-    echo max_len
   endif
   
   for lnum in range(1, len(new_entries))

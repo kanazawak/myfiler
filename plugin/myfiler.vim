@@ -9,6 +9,7 @@ let g:loaded_myfiler = 1
 
 
 let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
+let g:myfiler_default_config = get(g:, 'myfiler_default_config', {})
 
 
 augroup myfiler
