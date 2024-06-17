@@ -391,28 +391,14 @@ function! myfiler#show_all() abort
 endfunction
 
 
-function! myfiler#change_directory() abort
-  execute 'cd' myfiler#get_dir()
+function! myfiler#change_arrow_alignment(bool) abort
+  let b:myfiler_aligns_arrows = a:bool
+  call myfiler#buffer#render()
 endfunction
 
 
-function! myfiler#yank_path(with_newline) abort
-  if myfiler#buffer#is_empty()
-    return
-  endif
-
-  let yanked = s:get_path()
-  if a:with_newline
-    let yanked .=
-        \ &fileformat ==# 'dos' ? "\r\n" :
-        \ &fileformat ==# 'unix' ? "\n" : "\r"
-  endif
-
-  for i in range(8, 0, -1)
-    execute 'let @' . (i + 1) . '=@' . i
-  endfor
-  let @0 = yanked
-  let @" = yanked
+function! myfiler#change_directory() abort
+  execute 'cd' myfiler#get_dir()
 endfunction
 
 

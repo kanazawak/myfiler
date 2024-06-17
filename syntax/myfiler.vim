@@ -13,8 +13,8 @@ syntax match myfilerLinkToDir  '[^/]\+ /=> .\+/$' contained contains=myfilerName
 
 syntax match myfilerResolvedFile '.*$' contained contains=myfilerExt
 syntax match myfilerResolvedDir  '.*$' contained
-syntax match myfilerArrow ' /=> ' contained nextgroup=myfilerResolved
-syntax match myfilerName '[^/]\+\ze /' contained nextgroup=myfilerArrow
+syntax match myfilerArrow ' \+/=> ' contained nextgroup=myfilerResolved
+syntax match myfilerName '[^/]*[^/ ]\ze \+/' contained nextgroup=myfilerArrow
 syntax match myfilerExt '[^ /]\.\zs[^.]\+$' contained
 
 highlight! default link myfilerTime        Number

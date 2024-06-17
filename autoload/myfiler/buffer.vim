@@ -69,8 +69,17 @@ function! s:render() abort
   " cursors at same line of same buffer in other windows 
   " to move (unexpectedly) up
 
+  let aligns_arrows = get(b:, 'myfiler_aligns_arrows')
+  if aligns_arrows
+    let max_len = max(map(copy(new_entries),
+        \ { _, e  -> strdisplaywidth(e.name) }))
+    echo max_len
+  endif
+  
   for lnum in range(1, len(new_entries))
-    let line = myfiler#entry#to_line(new_entries[lnum - 1])
+    let entry = new_entries[lnum - 1]
+    let pad_len = aligns_arrows ? max_len - strdisplaywidth(entry.name) : 0
+    let line = myfiler#entry#to_line(entry, pad_len)
     call setline(lnum, line)
   endfor
 

@@ -44,9 +44,9 @@ function! myfiler#entry#compare(e1, e2) abort
 endfunction
 
 
-function! myfiler#entry#to_line(entry) abort
+function! myfiler#entry#to_line(entry, pad_len) abort
   let name = s:get_name_display(a:entry)
-  let link = s:get_link_display(a:entry)
+  let link = s:get_link_display(a:entry, a:pad_len)
   if get(b:, 'myfiler_time_format', 'short') ==# 'none'
       \ && get(b:, 'myfiler_hides_size')
     return printf("%s%s", name, link)
@@ -125,21 +125,24 @@ function! s:get_name_display(entry) abort
 endfunction
 
 
-function! s:get_link_display(entry) abort
+function! s:get_link_display(entry, pad_len) abort
   if get(b:, 'myfiler_hides_link')
     return ''
   endif
 
+  let padding = repeat(' ', a:pad_len)
+  let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
+
   if a:entry.type ==# 'linkf'
-    return ' /=> ' . a:entry.resolved
+    return padding . ' /=> ' . resolved
   elseif a:entry.type ==# 'linkd' 
     if get(b:, 'myfiler_hides_last_slash')
-      return ' /=> ' . a:entry.resolved
+      return padding . ' /=> ' . resolved
     else
-      return ' /=> ' . a:entry.resolved . '/'
+      return padding . ' /=> ' . resolved . '/'
     endif
   elseif a:entry.type == 'broken'
-    return ' /=> (BROKEN LINK)'
+    return padding . ' /=> (BROKEN LINK)'
   else
     return ''
   endif

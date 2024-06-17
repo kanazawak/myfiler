@@ -38,9 +38,7 @@ function! s:setup_mappings() abort
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
   nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
   nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
-  nmap <silent><buffer><nowait> c     <Plug>(myfiler-change-directory)
-  nmap <silent><buffer><nowait> y$    <Plug>(myfiler-yank-path)
-  nmap <silent><buffer><nowait> yy    <Plug>(myfiler-yank-path-with-nl)
+  nmap <silent><buffer><nowait> C     <Plug>(myfiler-change-directory)
 
   nmap <buffer> - <Nop>
   nmap <buffer> + <Nop>
@@ -56,6 +54,9 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> +D    <Plug>(myfiler-show-last-slash)
   nmap <silent><buffer><nowait> -a    <Plug>(myfiler-hide-all)
   nmap <silent><buffer><nowait> +a    <Plug>(myfiler-show-all)
+
+  nmap <silent><buffer><nowait> +A    <Plug>(myfiler-align-arrows)
+  nmap <silent><buffer><nowait> -A    <Plug>(myfiler-unalign-arrows)
 endfunction
 
 
@@ -93,6 +94,9 @@ nnoremap <silent> <Plug>(myfiler-show-last-slash)   :<C-u>call myfiler#change_la
 
 nnoremap <silent> <Plug>(myfiler-hide-all)          :<C-u>call myfiler#hide_all()<CR>
 nnoremap <silent> <Plug>(myfiler-show-all)          :<C-u>call myfiler#show_all()<CR>
+
+nnoremap <silent> <Plug>(myfiler-align-arrows)      :<C-u>call myfiler#change_arrow_alignment(v:true)<CR>
+nnoremap <silent> <Plug>(myfiler-unalign-arrows)    :<C-u>call myfiler#change_arrow_alignment(v:false)<CR>
 
 
 function! s:on_bufenter() abort
