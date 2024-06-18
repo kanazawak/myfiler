@@ -345,6 +345,12 @@ function! myfiler#change_sort() abort
 endfunction
 
 
+function! myfiler#change_bookmark_visibility(bool) abort
+  let b:myfiler_shows_bookmark = a:bool
+  call myfiler#buffer#render()
+endfunction
+
+
 let s:time_formats = ['none', 'short', 'long']
 function! myfiler#change_time_format(diff) abort
   let time_format = get(b:, 'myfiler_time_format', 'short')
@@ -374,6 +380,7 @@ endfunction
 
 
 function! myfiler#hide_all() abort
+  let b:myfiler_shows_bookmark = v:false
   let b:myfiler_time_format = 'none'
   let b:myfiler_hides_size = v:true
   let b:myfiler_hides_link = v:true
@@ -383,6 +390,7 @@ endfunction
 
 
 function! myfiler#show_all() abort
+  let b:myfiler_shows_bookmark = v:true
   let b:myfiler_time_format = 'long'
   let b:myfiler_hides_size = v:false
   let b:myfiler_hides_link = v:false
@@ -399,6 +407,20 @@ endfunction
 
 function! myfiler#change_directory() abort
   execute 'cd' myfiler#get_dir()
+endfunction
+
+
+function! myfiler#add_bookmark() abort
+  let path = s:get_path()
+  let name = fnamemodify(path, ':t')
+  let linkpath = fnamemodify(g:myfiler_bookmark_directory, ':p') . name
+  let command = 'ln -s '
+  call system(command . shellescape(path) . ' ' . shellescape(linkpath))
+  if v:shell_error
+    call s:echo_error('Adding bookmark failed.')
+  else
+    call myfiler#buffer#render()
+  endif
 endfunction
 
 

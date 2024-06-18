@@ -40,9 +40,12 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
   nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
   nmap <silent><buffer><nowait> C     <Plug>(myfiler-change-directory)
+  nmap <silent><buffer><nowait> *     <Plug>(myfiler-add-bookmark)
 
   nmap <buffer> - <Nop>
   nmap <buffer> + <Nop>
+  nmap <silent><buffer><nowait> +b    <Plug>(myfiler-show-bookmark)
+  nmap <silent><buffer><nowait> -b    <Plug>(myfiler-hide-bookmark)
   nmap <silent><buffer><nowait> -t    <Plug>(myfiler-shrink-time)
   nmap <silent><buffer><nowait> +t    <Plug>(myfiler-expand-time)
   nmap <silent><buffer><nowait> -T    <Plug>(myfiler-shrink-time-full)
@@ -78,6 +81,10 @@ nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<
 nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
 nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
+nnoremap <silent> <Plug>(myfiler-add-bookmark)      :<C-u>call myfiler#add_bookmark()<CR>
+
+nnoremap <silent> <Plug>(myfiler-hide-bookmark)     :<C-u>call myfiler#change_bookmark_visibility(v:false)<CR>
+nnoremap <silent> <Plug>(myfiler-show-bookmark)     :<C-u>call myfiler#change_bookmark_visibility(v:true)<CR>
 
 nnoremap <silent> <Plug>(myfiler-shrink-time)       :<C-u>call myfiler#change_time_format(-1)<CR>
 nnoremap <silent> <Plug>(myfiler-expand-time)       :<C-u>call myfiler#change_time_format(+1)<CR>

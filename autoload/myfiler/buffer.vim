@@ -9,7 +9,7 @@ endfunction
 
 function! myfiler#buffer#init() abort
   let dir = myfiler#get_dir()
-  let conf = get(g:myfiler_default_config, dir, 'tsDl')
+  let conf = get(g:myfiler_default_config, dir, 'tsbDl')
   if conf =~# 'T'
     let b:myfiler_time_format = 'long'
   elseif conf =~# 't'
@@ -17,11 +17,12 @@ function! myfiler#buffer#init() abort
   else
     let b:myfiler_time_format = 'none'
   endif
-  let b:myfiler_hides_size = (conf !~# 's')
-  let b:myfiler_hides_last_slash = (conf !~# 'D')
-  let b:myfiler_hides_link = (conf !~# 'l')
-  let b:myfiler_aligns_arrows = (conf =~# 'A')
-  let b:myfiler_shows_hidden_files = (conf =~# 'h')
+  let b:myfiler_shows_bookmark     = conf =~# 'b'
+  let b:myfiler_hides_size         = conf !~# 's'
+  let b:myfiler_hides_last_slash   = conf !~# 'D'
+  let b:myfiler_hides_link         = conf !~# 'l'
+  let b:myfiler_aligns_arrows      = conf =~# 'A'
+  let b:myfiler_shows_hidden_files = conf =~# 'h'
 
   call myfiler#buffer#render()
 
@@ -90,11 +91,30 @@ function! s:render() abort
     let max_len = max(map(copy(new_entries),
         \ { _, e  -> strdisplaywidth(e.name) }))
   endif
+
+  let shows_bookmark = get(b:, 'myfiler_shows_bookmark', 1)
+  if shows_bookmark
+    let dirinfo = readdirex(g:myfiler_bookmark_directory)
+    let bookmark_dict = {}
+    for finfo in dirinfo
+      let path = fnamemodify(g:myfiler_bookmark_directory, ':p') . finfo.name
+      let resolved = fnamemodify(resolve(path), ':p')
+      if isdirectory(resolved)
+        let resolved = fnamemodify(resolved, ':h')
+      endif
+      let bookmark_dict[resolved] = v:true
+    endfor
+  endif
   
   for lnum in range(1, len(new_entries))
     let entry = new_entries[lnum - 1]
     let pad_len = aligns_arrows ? max_len - strdisplaywidth(entry.name) : 0
-    let line = myfiler#entry#to_line(entry, pad_len)
+    let is_bookmarked = v:false
+    if shows_bookmark
+      let path = fnamemodify(dir, ':p') . entry.name
+      let is_bookmarked = has_key(bookmark_dict, path)
+    endif
+    let line = myfiler#entry#to_line(entry, pad_len, is_bookmarked)
     call setline(lnum, line)
   endfor
 

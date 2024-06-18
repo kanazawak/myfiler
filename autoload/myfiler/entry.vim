@@ -44,16 +44,21 @@ function! myfiler#entry#compare(e1, e2) abort
 endfunction
 
 
-function! myfiler#entry#to_line(entry, pad_len) abort
+function! myfiler#entry#to_line(entry, pad_len, is_bookmarked) abort
+  if get(b:, 'myfiler_shows_bookmark', 1)
+    let bookmark = a:is_bookmarked ? '*' : ' '
+  else
+    let bookmark = ''
+  endif
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry, a:pad_len)
   if get(b:, 'myfiler_time_format', 'short') ==# 'none'
       \ && get(b:, 'myfiler_hides_size')
-    return printf("%s%s", name, link)
+    return printf("%s%s%s", bookmark, name, link)
   endif
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
-  return printf("%s%s %s%s", time, size, name, link)
+  return printf("%s%s%s%s%s", time, size, bookmark, name, link)
 endfunction
 
 
