@@ -60,11 +60,8 @@ function! s:render() abort
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
 
   let new_entries = map(info, { i, finfo -> myfiler#entry#create(finfo, dir) })
-  if get(b:, 'myfiler_sorts_by_time')
-    call sort(new_entries, { e1, e2 -> e2.time - e1.time })
-  else
-    call sort(new_entries, funcref('myfiler#entry#compare'))
-  endif
+
+  call sort(new_entries, myfiler#sort#get_comparator())
 
   let old_entries = get(b:, 'myfiler_entries', [])
   let b:myfiler_entries = new_entries
