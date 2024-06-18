@@ -45,17 +45,17 @@ endfunction
 
 
 function! myfiler#entry#to_line(entry, pad_len, is_bookmarked) abort
-  if get(b:, 'myfiler_shows_bookmark', 1)
+  if get(b:, 'myfiler_shows_bookmark')
     let bookmark = a:is_bookmarked ? '*' : ' '
   else
     let bookmark = ''
   endif
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry, a:pad_len)
-  if get(b:, 'myfiler_time_format', 'short') ==# 'none'
-      \ && get(b:, 'myfiler_hides_size')
-    return printf("%s%s%s", bookmark, name, link)
-  endif
+  " if get(b:, 'myfiler_time_format', 'short') ==# 'none'
+  "     \ && get(b:, 'myfiler_shows_size')
+  "   return printf("%s%s%s", bookmark, name, link)
+  " endif
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
   return printf("%s%s%s%s%s", time, size, bookmark, name, link)
@@ -80,7 +80,7 @@ endfunction
 
 let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
 function! s:get_size_display(entry) abort
-  if get(b:, 'myfiler_hides_size')
+  if !get(b:, 'myfiler_shows_size')
     return ''
   endif
 
@@ -117,11 +117,11 @@ endfunction
 
 
 function! s:get_name_display(entry) abort
-  if get(b:, 'myfiler_hides_last_slash')
+  if !get(b:, 'myfiler_shows_last_slash')
     let suffix = ''
   elseif a:entry.type ==# 'dir'
     let suffix = '/'
-  elseif a:entry.type == 'linkd' && get(b:, 'myfiler_hides_link')
+  elseif a:entry.type == 'linkd' && !get(b:, 'myfiler_shows_link')
     let suffix = '/'
   else
     let suffix = ''
@@ -131,7 +131,7 @@ endfunction
 
 
 function! s:get_link_display(entry, pad_len) abort
-  if get(b:, 'myfiler_hides_link')
+  if !get(b:, 'myfiler_shows_link')
     return ''
   endif
 
@@ -141,7 +141,7 @@ function! s:get_link_display(entry, pad_len) abort
   if a:entry.type ==# 'linkf'
     return padding . ' /=> ' . resolved
   elseif a:entry.type ==# 'linkd' 
-    if get(b:, 'myfiler_hides_last_slash')
+    if !get(b:, 'myfiler_shows_last_slash')
       return padding . ' /=> ' . resolved
     else
       return padding . ' /=> ' . resolved . '/'

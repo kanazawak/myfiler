@@ -18,9 +18,9 @@ function! myfiler#buffer#init() abort
     let b:myfiler_time_format = 'none'
   endif
   let b:myfiler_shows_bookmark     = conf =~# 'b'
-  let b:myfiler_hides_size         = conf !~# 's'
-  let b:myfiler_hides_last_slash   = conf !~# 'D'
-  let b:myfiler_hides_link         = conf !~# 'l'
+  let b:myfiler_shows_size         = conf =~# 's'
+  let b:myfiler_shows_last_slash   = conf =~# 'D'
+  let b:myfiler_shows_link         = conf =~# 'l'
   let b:myfiler_aligns_arrows      = conf =~# 'A'
   let b:myfiler_shows_hidden_files = conf =~# 'h'
 
@@ -92,7 +92,7 @@ function! s:render() abort
         \ { _, e  -> strdisplaywidth(e.name) }))
   endif
 
-  let shows_bookmark = get(b:, 'myfiler_shows_bookmark', 1)
+  let shows_bookmark = get(b:, 'myfiler_shows_bookmark')
   if shows_bookmark
     let dirinfo = readdirex(g:myfiler_bookmark_directory)
     let bookmark_dict = {}

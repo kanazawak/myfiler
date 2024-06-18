@@ -345,12 +345,6 @@ function! myfiler#change_sort() abort
 endfunction
 
 
-function! myfiler#change_bookmark_visibility(bool) abort
-  let b:myfiler_shows_bookmark = a:bool
-  call myfiler#buffer#render()
-endfunction
-
-
 let s:time_formats = ['none', 'short', 'long']
 function! myfiler#change_time_format(diff) abort
   let time_format = get(b:, 'myfiler_time_format', 'short')
@@ -362,39 +356,45 @@ endfunction
 
 
 function! myfiler#change_size_visibility(bool) abort
-  let b:myfiler_hides_size = a:bool
+  let b:myfiler_shows_size = a:bool
   call myfiler#buffer#render()
 endfunction
 
 
-function! myfiler#change_link_visibility(bool) abort
-  let b:myfiler_hides_link = a:bool
+function! myfiler#change_bookmark_visibility(bool) abort
+  let b:myfiler_shows_bookmark = a:bool
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#change_last_slash_visibility(bool) abort
-  let b:myfiler_hides_last_slash = a:bool
+  let b:myfiler_shows_last_slash = a:bool
   call myfiler#buffer#render()
 endfunction
 
 
-function! myfiler#hide_all() abort
-  let b:myfiler_shows_bookmark = v:false
-  let b:myfiler_time_format = 'none'
-  let b:myfiler_hides_size = v:true
-  let b:myfiler_hides_link = v:true
-  let b:myfiler_hides_last_slash = v:true
+function! myfiler#change_link_visibility(bool) abort
+  let b:myfiler_shows_link = a:bool
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#show_all() abort
-  let b:myfiler_shows_bookmark = v:true
   let b:myfiler_time_format = 'long'
-  let b:myfiler_hides_size = v:false
-  let b:myfiler_hides_link = v:false
-  let b:myfiler_hides_last_slash = v:false
+  let b:myfiler_shows_size = v:true
+  let b:myfiler_shows_bookmark = v:true
+  let b:myfiler_shows_last_slash = v:true
+  let b:myfiler_shows_link = v:true
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#hide_all() abort
+  let b:myfiler_time_format = 'none'
+  let b:myfiler_shows_size = v:false
+  let b:myfiler_shows_bookmark = v:false
+  let b:myfiler_shows_last_slash = v:false
+  let b:myfiler_shows_link = v:false
   call myfiler#buffer#render()
 endfunction
 
@@ -420,6 +420,7 @@ function! myfiler#add_bookmark() abort
     call s:echo_error('Adding bookmark failed.')
   else
     call myfiler#buffer#render()
+    " TODO: rerender bookmark directory
   endif
 endfunction
 
