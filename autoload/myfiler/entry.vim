@@ -2,11 +2,12 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#entry#create(finfo, dir) abort
+function! myfiler#entry#create(finfo, dir, is_bookmarked) abort
   let entry = #{
       \ name: a:finfo.name,
       \ size: a:finfo.size,
-      \ time: a:finfo.time
+      \ time: a:finfo.time,
+      \ is_bookmarked: a:is_bookmarked
       \ }
 
   if s:is_link(a:finfo.type)
@@ -28,46 +29,31 @@ function! myfiler#entry#create(finfo, dir) abort
 endfunction
 
 
-function! myfiler#entry#compare(e1, e2) abort
-  let cmp1 = (a:e2.type ==# 'dir' || a:e2.type ==# 'linkd')
-         \ - (a:e1.type ==# 'dir' || a:e1.type ==# 'linkd')
-  if cmp1 != 0
-    return cmp1
-  endif
-  if a:e1.name < a:e2.name
-    return -1
-  elseif a:e1.name > a:e2.name
-    return 1
-  else
-    return 0
-  endif
-endfunction
-
-
-function! myfiler#entry#to_line(entry, pad_len, is_bookmarked) abort
-  if get(b:, 'myfiler_shows_bookmark')
-    let bookmark = a:is_bookmarked ? '*' : ' '
-  else
-    let bookmark = ''
-  endif
-  let name = s:get_name_display(a:entry)
-  let link = s:get_link_display(a:entry, a:pad_len)
-  " if get(b:, 'myfiler_time_format', 'short') ==# 'none'
-  "     \ && get(b:, 'myfiler_shows_size')
-  "   return printf("%s%s%s", bookmark, name, link)
-  " endif
-  let time = s:get_time_display(a:entry)
-  let size = s:get_size_display(a:entry)
-  return printf("%s%s%s%s%s", time, size, bookmark, name, link)
-endfunction
-
-
 function! s:is_link(ftype) abort
   return   a:ftype ==# 'link'
       \ || a:ftype ==# 'linkd'
       \ || a:ftype ==# 'junction'
       \ || a:ftype ==# 'reparse'
       \ || a:ftype ==# 'broken'
+endfunction
+
+
+function! myfiler#entry#to_line(entry, pad_len) abort
+  let time = s:get_time_display(a:entry)
+  let size = s:get_size_display(a:entry)
+  let bookmark = s:get_bookmark_display(a:entry)
+  let name = s:get_name_display(a:entry)
+  let link = s:get_link_display(a:entry, a:pad_len)
+  return printf("%s%s%s%s%s", time, size, bookmark, name, link)
+endfunction
+
+
+function! s:get_bookmark_display(entry) abort
+  if get(b:, 'myfiler_shows_bookmark')
+    return a:entry.is_bookmarked ? '*' : ' '
+  else
+    return ''
+  endif
 endfunction
 
 

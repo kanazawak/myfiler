@@ -15,6 +15,13 @@ let s:compare_dir_first = { entry1, entry2 ->
 let s:compare_dir_last = s:reverse(s:compare_dir_first)
 
 
+let s:compare_bookmark_first = { entry1, entry2 ->
+    \ entry2.is_bookmarked - entry1.is_bookmarked }
+
+
+let s:compare_bookmark_last = s:reverse(s:compare_bookmark_first)
+
+
 let s:compare_name_asc = { entry1, entry2 ->
    \   entry1.name < entry2.name ? -1
    \ : entry1.name > entry2.name ? 1 : 0 }
@@ -29,11 +36,12 @@ let s:compare_time_asc = { entry1, entry2 -> entry1.time - entry2.time }
 let s:compare_time_desc = s:reverse(s:compare_time_asc)
 
 
-function! s:composite(comparator1, comparator2) abort
+function! s:compose(comparator1, comparator2) abort
   return function('s:_composite', [a:comparator1, a:comparator2])
 endfunction
 
-function! s:_composite(cmp1, cmp2, e1, e2) abort
+
+function! s:_compose(cmp1, cmp2, e1, e2) abort
   let ret = a:cmp1(a:e1, a:e2)
   if ret != 0
     return ret
@@ -46,9 +54,13 @@ function! myfiler#sort#get_comparator() abort
   if get(b:, 'myfiler_sorts_by_time')
     return s:compare_time_desc
   else
-    return s:composite(
+    let comparators = [
         \ s:compare_dir_first,
-        \ s:compare_name_asc)
+        \ s:compare_bookmark_first,
+        \ s:compare_name_asc
+        \ ]
+    return reduce(comparators,
+        \ { composed, comparator -> s:compose(composed, comparator) })
   endif
 endfunction
 
