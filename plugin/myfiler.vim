@@ -9,7 +9,8 @@ let g:loaded_myfiler = 1
 
 
 let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
-let g:myfiler_default_config = get(g:, 'myfiler_default_config', {})
+let g:myfiler_default_view = get(g:, 'myfiler_default_view', {})
+let g:myfiler_default_sort = get(g:, 'myfiler_default_sort', {})
 
 
 augroup myfiler
@@ -38,29 +39,43 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> d     <Plug>(myfiler-delete)
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
   nmap <silent><buffer><nowait> .     <Plug>(myfiler-change-visibility)
-  nmap <silent><buffer><nowait> T     <Plug>(myfiler-change-sort)
   nmap <silent><buffer><nowait> C     <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> *     <Plug>(myfiler-add-bookmark)
 
   nmap <buffer> + <Nop>
   nmap <buffer> - <Nop>
-  nmap <silent><buffer><nowait> +t    <Plug>(myfiler-expand-time)
-  nmap <silent><buffer><nowait> -t    <Plug>(myfiler-shrink-time)
-  nmap <silent><buffer><nowait> +T    <Plug>(myfiler-expand-time-full)
-  nmap <silent><buffer><nowait> -T    <Plug>(myfiler-shrink-time-full)
-  nmap <silent><buffer><nowait> +s    <Plug>(myfiler-show-size)
-  nmap <silent><buffer><nowait> -s    <Plug>(myfiler-hide-size)
-  nmap <silent><buffer><nowait> +b    <Plug>(myfiler-show-bookmark)
-  nmap <silent><buffer><nowait> -b    <Plug>(myfiler-hide-bookmark)
-  nmap <silent><buffer><nowait> +D    <Plug>(myfiler-show-last-slash)
-  nmap <silent><buffer><nowait> -D    <Plug>(myfiler-hide-last-slash)
-  nmap <silent><buffer><nowait> +l    <Plug>(myfiler-show-link)
-  nmap <silent><buffer><nowait> -l    <Plug>(myfiler-hide-link)
-  nmap <silent><buffer><nowait> +a    <Plug>(myfiler-show-all)
-  nmap <silent><buffer><nowait> -a    <Plug>(myfiler-hide-all)
+  nmap <silent><buffer><nowait> +t <Plug>(myfiler-expand-time)
+  nmap <silent><buffer><nowait> -t <Plug>(myfiler-shrink-time)
+  nmap <silent><buffer><nowait> +T <Plug>(myfiler-expand-time-full)
+  nmap <silent><buffer><nowait> -T <Plug>(myfiler-shrink-time-full)
+  nmap <silent><buffer><nowait> +s <Plug>(myfiler-show-size)
+  nmap <silent><buffer><nowait> -s <Plug>(myfiler-hide-size)
+  nmap <silent><buffer><nowait> +b <Plug>(myfiler-show-bookmark)
+  nmap <silent><buffer><nowait> -b <Plug>(myfiler-hide-bookmark)
+  nmap <silent><buffer><nowait> +D <Plug>(myfiler-show-last-slash)
+  nmap <silent><buffer><nowait> -D <Plug>(myfiler-hide-last-slash)
+  nmap <silent><buffer><nowait> +l <Plug>(myfiler-show-link)
+  nmap <silent><buffer><nowait> -l <Plug>(myfiler-hide-link)
+  nmap <silent><buffer><nowait> +a <Plug>(myfiler-show-all)
+  nmap <silent><buffer><nowait> -a <Plug>(myfiler-hide-all)
+  nmap <silent><buffer><nowait> +A <Plug>(myfiler-align-arrows)
+  nmap <silent><buffer><nowait> -A <Plug>(myfiler-unalign-arrows)
 
-  nmap <silent><buffer><nowait> +A    <Plug>(myfiler-align-arrows)
-  nmap <silent><buffer><nowait> -A    <Plug>(myfiler-unalign-arrows)
+  nmap <silent><buffer><nowait> <b <Plug>(myfiler-sort-bookmark-first)
+  nmap <silent><buffer><nowait> >b <Plug>(myfiler-sort-bookmark-last)
+  nmap <silent><buffer><nowait> =b <Plug>(myfiler-ignore-bookmark-on-sort)
+  nmap <silent><buffer><nowait> <d <Plug>(myfiler-sort-directory-first)
+  nmap <silent><buffer><nowait> >d <Plug>(myfiler-sort-directory-last)
+  nmap <silent><buffer><nowait> =d <Plug>(myfiler-ignore-directory-on-sort)
+  nmap <silent><buffer><nowait> <t <Plug>(myfiler-sort-by-time-asc)
+  nmap <silent><buffer><nowait> >t <Plug>(myfiler-sort-by-time-desc)
+  nmap <silent><buffer><nowait> =t <Plug>(myfiler-ignore-time-on-sort)
+  nmap <silent><buffer><nowait> <s <Plug>(myfiler-sort-by-size-asc)
+  nmap <silent><buffer><nowait> >s <Plug>(myfiler-sort-by-size-desc)
+  nmap <silent><buffer><nowait> =s <Plug>(myfiler-ignore-size-on-sort)
+  nmap <silent><buffer><nowait> <n <Plug>(myfiler-sort-by-name-asc)
+  nmap <silent><buffer><nowait> >n <Plug>(myfiler-sort-by-name-desc)
+  nmap <silent><buffer><nowait> =n <Plug>(myfiler-ignore-name-on-sort)
 endfunction
 
 
@@ -79,7 +94,6 @@ nnoremap <silent> <Plug>(myfiler-move)              :<C-u>call myfiler#move()<CR
 nnoremap <silent> <Plug>(myfiler-delete)            :<C-u>call myfiler#delete()<CR>
 " nnoremap <silent> <Plug>(myfiler-copy)              :<C-u>call myfiler#copy()<CR>
 nnoremap <silent> <Plug>(myfiler-change-visibility) :<C-u>call myfiler#change_visibility()<CR>
-nnoremap <silent> <Plug>(myfiler-change-sort)       :<C-u>call myfiler#change_sort()<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory)  :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-add-bookmark)      :<C-u>call myfiler#add_bookmark()<CR>
 
@@ -105,6 +119,22 @@ nnoremap <silent> <Plug>(myfiler-hide-all)          :<C-u>call myfiler#hide_all(
 
 nnoremap <silent> <Plug>(myfiler-align-arrows)      :<C-u>call myfiler#change_arrow_alignment(v:true)<CR>
 nnoremap <silent> <Plug>(myfiler-unalign-arrows)    :<C-u>call myfiler#change_arrow_alignment(v:false)<CR>
+
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#add_sortkey('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#add_sortkey('B')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#delete_sortkey('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-first)     :<C-u>call myfiler#add_sortkey('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-last)      :<C-u>call myfiler#add_sortkey('D')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-directory-on-sort) :<C-u>call myfiler#delete_sortkey('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-asc)         :<C-u>call myfiler#add_sortkey('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-desc)        :<C-u>call myfiler#add_sortkey('T')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-time-on-sort)      :<C-u>call myfiler#delete_sortkey('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-asc)         :<C-u>call myfiler#add_sortkey('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-desc)        :<C-u>call myfiler#add_sortkey('S')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#delete_sortkey('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#add_sortkey('n')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#add_sortkey('N')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#delete_sortkey('n')<CR>
 
 
 function! s:on_bufenter() abort

@@ -425,4 +425,17 @@ function! myfiler#add_bookmark() abort
 endfunction
 
 
+function! myfiler#add_sortkey(added) abort
+  call filter(b:myfiler_sort_keys, { _, c -> c != a:added })
+  call insert(b:myfiler_sort_keys, a:added, 0)
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#delete_sortkey(deleted) abort
+  call filter(b:myfiler_sort_keys, { _, c -> c != a:deleted })
+  call myfiler#buffer#render()
+endfunction
+
+
 let &cpoptions = s:save_cpo

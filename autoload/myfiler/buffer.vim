@@ -8,9 +8,9 @@ endfunction
 
 
 function! myfiler#buffer#init() abort
-  let dir = myfiler#get_dir()
-  call s:init_view_config(fnamemodify(dir, ':p:h'))
-  call s:init_sort_keys()
+  let path = fnamemodify(myfiler#get_dir(), ':p:h')
+  call s:init_view_config(path)
+  call s:init_sort_keys(path)
 
   call myfiler#buffer#render()
 
@@ -24,7 +24,7 @@ endfunction
 
 
 function! s:init_view_config(path) abort
-  let conf = get(g:myfiler_default_config, a:path, 'tsbDl')
+  let conf = get(g:myfiler_default_view, a:path, 'tsbDl')
 
   let b:myfiler_time_format =
       \ conf =~# 'T' ? 'long' :
@@ -38,8 +38,9 @@ function! s:init_view_config(path) abort
 endfunction
 
 
-function! s:init_sort_keys() abort
-  let b:myfiler_sort_keys = ['b', 'd', 'n']
+function! s:init_sort_keys(path) abort
+  let b:myfiler_sort_keys =
+      \ get(g:myfiler_default_sort, a:path, ['b', 'd', 'n'])
 endfunction
 
 
