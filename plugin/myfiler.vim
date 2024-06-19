@@ -17,8 +17,6 @@ augroup myfiler
   autocmd!
   autocmd FileType myfiler call s:setup_mappings()
   autocmd BufEnter * call s:on_bufenter()
-  " autocmd BufLeave * call s:on_bufleave()
-  autocmd WinLeave * call s:on_winleave()
   autocmd TabLeave * call s:on_tableave()
 augroup END
 
@@ -120,21 +118,21 @@ nnoremap <silent> <Plug>(myfiler-hide-all)          :<C-u>call myfiler#hide_all(
 nnoremap <silent> <Plug>(myfiler-align-arrows)      :<C-u>call myfiler#change_arrow_alignment(v:true)<CR>
 nnoremap <silent> <Plug>(myfiler-unalign-arrows)    :<C-u>call myfiler#change_arrow_alignment(v:false)<CR>
 
-nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#add_sortkey('b')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#add_sortkey('B')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#delete_sortkey('b')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-directory-first)     :<C-u>call myfiler#add_sortkey('d')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-directory-last)      :<C-u>call myfiler#add_sortkey('D')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-directory-on-sort) :<C-u>call myfiler#delete_sortkey('d')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-time-asc)         :<C-u>call myfiler#add_sortkey('t')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-time-desc)        :<C-u>call myfiler#add_sortkey('T')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-time-on-sort)      :<C-u>call myfiler#delete_sortkey('t')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-size-asc)         :<C-u>call myfiler#add_sortkey('s')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-size-desc)        :<C-u>call myfiler#add_sortkey('S')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#delete_sortkey('s')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#add_sortkey('n')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#add_sortkey('N')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#delete_sortkey('n')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#sort#add_key('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#sort#add_key('B')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#sort#delete_key('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-first)     :<C-u>call myfiler#sort#add_key('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-last)      :<C-u>call myfiler#sort#add_key('D')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-directory-on-sort) :<C-u>call myfiler#sort#delete_key('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-asc)         :<C-u>call myfiler#sort#add_key('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-desc)        :<C-u>call myfiler#sort#add_key('T')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-time-on-sort)      :<C-u>call myfiler#sort#delete_key('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-asc)         :<C-u>call myfiler#sort#add_key('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-desc)        :<C-u>call myfiler#sort#add_key('S')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#sort#delete_key('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#sort#add_key('n')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#sort#add_key('N')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#sort#delete_key('n')<CR>
 
 
 function! s:on_bufenter() abort
@@ -152,10 +150,6 @@ function! s:on_bufenter() abort
 
   " Note that Vim set 'buflisted' when starting to edit a buffer
   setlocal nobuflisted
-endfunction
-
-
-function! s:on_winleave() abort
 endfunction
 
 

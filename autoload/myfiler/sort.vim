@@ -70,6 +70,13 @@ function! s:_compose(cmp1, cmp2, e1, e2) abort
 endfunction
 
 
+function! myfiler#sort#init() abort
+  let path = fnamemodify(myfiler#get_dir(), ':p:h')
+  let b:myfiler_sort_keys =
+      \ get(g:myfiler_default_sort, path, ['b', 'd', 'n'])
+endfunction
+
+
 function! myfiler#sort#get_comparator() abort
   let keys = filter(copy(b:myfiler_sort_keys),
       \ { _, c -> has_key(s:comparator_dict, c) })
@@ -79,6 +86,19 @@ function! myfiler#sort#get_comparator() abort
   let comparators = map(keys, { _, key -> s:comparator_dict[key] })
   return reduce(comparators,
       \ { composed, comparator -> s:compose(composed, comparator) })
+endfunction
+
+
+function! myfiler#sort#add_key(added) abort
+  call filter(b:myfiler_sort_keys, { _, key -> key != a:added })
+  call insert(b:myfiler_sort_keys, a:added, 0)
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#sort#delete_key(deleted) abort
+  call filter(b:myfiler_sort_keys, { _, key -> key != a:deleted })
+  call myfiler#buffer#render()
 endfunction
 
 

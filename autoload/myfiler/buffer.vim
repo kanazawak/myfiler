@@ -10,7 +10,7 @@ endfunction
 function! myfiler#buffer#init() abort
   let path = fnamemodify(myfiler#get_dir(), ':p:h')
   call s:init_view_config(path)
-  call s:init_sort_keys(path)
+  call myfiler#sort#init()
 
   call myfiler#buffer#render()
 
