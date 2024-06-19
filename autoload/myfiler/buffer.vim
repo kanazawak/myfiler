@@ -9,20 +9,8 @@ endfunction
 
 function! myfiler#buffer#init() abort
   let dir = myfiler#get_dir()
-  let conf = get(g:myfiler_default_config, dir, 'tsbDl')
-  if conf =~# 'T'
-    let b:myfiler_time_format = 'long'
-  elseif conf =~# 't'
-    let b:myfiler_time_format = 'short'
-  else
-    let b:myfiler_time_format = 'none'
-  endif
-  let b:myfiler_shows_bookmark     = conf =~# 'b'
-  let b:myfiler_shows_size         = conf =~# 's'
-  let b:myfiler_shows_last_slash   = conf =~# 'D'
-  let b:myfiler_shows_link         = conf =~# 'l'
-  let b:myfiler_aligns_arrows      = conf =~# 'A'
-  let b:myfiler_shows_hidden_files = conf =~# 'h'
+  call s:init_view_config(fnamemodify(dir, ':p:h'))
+  call s:init_sort_keys()
 
   call myfiler#buffer#render()
 
@@ -32,6 +20,26 @@ function! myfiler#buffer#init() abort
   setlocal nowrap
   mapclear <buffer>
   setlocal filetype=myfiler
+endfunction
+
+
+function! s:init_view_config(path) abort
+  let conf = get(g:myfiler_default_config, a:path, 'tsbDl')
+
+  let b:myfiler_time_format =
+      \ conf =~# 'T' ? 'long' :
+      \ conf =~# 't' ? 'short' : 'none'
+  let b:myfiler_shows_bookmark     = conf =~# 'b'
+  let b:myfiler_shows_size         = conf =~# 's'
+  let b:myfiler_shows_last_slash   = conf =~# 'D'
+  let b:myfiler_shows_link         = conf =~# 'l'
+  let b:myfiler_aligns_arrows      = conf =~# 'A'
+  let b:myfiler_shows_hidden_files = conf =~# 'h'
+endfunction
+
+
+function! s:init_sort_keys() abort
+  let b:myfiler_sort_keys = ['b', 'd', 'n']
 endfunction
 
 

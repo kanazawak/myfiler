@@ -36,8 +36,28 @@ let s:compare_time_asc = { entry1, entry2 -> entry1.time - entry2.time }
 let s:compare_time_desc = s:reverse(s:compare_time_asc)
 
 
+let s:compare_size_asc = { entry1, entry2 -> entry1.size - entry2.size }
+
+
+let s:compare_size_desc = s:reverse(s:compare_size_asc)
+
+
+let s:comparator_dict = #{
+    \  d: s:compare_dir_first,
+    \  D: s:compare_dir_last,
+    \  b: s:compare_bookmark_first,
+    \  B: s:compare_bookmark_last,
+    \  n: s:compare_name_asc,
+    \  N: s:compare_name_desc,
+    \  t: s:compare_time_asc,
+    \  T: s:compare_time_desc,
+    \  s: s:compare_size_asc,
+    \  S: s:compare_size_desc
+    \}
+
+
 function! s:compose(comparator1, comparator2) abort
-  return function('s:_composite', [a:comparator1, a:comparator2])
+  return function('s:_compose', [a:comparator1, a:comparator2])
 endfunction
 
 
@@ -51,17 +71,11 @@ endfunction
 
 
 function! myfiler#sort#get_comparator() abort
-  if get(b:, 'myfiler_sorts_by_time')
-    return s:compare_time_desc
-  else
-    let comparators = [
-        \ s:compare_dir_first,
-        \ s:compare_bookmark_first,
-        \ s:compare_name_asc
-        \ ]
-    return reduce(comparators,
-        \ { composed, comparator -> s:compose(composed, comparator) })
-  endif
+  let keys = filter(copy(b:myfiler_sort_keys),
+      \ { _, c -> has_key(s:comparator_dict, c) })
+  let comparators = map(keys, { _, key -> s:comparator_dict[key] })
+  return reduce(comparators,
+      \ { composed, comparator -> s:compose(composed, comparator) })
 endfunction
 
 
