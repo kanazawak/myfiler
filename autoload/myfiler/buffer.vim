@@ -26,21 +26,15 @@ endfunction
 function! s:init_view_config(path) abort
   let conf = get(g:myfiler_default_view, a:path, 'tsbDl')
 
-  let b:myfiler_time_format =
-      \ conf =~# 'T' ? 'long' :
-      \ conf =~# 't' ? 'short' : 'none'
-  let b:myfiler_shows_bookmark     = conf =~# 'b'
-  let b:myfiler_shows_size         = conf =~# 's'
-  let b:myfiler_shows_last_slash   = conf =~# 'D'
-  let b:myfiler_shows_link         = conf =~# 'l'
-  let b:myfiler_aligns_arrows      = conf =~# 'A'
-  let b:myfiler_shows_hidden_files = conf =~# 'h'
-endfunction
-
-
-function! s:init_sort_keys(path) abort
-  let b:myfiler_sort_keys =
-      \ get(g:myfiler_default_sort, a:path, ['b', 'd', 'n'])
+  let b:myfiler_view_items =
+      \ conf =~# 'T' ? ['T'] :
+      \ conf =~# 't' ? ['t'] : []
+  let b:myfiler_view_items += conf =~# 'b' ? ['b'] : []
+  let b:myfiler_view_items += conf =~# 's' ? ['s'] : []
+  let b:myfiler_view_items += conf =~# 'D' ? ['D'] : []
+  let b:myfiler_view_items += conf =~# 'l' ? ['l'] : []
+  let b:myfiler_view_items += conf =~# 'A' ? ['A'] : []
+  let b:myfiler_view_items += conf =~# 'h' ? ['h'] : []
 endfunction
 
 
@@ -64,7 +58,7 @@ endfunction
 
 function! s:render() abort
   let dir = myfiler#get_dir()
-  let dirinfo = get(b:, 'myfiler_shows_hidden_files')
+  let dirinfo = myfiler#shows_hidden_file()
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
 
@@ -108,15 +102,15 @@ function! s:render() abort
   " cursors at same line of same buffer in other windows 
   " to move (unexpectedly) up
 
-  let aligns_arrows = get(b:, 'myfiler_aligns_arrows')
-  if aligns_arrows
+  let aligns_arrow = myfiler#aligns_arrow()
+  if aligns_arrow
     let max_len = max(map(copy(new_entries),
         \ { _, e  -> strdisplaywidth(e.name) }))
   endif
 
   for lnum in range(1, len(new_entries))
     let entry = new_entries[lnum - 1]
-    let pad_len = aligns_arrows ? max_len - strdisplaywidth(entry.name) : 0
+    let pad_len = aligns_arrow ? max_len - strdisplaywidth(entry.name) : 0
     let line = myfiler#entry#to_line(entry, pad_len)
     call setline(lnum, line)
   endfor
