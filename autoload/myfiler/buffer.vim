@@ -9,7 +9,7 @@ endfunction
 
 function! myfiler#buffer#init() abort
   let path = fnamemodify(myfiler#get_dir(), ':p:h')
-  call s:init_view_config(path)
+  call myfiler#view#init(path)
   call myfiler#sort#init()
 
   call myfiler#buffer#render()
@@ -20,21 +20,6 @@ function! myfiler#buffer#init() abort
   setlocal nowrap
   mapclear <buffer>
   setlocal filetype=myfiler
-endfunction
-
-
-function! s:init_view_config(path) abort
-  let conf = get(g:myfiler_default_view, a:path, 'tsbDl')
-
-  let b:myfiler_view_items =
-      \ conf =~# 'T' ? ['T'] :
-      \ conf =~# 't' ? ['t'] : []
-  let b:myfiler_view_items += conf =~# 'b' ? ['b'] : []
-  let b:myfiler_view_items += conf =~# 's' ? ['s'] : []
-  let b:myfiler_view_items += conf =~# 'D' ? ['D'] : []
-  let b:myfiler_view_items += conf =~# 'l' ? ['l'] : []
-  let b:myfiler_view_items += conf =~# 'A' ? ['A'] : []
-  let b:myfiler_view_items += conf =~# 'h' ? ['h'] : []
 endfunction
 
 
@@ -58,7 +43,7 @@ endfunction
 
 function! s:render() abort
   let dir = myfiler#get_dir()
-  let dirinfo = myfiler#shows_hidden_file()
+  let dirinfo = myfiler#view#shows_hidden_file()
         \ ? readdirex(dir)
         \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
 
@@ -102,7 +87,7 @@ function! s:render() abort
   " cursors at same line of same buffer in other windows 
   " to move (unexpectedly) up
 
-  let aligns_arrow = myfiler#aligns_arrow()
+  let aligns_arrow = myfiler#view#aligns_arrow()
   if aligns_arrow
     let max_len = max(map(copy(new_entries),
         \ { _, e  -> strdisplaywidth(e.name) }))

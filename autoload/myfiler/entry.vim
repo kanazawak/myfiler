@@ -49,7 +49,7 @@ endfunction
 
 
 function! s:get_bookmark_display(entry) abort
-  if myfiler#shows_bookmark()
+  if myfiler#view#shows_bookmark()
     return a:entry.is_bookmarked ? '*' : ' '
   else
     return ''
@@ -59,15 +59,15 @@ endfunction
 
 function! s:get_time_display(entry) abort
   let format =
-      \ myfiler#shows_datetime() ? '%y/%m/%d %H:%M ' :
-      \ myfiler#shows_date()     ? '%y/%m/%d ' : ''
+      \ myfiler#view#shows_datetime() ? '%y/%m/%d %H:%M ' :
+      \ myfiler#view#shows_date()     ? '%y/%m/%d ' : ''
   return strftime(format, a:entry.time) 
 endfunction
 
 
 let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
 function! s:get_size_display(entry) abort
-  if !myfiler#shows_size()
+  if !myfiler#view#shows_size()
     return ''
   endif
 
@@ -104,11 +104,11 @@ endfunction
 
 
 function! s:get_name_display(entry) abort
-  if !myfiler#shows_last_slash()
+  if !myfiler#view#shows_last_slash()
     let suffix = ''
   elseif a:entry.type ==# 'dir'
     let suffix = '/'
-  elseif a:entry.type == 'linkd' && !myfiler#shows_link()
+  elseif a:entry.type == 'linkd' && !myfiler#view#shows_link()
     let suffix = '/'
   else
     let suffix = ''
@@ -118,7 +118,7 @@ endfunction
 
 
 function! s:get_link_display(entry, pad_len) abort
-  if !myfiler#shows_link()
+  if !myfiler#view#shows_link()
     return ''
   endif
 
@@ -128,7 +128,7 @@ function! s:get_link_display(entry, pad_len) abort
   if a:entry.type ==# 'linkf'
     return padding . ' /=> ' . resolved
   elseif a:entry.type ==# 'linkd' 
-    if !myfiler#shows_last_slash()
+    if !myfiler#view#shows_last_slash()
       return padding . ' /=> ' . resolved
     else
       return padding . ' /=> ' . resolved . '/'

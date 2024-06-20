@@ -84,7 +84,7 @@ endfunction
 
 
 function! myfiler#search_name(name, updates_jumplist = v:false) abort
-  if !myfiler#shows_hidden_file() && a:name[0] == '.'
+  if !myfiler#view#shows_hidden_file() && a:name[0] == '.'
     call myfiler#change_view('+h')
   endif
 
@@ -332,122 +332,19 @@ endfunction
 
 
 function! myfiler#change_view(str) abort
-  if len(a:str) < 2
-    return
-  endif
-  let sign = a:str[0]
-  if sign !=# '-' && sign !=# '+' && sign !=# '!'
-    return
-  endif
-  let item = a:str[1]
-  if match('tTsbDlAh', item) < 0
-    return
-  endif
-
-  " NOTE: Use '!=' instead of '!=#' so that 't' can delete 'T'
-  let old_len = len(b:myfiler_view_items)
-  call filter(b:myfiler_view_items, { _, c -> c != item })
-  let new_len = len(b:myfiler_view_items)
-
-  if sign ==# '+'
-    call add(b:myfiler_view_items, item)
-  elseif sign ==# '!'  " Toggle 
-    if new_len == old_len
-      call add(b:myfiler_view_items, item)
-    endif
-  endif
-
+  call myfiler#view#change(a:str)
   call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#add_view_item(item) abort
-  if index(b:myfiler_view_items, a:item) < 0
-    call add(b:myfiler_view_items, a:item)
-  endif
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#del_view_item(item) abort
-  call filter(b:myfiler_view_items, { _, item -> item !=# a:item })
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#shows_datetime() abort
-  return index(b:myfiler_view_items, 'T') >= 0
-endfunction
-
-
-function! myfiler#shows_date() abort
-  return index(b:myfiler_view_items, 't') >= 0
-endfunction
-
-
-function! myfiler#shows_size() abort
-  return index(b:myfiler_view_items, 's') >= 0
-endfunction
-
-
-function! myfiler#shows_bookmark() abort
-  return index(b:myfiler_view_items, 'b') >= 0
-endfunction
-
-
-function! myfiler#shows_last_slash() abort
-  return index(b:myfiler_view_items, 'D') >= 0
-endfunction
-
-
-function! myfiler#shows_link() abort
-  return index(b:myfiler_view_items, 'l') >= 0
-endfunction
-
-
-function! myfiler#aligns_arrow() abort
-  return index(b:myfiler_view_items, 'A') >= 0
-endfunction
-
-
-function! myfiler#shows_hidden_file() abort
-  return index(b:myfiler_view_items, 'h') >= 0
-endfunction
-
-
-function! myfiler#toggle_view(item) abort
-  if index(b:myfiler_view_items, a:item)
-    call myfiler#change_view('-' . a:item)
-  else
-    call myfiler#change_view('+' . a:item)
-  endif
 endfunction
 
 
 function! myfiler#show_all() abort
-  let aligns_arrow = myfiler#aligns_arrow()
-  let shows_hidden_file = myfiler#shows_hidden_file()
-  let b:myfiler_view_items = ['T', 's', 'b', 'D', 'l']
-  if aligns_arrow
-    let b:myfiler_view_items += ['A']
-  endif
-  if shows_hidden_file
-    let b:myfiler_view_items += ['b']
-  endif
+  call myfiler#view#show_all()
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#hide_all() abort
-  let aligns_arrow = myfiler#aligns_arrow()
-  let shows_hidden_file = myfiler#shows_hidden_file()
-  let b:myfiler_view_items = []
-  if aligns_arrow
-    let b:myfiler_view_items += ['A']
-  endif
-  if shows_hidden_file
-    let b:myfiler_view_items += ['b']
-  endif
+  call myfiler#view#hide_all()
   call myfiler#buffer#render()
 endfunction
 
