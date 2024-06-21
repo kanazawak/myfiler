@@ -8,12 +8,8 @@ endfunction
 
 
 function! myfiler#buffer#init() abort
-  let path = fnamemodify(myfiler#get_dir(), ':p:h')
-  call myfiler#view_item#init(path)
-  call myfiler#filter#init(path)
-  call myfiler#sort#init(path)
-
-  call myfiler#buffer#render(v:true)
+  call myfiler#view#init()
+  call myfiler#buffer#reload()
 
   setlocal buftype=nowrite
   setlocal bufhidden=hide
@@ -24,63 +20,19 @@ function! myfiler#buffer#init() abort
 endfunction
 
 
-function! myfiler#buffer#render(loads_data = v:false) abort
-  if a:loads_data
-    call s:load_data()
-  endif
+function! myfiler#buffer#reload() abort
+  call s:load_data()
 
   let selection = myfiler#selection#get()
   if selection.bufnr == bufnr()
     call myfiler#selection#clear()
   endif
 
-  let cnum = col('.')
-  setlocal noreadonly modifiable
-  let lnum = s:render()
-  setlocal readonly nomodifiable nomodified
-  call cursor(lnum, cnum)
+  call myfiler#view#render()
 
   if selection.bufnr == bufnr()
     call myfiler#selection#restore(selection)
   endif
-endfunction
-
-
-function! s:render() abort
-  let new_entries = copy(b:myfiler_loaded_entries)
-  call filter(new_entries, myfiler#filter#get_acceptor())
-  call sort(new_entries, myfiler#sort#get_comparator())
-
-  let old_entries = get(b:, 'myfiler_entries', [])
-  let b:myfiler_entries = new_entries
-
-  let new_lnum = {}
-  for lnum in range(1, len(new_entries))
-    let new_lnum[new_entries[lnum - 1].name] = lnum
-  endfor
-  for i in range(len(old_entries) - 1, 0, -1)
-    if !get(new_lnum, old_entries[i].name)
-      call remove(old_entries, i)
-      call deletebufline('', i + 1)
-    endif
-  endfor
-  let cursor_name = empty(old_entries) ? '' : old_entries[line('.') - 1].name
-
-  " NOTE: Vim BUG?
-  " Deletion of a line causes
-  " cursors at same line of same buffer in other windows
-  " to move (unexpectedly) up
-
-  let max_namelen = max(map(copy(new_entries),
-      \ { _, e  -> strdisplaywidth(e.name) }))
-
-  for lnum in range(1, len(new_entries))
-    let entry = new_entries[lnum - 1]
-    let line = myfiler#view#create_line(entry, max_namelen)
-    call setline(lnum, line)
-  endfor
-
-  return get(new_lnum, cursor_name, 0)
 endfunction
 
 

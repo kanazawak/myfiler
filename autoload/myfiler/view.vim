@@ -2,106 +2,139 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#view#create_line(entry, max_namelen) abort
-  let time = s:get_time_display(a:entry)
-  let size = s:get_size_display(a:entry)
-  let mark = s:get_mark_display(a:entry)
-  let name = s:get_name_display(a:entry)
-  let link = s:get_link_display(a:entry, a:max_namelen)
-  return time . size . mark . name . link
+function! myfiler#view#init() abort
+  let path = myfiler#get_dir()
+  call myfiler#view_item#init(path)
+  call myfiler#filter#init(path)
+  call myfiler#sort#init(path)
+  let b:myfiler_entries = []
 endfunction
 
 
-function! s:get_mark_display(entry) abort
-  if s:shows_bookmark()
-    " TODO: is_bookmarked should be passed by argument
-    return a:entry.isBookmarked ? '*' : ' '
-  else
-    return ''
-  endif
-endfunction
+function! myfiler#view#render() abort
+  setlocal noreadonly modifiable
 
+  let new_entries = copy(b:myfiler_loaded_entries)
+  call filter(new_entries, myfiler#filter#get_acceptor())
+  call sort(new_entries, myfiler#sort#get_comparator())
 
-function! s:get_time_display(entry) abort
-  let format =
-      \ s:shows_datetime() ? '%y/%m/%d %H:%M ' :
-      \ s:shows_date()     ? '%y/%m/%d ' : ''
-  return strftime(format, a:entry.time)
-endfunction
+  let old_entries = b:myfiler_entries
+  let b:myfiler_entries = new_entries
 
-
-let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
-function! s:get_size_display(entry) abort
-  if !s:shows_size()
-    return ''
-  endif
-
-  if !a:entry.meansFile()
-     return '     '
-  endif
-
-  let x = a:entry.size
-  for i in range(len(s:size_units))
-    let unit = s:size_units[i]
-    if x < 1024
-      if x >= 1000
-        " Ex. 1000 Bytes => 0.9K
-        let str = '0.9' . s:size_units[i + 1]
-        break
-      elseif i == 0
-        " Ex. 999 Bytes => 999B
-        let str = x . unit
-        break
-      elseif x < 10
-        " Ex. 2048 KiloBytes => 2.0M
-        let str = printf("%.1f", x) . unit
-        break
-      else
-        " Ex. 999.9 MegaBytes => 999M
-        let str = printf("%d", float2nr(x)) . unit
-        break
-      endif
-    endif
-    let x /= 1024.0
+  let name_dict = {}
+  for entry in new_entries
+    let name_dict[entry.name] = v:true
   endfor
-  return printf("%4s ", str)
+  for i in range(len(old_entries) - 1, 0, -1)
+    if !get(name_dict, old_entries[i].name)
+      call remove(old_entries, i)
+      call deletebufline('', i + 1)
+    endif
+  endfor
+  let cursor_name = empty(old_entries) ? '' : old_entries[line('.') - 1].name
+
+  let max_namelen = max(map(copy(new_entries),
+      \ { _, e  -> strdisplaywidth(e.name) }))
+
+  let lines = map(copy(new_entries),
+      \ { _, entry -> s:create_line(entry, max_namelen) })
+  call setline(1, lines)
+
+  call myfiler#search_name(cursor_name)
+
+  setlocal readonly nomodifiable nomodified
 endfunction
 
 
-function! s:get_name_display(entry) abort
-  if !s:shows_last_slash()
-    let suffix = ''
-  elseif a:entry.isDirectory()
-    let suffix = '/'
-  elseif a:entry.isLinkToDir() && !s:shows_link()
-    let suffix = '/'
-  else
-    let suffix = ''
-  endif
-  return a:entry.name . suffix
+function! myfiler#view#update_item(str) abort
+  call myfiler#view_item#update(a:str)
+  call myfiler#view#render()
 endfunction
 
 
-function! s:get_link_display(entry, max_namelen) abort
-  if !a:entry.isLink() || !s:shows_link()
-    return ''
+function! myfiler#view#show_all() abort
+  call myfiler#view_item#show_all()
+  call myfiler#view#render()
+endfunction
+
+
+function! myfiler#view#hide_all() abort
+  call myfiler#view_item#hide_all()
+  call myfiler#view#render()
+endfunction
+
+
+function! myfiler#view#add_sort_key(key) abort
+  call myfiler#sort#add_key(a:key)
+  call myfiler#view#render()
+endfunction
+
+
+function! myfiler#view#delete_sort_key(key) abort
+  call myfiler#sort#delete_key(a:key)
+  call myfiler#view#render()
+endfunction
+
+
+function! myfiler#view#toggle_hidden_filter() abort
+  call myfiler#filter#toggle()
+  call myfiler#view#render()
+endfunction
+
+
+function! myfiler#view#add_pattern_filter() abort
+  if empty(b:myfiler_entries)
+    return
   endif
 
-  let padding = ''
-  if s:aligns_arrow()
-    let pad_len = a:max_namelen - strdisplaywidth(a:entry.name)
-    let padding = repeat(' ', pad_len)
-  endif
+  let saved_hls = &hlsearch
+  set hlsearch
+  let saved_reg = @/
+  let @/ = ''
+  let saved_view = myfiler#view_item#save()
+  call myfiler#view_item#hide_all()
+  call myfiler#view_item#update('+D')
+  call myfiler#view#render()
+  redraw
 
-  " TODO: relative path from the directory
-  let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
-  if a:entry.isLinkToDir() && s:shows_last_slash()
-    let resolved .= '/'
-  elseif a:entry.isBrokenLink()
-    let resolved = '(BROKEN LINK)'
-  endif
+  augroup incremental_search
+    autocmd!
+    autocmd CmdlineChanged @ call s:update_searchstr()
+  augroup END
 
-  return padding . ' /=> ' . resolved
+  try
+    call myfiler#filter#add_pattern('.')  " dummy pattern
+    let pattern = input('Input pattern: ')
+    call feedkeys('', 'nx')
+    redraw
+    if pattern ==# '' || empty(b:myfiler_entries)
+      call myfiler#filter#pop_pattern()
+    endif
+  finally
+    augroup incremental_search
+      autocmd!
+    augroup END
+
+    call myfiler#view_item#restore(saved_view)
+    call myfiler#view#render()
+    let @/ = saved_reg
+    let &hlsearch = saved_hls
+  endtry
+endfunction
+
+
+function s:update_searchstr() abort
+  let @/ = getcmdline()
+  call myfiler#filter#pop_pattern()
+  call myfiler#filter#add_pattern(@/)
+  call myfiler#view#render()
+  redraw
+endfunction
+
+
+function! myfiler#view#clear_pattern_filters() abort
+  call myfiler#filter#clear_patterns()
+  call myfiler#view#render()
 endfunction
 
 

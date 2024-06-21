@@ -116,9 +116,10 @@ function! myfiler#open_parent() abort
 endfunction
 
 
+" TODO: Rethink about view
 function! myfiler#reload() abort
   call myfiler#selection#clear()
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
 endfunction
 
 
@@ -149,7 +150,7 @@ endfunction
 function! s:check_duplication(path) abort
   if filereadable(a:path) || isdirectory(a:path)
     call s:echo_error("The name already exists.")
-    call myfiler#buffer#render(v:true)
+    call myfiler#buffer#reload()
     let basename = fnamemodify(a:path, ':t')
     call myfiler#search_name(basename, v:true)
     return v:true
@@ -177,7 +178,7 @@ function! myfiler#new_file() abort
   endif
 
   call writefile([''], path, 'b')
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
   call myfiler#search_name(basename)
 endfunction
 
@@ -194,7 +195,7 @@ function! myfiler#new_dir() abort
   endif
 
   call mkdir(path)
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
   call myfiler#search_name(basename)
 endfunction
 
@@ -220,7 +221,7 @@ function! myfiler#rename() abort
   call rename(old_path, new_path)
 
   let entry.name = new_name
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
 endfunction
 
 
@@ -269,10 +270,10 @@ function! myfiler#move() abort
   endfor
 
   call myfiler#selection#clear()
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
   noautocmd execute 'keepjumps buffer' to_bufnr
 
-  call myfiler#buffer#render(v:true)
+  call myfiler#buffer#reload()
   call myfiler#search_name(name)
 endfunction
 
@@ -308,7 +309,7 @@ function! s:delete_single() abort
   if delete(path) != 0
     call s:echo_error('Deletion failed.')
   else
-    call myfiler#buffer#render(v:true)
+    call myfiler#buffer#reload()
   endif
 endfunction
 
@@ -327,37 +328,7 @@ function! s:delete_multi(selection) abort
       call s:echo_error('Deletion of ' . name . ' failed.')
     endif
   endfor
-  call myfiler#buffer#render(v:true)
-endfunction
-
-
-function! myfiler#change_view(str) abort
-  call myfiler#view_item#change(a:str)
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#show_all() abort
-  call myfiler#view_item#show_all()
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#hide_all() abort
-  call myfiler#view_item#hide_all()
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#add_sort_key(key) abort
-  call myfiler#sort#add_key(a:key)
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#delete_sort_key(key) abort
-  call myfiler#sort#delete_key(a:key)
-  call myfiler#buffer#render()
+  call myfiler#buffer#reload()
 endfunction
 
 
@@ -375,69 +346,9 @@ function! myfiler#add_bookmark() abort
   if v:shell_error
     call s:echo_error('Adding bookmark failed.')
   else
-    call myfiler#buffer#render(v:true)
+    call myfiler#buffer#reload()
     " TODO: rerender bookmark directory
   endif
-endfunction
-
-
-function! myfiler#toggle_hidden_filter() abort
-  call myfiler#filter#toggle()
-  call myfiler#buffer#render()
-endfunction
-
-
-function! myfiler#add_pattern_filter() abort
-  if myfiler#buffer#is_empty()
-    return
-  endif
-
-  let saved_hls = &hlsearch
-  set hlsearch
-  let saved_reg = @/
-  let @/ = ''
-  let saved_view = myfiler#view_item#save()
-  call myfiler#view_item#hide_all()
-  call myfiler#view_item#change('+D')
-  call myfiler#buffer#render()
-  redraw
-
-  augroup incremental_search
-    autocmd!
-    autocmd CmdlineChanged @ call s:update_searchstr()
-  augroup END
-
-  try
-    call myfiler#filter#add_pattern('.')  " dummy pattern
-    let pattern = s:input('Input pattern: ')
-    if pattern ==# '' || myfiler#buffer#is_empty()
-      call myfiler#filter#pop_pattern()
-    endif
-  finally
-    augroup incremental_search
-      autocmd!
-    augroup END
-
-    call myfiler#view_item#restore(saved_view)
-    call myfiler#buffer#render()
-    let @/ = saved_reg
-    let &hlsearch = saved_hls
-  endtry
-endfunction
-
-
-function s:update_searchstr() abort
-  let @/ = getcmdline()
-  call myfiler#filter#pop_pattern()
-  call myfiler#filter#add_pattern(@/)
-  call myfiler#buffer#render()
-  redraw
-endfunction
-
-
-function! myfiler#clear_pattern_filters() abort
-  call myfiler#filter#clear_patterns()
-  call myfiler#buffer#render()
 endfunction
 
 

@@ -83,13 +83,11 @@ function! myfiler#sort#add_key(key) abort
   " NOTE: Use '!=' instead of '!=#' so that 't' can delete 'T'
   call filter(b:myfiler_sort_keys, { _, k -> k != a:key })
   call insert(b:myfiler_sort_keys, a:key, 0)
-  call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#sort#delete_key(key) abort
   call filter(b:myfiler_sort_keys, { _, k -> k != a:key })
-  call myfiler#buffer#render()
 endfunction
 
 
