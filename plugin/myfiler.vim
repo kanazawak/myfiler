@@ -11,6 +11,7 @@ let g:loaded_myfiler = 1
 let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
 let g:myfiler_default_view = get(g:, 'myfiler_default_view', {})
 let g:myfiler_default_sort = get(g:, 'myfiler_default_sort', {})
+let g:myfiler_default_visibility = get(g:, 'myfiler_default_visibility', {})
 
 
 augroup myfiler

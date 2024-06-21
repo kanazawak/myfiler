@@ -28,8 +28,6 @@ let s:compare_size_desc = s:reverse(s:compare_size_asc)
 let s:compare_name_asc = { entry1, entry2 ->
    \ entry1.name < entry2.name ? -1 :
    \ entry1.name > entry2.name ? 1 : 0 }
-
-
 let s:compare_name_desc = s:reverse(s:compare_name_asc)
 
 
@@ -62,8 +60,14 @@ endfunction
 
 
 function! myfiler#sort#init(path) abort
-  let b:myfiler_sort_keys =
-      \ get(g:myfiler_default_sort, a:path, ['b', 'd', 'n'])
+  let b:myfiler_sort_keys = []
+  let conf = get(g:myfiler_default_sort, a:path, 'bdn')
+  for i in range(len(conf))
+    let c = conf[i]
+    if 'dbtsn' =~? c
+      call add(b:myfiler_sort_keys, c)
+    endif
+  endfor
 endfunction
 
 

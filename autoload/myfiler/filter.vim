@@ -3,8 +3,7 @@ set cpoptions&vim
 
 
 function! myfiler#filter#init(path) abort
-  " TODO: Get default filter
-  let b:myfiler_shows_hidden_file = v:true
+  let b:myfiler_shows_hidden_file = get(g:myfiler_default_visibility, a:path)
   let b:myfiler_patterns = []
 endfunction
 

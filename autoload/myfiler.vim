@@ -57,7 +57,7 @@ endfunction
 
 function! myfiler#search_name(name, updates_jumplist = v:false) abort
   if !myfiler#filter#shows_hidden_file() && a:name[0] == '.'
-    call myfiler#toggle_hidden_filter()
+    call myfiler#view#toggle_hidden_filter()
   endif
 
   if myfiler#buffer#is_empty()

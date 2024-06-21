@@ -4,14 +4,13 @@ set cpoptions&vim
 
 function! myfiler#view_item#init(path) abort
   let conf = get(g:myfiler_default_view, a:path, 'tsbDl')
-  let b:myfiler_view_items =
-      \ conf =~# 'T' ? ['T'] :
-      \ conf =~# 't' ? ['t'] : []
-  let b:myfiler_view_items += conf =~# 'b' ? ['b'] : []
-  let b:myfiler_view_items += conf =~# 's' ? ['s'] : []
-  let b:myfiler_view_items += conf =~# 'D' ? ['D'] : []
-  let b:myfiler_view_items += conf =~# 'l' ? ['l'] : []
-  let b:myfiler_view_items += conf =~# 'A' ? ['A'] : []
+  let b:myfiler_view_items = []
+  for i in range(len(conf))
+    let c = conf[i]
+    if 'TtsbDlA' =~# c
+      call add(b:myfiler_view_items, c)
+    endif
+  endfor
 endfunction
 
 
