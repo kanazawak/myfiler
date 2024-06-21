@@ -96,7 +96,7 @@ function! s:render() abort
   for lnum in range(1, len(new_entries))
     let entry = new_entries[lnum - 1]
     let pad_len = aligns_arrow ? max_len - strdisplaywidth(entry.name) : 0
-    let line = myfiler#entry#to_line(entry, pad_len)
+    let line = myfiler#view#create_line(entry, pad_len)
     call setline(lnum, line)
   endfor
 

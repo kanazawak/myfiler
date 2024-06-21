@@ -16,34 +16,12 @@ function! myfiler#view#init(path) abort
 endfunction
 
 
-function! myfiler#view#shows_datetime() abort
-  return index(b:myfiler_view_items, 'T') >= 0
-endfunction
-
-
-function! myfiler#view#shows_date() abort
-  return index(b:myfiler_view_items, 't') >= 0
-endfunction
-
-
-function! myfiler#view#shows_size() abort
-  return index(b:myfiler_view_items, 's') >= 0
-endfunction
-
-
-function! myfiler#view#shows_bookmark() abort
-  return index(b:myfiler_view_items, 'b') >= 0
-endfunction
-
-
-function! myfiler#view#shows_last_slash() abort
-  return index(b:myfiler_view_items, 'D') >= 0
-endfunction
-
-
-function! myfiler#view#shows_link() abort
-  return index(b:myfiler_view_items, 'l') >= 0
-endfunction
+let s:shows_datetime   = { -> index(b:myfiler_view_items, 'T') >= 0 }
+let s:shows_date       = { -> index(b:myfiler_view_items, 't') >= 0 }
+let s:shows_size       = { -> index(b:myfiler_view_items, 's') >= 0 }
+let s:shows_bookmark   = { -> index(b:myfiler_view_items, 'b') >= 0 }
+let s:shows_last_slash = { -> index(b:myfiler_view_items, 'D') >= 0 }
+let s:shows_link       = { -> index(b:myfiler_view_items, 'l') >= 0 }
 
 
 function! myfiler#view#aligns_arrow() abort
@@ -104,6 +82,111 @@ endfunction
 
 function! myfiler#view#hide_all() abort
   call s:bulk_change([])
+endfunction
+
+
+function! myfiler#view#create_line(entry, pad_len) abort
+  let time = s:get_time_display(a:entry)
+  let size = s:get_size_display(a:entry)
+  let bookmark = s:get_bookmark_display(a:entry)
+  let name = s:get_name_display(a:entry)
+  let link = s:get_link_display(a:entry, a:pad_len)
+  return printf("%s%s%s%s%s", time, size, bookmark, name, link)
+endfunction
+
+
+function! s:get_bookmark_display(entry) abort
+  if s:shows_bookmark()
+    " TODO: is_bookmarked should be passed by argument
+    return a:entry.is_bookmarked ? '*' : ' '
+  else
+    return ''
+  endif
+endfunction
+
+
+function! s:get_time_display(entry) abort
+  let format =
+      \ s:shows_datetime() ? '%y/%m/%d %H:%M ' :
+      \ s:shows_date()     ? '%y/%m/%d ' : ''
+  return strftime(format, a:entry.time) 
+endfunction
+
+
+let s:size_units = ['B', 'K', 'M', 'G', 'T', 'P']
+function! s:get_size_display(entry) abort
+  if !s:shows_size()
+    return ''
+  endif
+
+  if a:entry.type !=# 'file' && a:entry.type !=# 'linkf'
+     return '     '
+  endif
+
+  let x = a:entry.size
+  for i in range(len(s:size_units))
+    let unit = s:size_units[i]
+    if x < 1024
+      if x >= 1000
+        " Ex. 1000 Bytes => 0.9K
+        let str = '0.9' . s:size_units[i + 1]
+        break
+      elseif i == 0
+        " Ex. 999 Bytes => 999B
+        let str = x . unit
+        break
+      elseif x < 10
+        " Ex. 2048 KiloBytes => 2.0M
+        let str = printf("%.1f", x) . unit
+        break
+      else
+        " Ex. 999.9 MegaBytes => 999M
+        let str = printf("%d", float2nr(x)) . unit
+        break
+      endif
+    endif
+    let x /= 1024.0
+  endfor
+  return printf("%4s ", str)
+endfunction
+
+
+function! s:get_name_display(entry) abort
+  if !s:shows_last_slash()
+    let suffix = ''
+  elseif a:entry.type ==# 'dir'
+    let suffix = '/'
+  elseif a:entry.type == 'linkd' && !s:shows_link()
+    let suffix = '/'
+  else
+    let suffix = ''
+  endif
+  return a:entry.name . suffix
+endfunction
+
+
+function! s:get_link_display(entry, pad_len) abort
+  if !s:shows_link()
+    return ''
+  endif
+
+  let padding = repeat(' ', a:pad_len)
+  " TODO: relative path from the directory
+  let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
+
+  if a:entry.type ==# 'linkf'
+    return padding . ' /=> ' . resolved
+  elseif a:entry.type ==# 'linkd' 
+    if !s:shows_last_slash()
+      return padding . ' /=> ' . resolved
+    else
+      return padding . ' /=> ' . resolved . '/'
+    endif
+  elseif a:entry.type == 'broken'
+    return padding . ' /=> (BROKEN LINK)'
+  else
+    return ''
+  endif
 endfunction
 
 
