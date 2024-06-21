@@ -38,8 +38,8 @@ function! myfiler#view#change(str) abort
     return
   endif
 
-  " NOTE: Use '!=' instead of '!=#' so that 't' can delete 'T'
-  call filter(b:myfiler_view_items, { _, c -> c != item })
+  " NOTE: Use '!=?' so that 't' can delete 'T'
+  call filter(b:myfiler_view_items, { _, c -> c !=? item })
   if sign ==# '+'
     call add(b:myfiler_view_items, item)
   endif

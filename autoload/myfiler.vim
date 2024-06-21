@@ -337,12 +337,6 @@ function! myfiler#change_view(str) abort
 endfunction
 
 
-function! myfiler#toggle_hidden_filter() abort
-  call myfiler#filter#toggle()
-  call myfiler#buffer#render()
-endfunction
-
-
 function! myfiler#show_all() abort
   call myfiler#view#show_all()
   call myfiler#buffer#render()
@@ -372,6 +366,46 @@ function! myfiler#add_bookmark() abort
     call myfiler#buffer#render()
     " TODO: rerender bookmark directory
   endif
+endfunction
+
+
+function! myfiler#toggle_hidden_filter() abort
+  call myfiler#filter#toggle()
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#add_pattern_filter() abort
+  let saved_hls = &hlsearch
+  set hlsearch
+  let saved_reg = @/
+  let @/ = ''
+
+  augroup incremental_search
+    autocmd!
+    autocmd CmdlineChanged @ call s:update_searchstr()
+  augroup END
+
+  try
+    let pattern = s:input('Input pattern: ')
+    if pattern !=# ''
+      call myfiler#filter#add_pattern(pattern)
+      call myfiler#buffer#render()
+    endif
+  finally
+    augroup incremental_search
+      autocmd!
+    augroup END
+
+    let &hlsearch = saved_hls
+    let @/ = saved_reg
+  endtry
+endfunction
+
+
+function s:update_searchstr()
+  let @/ = getcmdline()
+  redraw
 endfunction
 
 

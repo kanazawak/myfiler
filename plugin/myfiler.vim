@@ -36,7 +36,6 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> m     <Plug>(myfiler-move)
   nmap <silent><buffer><nowait> d     <Plug>(myfiler-delete)
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
-  nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-hidden-filter)
   nmap <silent><buffer><nowait> C     <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> *     <Plug>(myfiler-add-bookmark)
 
@@ -74,6 +73,9 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> <n <Plug>(myfiler-sort-by-name-asc)
   nmap <silent><buffer><nowait> >n <Plug>(myfiler-sort-by-name-desc)
   nmap <silent><buffer><nowait> =n <Plug>(myfiler-ignore-name-on-sort)
+
+  nmap <silent><buffer><nowait> .  <Plug>(myfiler-toggle-hidden-filter)
+  nmap <silent><buffer><nowait> f/ <Plug>(myfiler-add-pattern-filter)
 endfunction
 
 
@@ -118,8 +120,6 @@ nnoremap <silent> <Plug>(myfiler-hide-all)           :<C-u>call myfiler#hide_all
 nnoremap <silent> <Plug>(myfiler-align-arrow)        :<C-u>call myfiler#change_view('+A')<CR>
 nnoremap <silent> <Plug>(myfiler-unalign-arrow)      :<C-u>call myfiler#change_view('-A')<CR>
 
-nnoremap <silent> <Plug>(myfiler-toggle-hidden-filter) :<C-u>call myfiler#toggle_hidden_filter()<CR>
-
 nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#sort#add_key('b')<CR>
 nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#sort#add_key('B')<CR>
 nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#sort#delete_key('b')<CR>
@@ -135,6 +135,9 @@ nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#so
 nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#sort#add_key('n')<CR>
 nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#sort#add_key('N')<CR>
 nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#sort#delete_key('n')<CR>
+
+nnoremap <silent> <Plug>(myfiler-toggle-hidden-filter) :<C-u>call myfiler#toggle_hidden_filter()<CR>
+nnoremap <silent> <Plug>(myfiler-add-pattern-filter)   :<C-u>call myfiler#add_pattern_filter()<CR>
 
 
 function! s:on_bufenter() abort
