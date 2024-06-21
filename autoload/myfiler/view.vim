@@ -53,7 +53,7 @@ function! s:render() abort
       \ { _, e  -> strdisplaywidth(e.name) }))
 
   let lines = map(copy(new_entries),
-      \ { _, entry -> s:create_line(entry, max_namelen) })
+      \ { _, entry -> myfiler#view_item#create_line(entry, max_namelen) })
   call setline(1, lines)
 
   call myfiler#search_name(cursor_name)
