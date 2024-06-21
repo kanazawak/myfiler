@@ -16,14 +16,14 @@ function! myfiler#view#init(path) abort
 endfunction
 
 
-let s:shows = { item -> index(b:myfiler_view_items, item) >= 0 }
-let s:shows_datetime   = { -> s:shows('T') }
-let s:shows_date       = { -> s:shows('t') }
-let s:shows_size       = { -> s:shows('s') }
-let s:shows_bookmark   = { -> s:shows('b') }
-let s:shows_last_slash = { -> s:shows('D') }
-let s:shows_link       = { -> s:shows('l') }
-let s:aligns_arrow     = { -> s:shows('A') }
+let s:enables = { item -> index(b:myfiler_view_items, item) >= 0 }
+let s:shows_datetime   = { -> s:enables('T') }
+let s:shows_date       = { -> s:enables('t') }
+let s:shows_size       = { -> s:enables('s') }
+let s:shows_bookmark   = { -> s:enables('b') }
+let s:shows_last_slash = { -> s:enables('D') }
+let s:shows_link       = { -> s:enables('l') }
+let s:aligns_arrow     = { -> s:enables('A') }
 
 
 function! myfiler#view#shows_hidden_file() abort
@@ -88,7 +88,7 @@ function! myfiler#view#create_line(entry, max_namelen) abort
   let mark = s:get_mark_display(a:entry)
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry, a:max_namelen)
-  return time . size . bookmark . name . link
+  return time . size . mark . name . link
 endfunction
 
 
