@@ -388,10 +388,19 @@ endfunction
 
 
 function! myfiler#add_pattern_filter() abort
+  if myfiler#buffer#is_empty()
+    return
+  endif
+
   let saved_hls = &hlsearch
   set hlsearch
   let saved_reg = @/
   let @/ = ''
+  let saved_view = myfiler#view#save()
+  call myfiler#view#hide_all()
+  call myfiler#view#change('+D')
+  call myfiler#buffer#render()
+  redraw
 
   augroup incremental_search
     autocmd!
@@ -399,25 +408,36 @@ function! myfiler#add_pattern_filter() abort
   augroup END
 
   try
+    call myfiler#filter#add_pattern('.')  " dummy pattern
     let pattern = s:input('Input pattern: ')
-    if pattern !=# ''
-      call myfiler#filter#add_pattern(pattern)
-      call myfiler#buffer#render()
+    if pattern ==# '' || myfiler#buffer#is_empty()
+      call myfiler#filter#pop_pattern()
     endif
   finally
     augroup incremental_search
       autocmd!
     augroup END
 
-    let &hlsearch = saved_hls
+    call myfiler#view#restore(saved_view)
+    call myfiler#buffer#render()
     let @/ = saved_reg
+    let &hlsearch = saved_hls
   endtry
 endfunction
 
 
 function s:update_searchstr()
   let @/ = getcmdline()
+  call myfiler#filter#pop_pattern()
+  call myfiler#filter#add_pattern(@/)
+  call myfiler#buffer#render()
   redraw
+endfunction
+
+
+function! myfiler#clear_pattern_filters() abort
+  call myfiler#filter#clear_patterns()
+  call myfiler#buffer#render()
 endfunction
 
 

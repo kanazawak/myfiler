@@ -38,4 +38,10 @@ function! s:is_link(ftype) abort
 endfunction
 
 
+function! myfiler#entry#get_name_with_suffix(entry) abort
+  let suffix = a:entry.type ==# 'dir' || a:entry.type ==# 'linkd' ? '/' : ''
+  return a:entry.name . suffix
+endfunction
+
+
 let &cpoptions = s:save_cpo

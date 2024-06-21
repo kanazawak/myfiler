@@ -24,9 +24,19 @@ function! myfiler#filter#add_pattern(pattern) abort
 endfunction
 
 
+function! myfiler#filter#pop_pattern() abort
+  call remove(b:myfiler_patterns, len(b:myfiler_patterns) - 1)
+endfunction
+
+
+function! myfiler#filter#clear_patterns() abort
+  let b:myfiler_patterns = []
+endfunction
+
+
 function! s:pattern_acceptor(pattern) abort
   " TODO: smartcase
-  return { entry -> entry.name =~ a:pattern }
+  return { entry -> myfiler#entry#get_name_with_suffix(entry) =~ a:pattern }
 endfunction
 
 

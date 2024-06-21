@@ -172,4 +172,14 @@ function! s:get_link_display(entry, max_namelen) abort
 endfunction
 
 
+function! myfiler#view#save() abort
+  return copy(b:myfiler_view_items)
+endfunction
+
+
+function! myfiler#view#restore(saved) abort
+  let b:myfiler_view_items = copy(a:saved)
+endfunction
+
+
 let &cpoptions = s:save_cpo
