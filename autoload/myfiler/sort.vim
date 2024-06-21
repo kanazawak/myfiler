@@ -8,29 +8,20 @@ endfunction
 
 
 let s:compare_dir_first = { entry1, entry2 ->
-   \   (entry2.type ==# 'dir' || entry2.type ==# 'linkd')
-   \ - (entry1.type ==# 'dir' || entry1.type ==# 'linkd')}
-
-
+    \ entry2.meansDirectory() - entry1.meansDirectory() }
 let s:compare_dir_last = s:reverse(s:compare_dir_first)
 
 
 let s:compare_bookmark_first = { entry1, entry2 ->
-    \ entry2.is_bookmarked - entry1.is_bookmarked }
-
-
+    \ entry2.isBookmarked - entry1.isBookmarked }
 let s:compare_bookmark_last = s:reverse(s:compare_bookmark_first)
 
 
 let s:compare_time_asc = { entry1, entry2 -> entry1.time - entry2.time }
-
-
 let s:compare_time_desc = s:reverse(s:compare_time_asc)
 
 
 let s:compare_size_asc = { entry1, entry2 -> entry1.size - entry2.size }
-
-
 let s:compare_size_desc = s:reverse(s:compare_size_asc)
 
 

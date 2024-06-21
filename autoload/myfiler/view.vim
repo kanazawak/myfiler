@@ -78,7 +78,7 @@ endfunction
 function! s:get_mark_display(entry) abort
   if s:shows_bookmark()
     " TODO: is_bookmarked should be passed by argument
-    return a:entry.is_bookmarked ? '*' : ' '
+    return a:entry.isBookmarked ? '*' : ' '
   else
     return ''
   endif
@@ -99,7 +99,7 @@ function! s:get_size_display(entry) abort
     return ''
   endif
 
-  if a:entry.type !=# 'file' && a:entry.type !=# 'linkf'
+  if !a:entry.meansFile()
      return '     '
   endif
 
@@ -134,9 +134,9 @@ endfunction
 function! s:get_name_display(entry) abort
   if !s:shows_last_slash()
     let suffix = ''
-  elseif a:entry.type ==# 'dir'
+  elseif a:entry.isDirectory()
     let suffix = '/'
-  elseif a:entry.type == 'linkd' && !s:shows_link()
+  elseif a:entry.isLinkToDir() && !s:shows_link()
     let suffix = '/'
   else
     let suffix = ''
@@ -146,29 +146,25 @@ endfunction
 
 
 function! s:get_link_display(entry, max_namelen) abort
-  if !s:shows_link()
+  if !a:entry.isLink() || !s:shows_link()
     return ''
   endif
 
+  let padding = ''
   if s:aligns_arrow()
     let pad_len = a:max_namelen - strdisplaywidth(a:entry.name)
     let padding = repeat(' ', pad_len)
-  else
-    let padding = ''
   endif
 
   " TODO: relative path from the directory
   let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
-
-  if a:entry.type ==# 'linkd' && s:shows_last_slash()
-    return padding . ' /=> ' . resolved . '/'
-  elseif a:entry.type ==# 'linkd' || a:entry.type ==# 'linkf'
-    return padding . ' /=> ' . resolved
-  elseif a:entry.type == 'broken'
-    return padding . ' /=> (BROKEN LINK)'
-  else
-    return ''
+  if a:entry.isLinkToDir() && s:shows_last_slash()
+    let resolved .= '/'
+  elseif a:entry.isBrokenLink()
+    let resolved = '(BROKEN LINK)'
   endif
+
+  return padding . ' /=> ' . resolved
 endfunction
 
 

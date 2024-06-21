@@ -36,7 +36,7 @@ endfunction
 
 function! s:pattern_acceptor(pattern) abort
   " TODO: smartcase
-  return { entry -> myfiler#entry#get_name_with_suffix(entry) =~ a:pattern }
+  return { entry -> entry.getNameWithSuffix() =~ a:pattern }
 endfunction
 
 
