@@ -84,8 +84,8 @@ endfunction
 
 
 function! myfiler#search_name(name, updates_jumplist = v:false) abort
-  if !myfiler#view#shows_hidden_file() && a:name[0] == '.'
-    call myfiler#change_view('+h')
+  if !myfiler#filter#shows_hidden_file() && a:name[0] == '.'
+    call myfiler#toggle_hidden_filter()
   endif
 
   if myfiler#buffer#is_empty()
@@ -333,6 +333,12 @@ endfunction
 
 function! myfiler#change_view(str) abort
   call myfiler#view#change(a:str)
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#toggle_hidden_filter() abort
+  call myfiler#filter#toggle()
   call myfiler#buffer#render()
 endfunction
 

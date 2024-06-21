@@ -10,7 +10,8 @@ endfunction
 function! myfiler#buffer#init() abort
   let path = fnamemodify(myfiler#get_dir(), ':p:h')
   call myfiler#view#init(path)
-  call myfiler#sort#init()
+  call myfiler#filter#init(path)
+  call myfiler#sort#init(path)
 
   call myfiler#buffer#render()
 
@@ -43,9 +44,7 @@ endfunction
 
 function! s:render() abort
   let dir = myfiler#get_dir()
-  let dirinfo = myfiler#view#shows_hidden_file()
-        \ ? readdirex(dir)
-        \ : readdirex(dir, { entry -> entry.name !~ '^\.' })
+  let dirinfo = readdirex(dir)
 
   let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
   let bookmark_dict = {}
@@ -64,6 +63,8 @@ function! s:render() abort
     let is_bookmarked = has_key(bookmark_dict, path)
     call add(new_entries, myfiler#entry#create(finfo, dir, is_bookmarked))
   endfor
+
+  call filter(new_entries, myfiler#filter#get_acceptor())
 
   call sort(new_entries, myfiler#sort#get_comparator())
 

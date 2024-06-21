@@ -70,10 +70,9 @@ function! s:_compose(cmp1, cmp2, e1, e2) abort
 endfunction
 
 
-function! myfiler#sort#init() abort
-  let path = fnamemodify(myfiler#get_dir(), ':p:h')
+function! myfiler#sort#init(path) abort
   let b:myfiler_sort_keys =
-      \ get(g:myfiler_default_sort, path, ['b', 'd', 'n'])
+      \ get(g:myfiler_default_sort, a:path, ['b', 'd', 'n'])
 endfunction
 
 

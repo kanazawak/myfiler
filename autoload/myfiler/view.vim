@@ -12,7 +12,6 @@ function! myfiler#view#init(path) abort
   let b:myfiler_view_items += conf =~# 'D' ? ['D'] : []
   let b:myfiler_view_items += conf =~# 'l' ? ['l'] : []
   let b:myfiler_view_items += conf =~# 'A' ? ['A'] : []
-  let b:myfiler_view_items += conf =~# 'h' ? ['h'] : []
 endfunction
 
 
@@ -26,48 +25,32 @@ let s:shows_link       = { -> s:enables('l') }
 let s:aligns_arrow     = { -> s:enables('A') }
 
 
-function! myfiler#view#shows_hidden_file() abort
-  return index(b:myfiler_view_items, 'h') >= 0
-endfunction
-
-
 function! myfiler#view#change(str) abort
   if len(a:str) < 2
     return
   endif
   let sign = a:str[0]
-  if sign !=# '-' && sign !=# '+' && sign !=# '!'
+  if sign !=# '-' && sign !=# '+'
     return
   endif
   let item = a:str[1]
-  if match('tTsbDlAh', item) < 0
+  if match('tTsbDlA', item) < 0
     return
   endif
 
   " NOTE: Use '!=' instead of '!=#' so that 't' can delete 'T'
-  let old_len = len(b:myfiler_view_items)
   call filter(b:myfiler_view_items, { _, c -> c != item })
-  let new_len = len(b:myfiler_view_items)
-
   if sign ==# '+'
     call add(b:myfiler_view_items, item)
-  elseif sign ==# '!'  " Toggle
-    if new_len == old_len
-      call add(b:myfiler_view_items, item)
-    endif
   endif
 endfunction
 
 
 function! s:bulk_change(array) abort
   let aligns_arrow = s:aligns_arrow()
-  let shows_hidden_file = myfiler#view#shows_hidden_file()
   let b:myfiler_view_items = a:array
   if aligns_arrow
     let b:myfiler_view_items += ['A']
-  endif
-  if shows_hidden_file
-    let b:myfiler_view_items += ['b']
   endif
 endfunction
 

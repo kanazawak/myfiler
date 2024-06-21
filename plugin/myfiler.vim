@@ -36,7 +36,7 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> m     <Plug>(myfiler-move)
   nmap <silent><buffer><nowait> d     <Plug>(myfiler-delete)
   " nmap <silent><buffer><nowait> p     <Plug>(myfiler-copy)
-  nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-hidden-file)
+  nmap <silent><buffer><nowait> .     <Plug>(myfiler-toggle-hidden-filter)
   nmap <silent><buffer><nowait> C     <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> *     <Plug>(myfiler-add-bookmark)
 
@@ -96,38 +96,29 @@ nnoremap <silent> <Plug>(myfiler-add-bookmark)      :<C-u>call myfiler#add_bookm
 
 nnoremap <silent> <Plug>(myfiler-show-date)          :<C-u>call myfiler#change_view('+t')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-date)          :<C-u>call myfiler#change_view('-t')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-date)        :<C-u>call myfiler#change_view('!t')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-datetime)      :<C-u>call myfiler#change_view('+T')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-datetime)      :<C-u>call myfiler#change_view('-T')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-datetime)    :<C-u>call myfiler#change_view('!T')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-size)          :<C-u>call myfiler#change_view('+s')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-size)          :<C-u>call myfiler#change_view('-s')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-size)        :<C-u>call myfiler#change_view('!s')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-bookmark)      :<C-u>call myfiler#change_view('+b')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-bookmark)      :<C-u>call myfiler#change_view('-b')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-bookmark)    :<C-u>call myfiler#change_view('!b')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-last-slash)    :<C-u>call myfiler#change_view('+D')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-last-slash)    :<C-u>call myfiler#change_view('-D')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-last-slash)  :<C-u>call myfiler#change_view('!D')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-link)          :<C-u>call myfiler#change_view('+l')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-link)          :<C-u>call myfiler#change_view('-l')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-link)        :<C-u>call myfiler#change_view('!l')<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-all)           :<C-u>call myfiler#show_all()<CR>
 nnoremap <silent> <Plug>(myfiler-hide-all)           :<C-u>call myfiler#hide_all()<CR>
 
 nnoremap <silent> <Plug>(myfiler-align-arrow)        :<C-u>call myfiler#change_view('+A')<CR>
 nnoremap <silent> <Plug>(myfiler-unalign-arrow)      :<C-u>call myfiler#change_view('-A')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-alignment)   :<C-u>call myfiler#change_view('!A')<CR>
 
-nnoremap <silent> <Plug>(myfiler-show-hidden-file)   :<C-u>call myfiler#change_view('+h')<CR>
-nnoremap <silent> <Plug>(myfiler-hide-hidden-file)   :<C-u>call myfiler#change_view('-h')<CR>
-nnoremap <silent> <Plug>(myfiler-toggle-hidden-file) :<C-u>call myfiler#change_view('!h')<CR>
+nnoremap <silent> <Plug>(myfiler-toggle-hidden-filter) :<C-u>call myfiler#toggle_hidden_filter()<CR>
 
 nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#sort#add_key('b')<CR>
 nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#sort#add_key('B')<CR>
