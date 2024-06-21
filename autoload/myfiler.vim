@@ -332,19 +332,19 @@ endfunction
 
 
 function! myfiler#change_view(str) abort
-  call myfiler#view#change(a:str)
+  call myfiler#view_item#change(a:str)
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#show_all() abort
-  call myfiler#view#show_all()
+  call myfiler#view_item#show_all()
   call myfiler#buffer#render()
 endfunction
 
 
 function! myfiler#hide_all() abort
-  call myfiler#view#hide_all()
+  call myfiler#view_item#hide_all()
   call myfiler#buffer#render()
 endfunction
 
@@ -396,9 +396,9 @@ function! myfiler#add_pattern_filter() abort
   set hlsearch
   let saved_reg = @/
   let @/ = ''
-  let saved_view = myfiler#view#save()
-  call myfiler#view#hide_all()
-  call myfiler#view#change('+D')
+  let saved_view = myfiler#view_item#save()
+  call myfiler#view_item#hide_all()
+  call myfiler#view_item#change('+D')
   call myfiler#buffer#render()
   redraw
 
@@ -418,7 +418,7 @@ function! myfiler#add_pattern_filter() abort
       autocmd!
     augroup END
 
-    call myfiler#view#restore(saved_view)
+    call myfiler#view_item#restore(saved_view)
     call myfiler#buffer#render()
     let @/ = saved_reg
     let &hlsearch = saved_hls
@@ -426,7 +426,7 @@ function! myfiler#add_pattern_filter() abort
 endfunction
 
 
-function s:update_searchstr()
+function s:update_searchstr() abort
   let @/ = getcmdline()
   call myfiler#filter#pop_pattern()
   call myfiler#filter#add_pattern(@/)

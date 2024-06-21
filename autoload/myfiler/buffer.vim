@@ -9,7 +9,7 @@ endfunction
 
 function! myfiler#buffer#init() abort
   let path = fnamemodify(myfiler#get_dir(), ':p:h')
-  call myfiler#view#init(path)
+  call myfiler#view_item#init(path)
   call myfiler#filter#init(path)
   call myfiler#sort#init(path)
 
