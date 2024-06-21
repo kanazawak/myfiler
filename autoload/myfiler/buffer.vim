@@ -84,7 +84,7 @@ function! s:render() abort
 
   " NOTE: Vim BUG?
   " Deletion of a line causes
-  " cursors at same line of same buffer in other windows 
+  " cursors at same line of same buffer in other windows
   " to move (unexpectedly) up
 
   let max_namelen = max(map(copy(new_entries),

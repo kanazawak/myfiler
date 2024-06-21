@@ -51,7 +51,7 @@ function! myfiler#view#change(str) abort
 
   if sign ==# '+'
     call add(b:myfiler_view_items, item)
-  elseif sign ==# '!'  " Toggle 
+  elseif sign ==# '!'  " Toggle
     if new_len == old_len
       call add(b:myfiler_view_items, item)
     endif
@@ -85,14 +85,14 @@ endfunction
 function! myfiler#view#create_line(entry, max_namelen) abort
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
-  let bookmark = s:get_bookmark_display(a:entry)
+  let mark = s:get_mark_display(a:entry)
   let name = s:get_name_display(a:entry)
   let link = s:get_link_display(a:entry, a:max_namelen)
-  return printf("%s%s%s%s%s", time, size, bookmark, name, link)
+  return time . size . bookmark . name . link
 endfunction
 
 
-function! s:get_bookmark_display(entry) abort
+function! s:get_mark_display(entry) abort
   if s:shows_bookmark()
     " TODO: is_bookmarked should be passed by argument
     return a:entry.is_bookmarked ? '*' : ' '
@@ -106,7 +106,7 @@ function! s:get_time_display(entry) abort
   let format =
       \ s:shows_datetime() ? '%y/%m/%d %H:%M ' :
       \ s:shows_date()     ? '%y/%m/%d ' : ''
-  return strftime(format, a:entry.time) 
+  return strftime(format, a:entry.time)
 endfunction
 
 
@@ -179,7 +179,7 @@ function! s:get_link_display(entry, max_namelen) abort
 
   if a:entry.type ==# 'linkd' && s:shows_last_slash()
     return padding . ' /=> ' . resolved . '/'
-  elseif a:entry.type ==# 'linkd' || a:entry.type ==# 'linkf' 
+  elseif a:entry.type ==# 'linkd' || a:entry.type ==# 'linkf'
     return padding . ' /=> ' . resolved
   elseif a:entry.type == 'broken'
     return padding . ' /=> (BROKEN LINK)'
