@@ -16,17 +16,14 @@ function! myfiler#view#init(path) abort
 endfunction
 
 
-let s:shows_datetime   = { -> index(b:myfiler_view_items, 'T') >= 0 }
-let s:shows_date       = { -> index(b:myfiler_view_items, 't') >= 0 }
-let s:shows_size       = { -> index(b:myfiler_view_items, 's') >= 0 }
-let s:shows_bookmark   = { -> index(b:myfiler_view_items, 'b') >= 0 }
-let s:shows_last_slash = { -> index(b:myfiler_view_items, 'D') >= 0 }
-let s:shows_link       = { -> index(b:myfiler_view_items, 'l') >= 0 }
-
-
-function! myfiler#view#aligns_arrow() abort
-  return index(b:myfiler_view_items, 'A') >= 0
-endfunction
+let s:shows = { item -> index(b:myfiler_view_items, item) >= 0 }
+let s:shows_datetime   = { -> s:shows('T') }
+let s:shows_date       = { -> s:shows('t') }
+let s:shows_size       = { -> s:shows('s') }
+let s:shows_bookmark   = { -> s:shows('b') }
+let s:shows_last_slash = { -> s:shows('D') }
+let s:shows_link       = { -> s:shows('l') }
+let s:aligns_arrow     = { -> s:shows('A') }
 
 
 function! myfiler#view#shows_hidden_file() abort
@@ -63,7 +60,7 @@ endfunction
 
 
 function! s:bulk_change(array) abort
-  let aligns_arrow = myfiler#view#aligns_arrow()
+  let aligns_arrow = s:aligns_arrow()
   let shows_hidden_file = myfiler#view#shows_hidden_file()
   let b:myfiler_view_items = a:array
   if aligns_arrow
@@ -85,12 +82,12 @@ function! myfiler#view#hide_all() abort
 endfunction
 
 
-function! myfiler#view#create_line(entry, pad_len) abort
+function! myfiler#view#create_line(entry, max_namelen) abort
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
   let bookmark = s:get_bookmark_display(a:entry)
   let name = s:get_name_display(a:entry)
-  let link = s:get_link_display(a:entry, a:pad_len)
+  let link = s:get_link_display(a:entry, a:max_namelen)
   return printf("%s%s%s%s%s", time, size, bookmark, name, link)
 endfunction
 
@@ -165,23 +162,25 @@ function! s:get_name_display(entry) abort
 endfunction
 
 
-function! s:get_link_display(entry, pad_len) abort
+function! s:get_link_display(entry, max_namelen) abort
   if !s:shows_link()
     return ''
   endif
 
-  let padding = repeat(' ', a:pad_len)
+  if s:aligns_arrow()
+    let pad_len = a:max_namelen - strdisplaywidth(a:entry.name)
+    let padding = repeat(' ', pad_len)
+  else
+    let padding = ''
+  endif
+
   " TODO: relative path from the directory
   let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
 
-  if a:entry.type ==# 'linkf'
+  if a:entry.type ==# 'linkd' && s:shows_last_slash()
+    return padding . ' /=> ' . resolved . '/'
+  elseif a:entry.type ==# 'linkd' || a:entry.type ==# 'linkf' 
     return padding . ' /=> ' . resolved
-  elseif a:entry.type ==# 'linkd' 
-    if !s:shows_last_slash()
-      return padding . ' /=> ' . resolved
-    else
-      return padding . ' /=> ' . resolved . '/'
-    endif
   elseif a:entry.type == 'broken'
     return padding . ' /=> (BROKEN LINK)'
   else
