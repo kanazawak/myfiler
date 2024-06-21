@@ -118,7 +118,7 @@ endfunction
 
 function! myfiler#reload() abort
   call myfiler#selection#clear()
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
 endfunction
 
 
@@ -149,7 +149,7 @@ endfunction
 function! s:check_duplication(path) abort
   if filereadable(a:path) || isdirectory(a:path)
     call s:echo_error("The name already exists.")
-    call myfiler#buffer#render()
+    call myfiler#buffer#render(v:true)
     let basename = fnamemodify(a:path, ':t')
     call myfiler#search_name(basename, v:true)
     return v:true
@@ -177,7 +177,7 @@ function! myfiler#new_file() abort
   endif
 
   call writefile([''], path, 'b')
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
   call myfiler#search_name(basename)
 endfunction
 
@@ -194,7 +194,7 @@ function! myfiler#new_dir() abort
   endif
 
   call mkdir(path)
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
   call myfiler#search_name(basename)
 endfunction
 
@@ -220,7 +220,7 @@ function! myfiler#rename() abort
   call rename(old_path, new_path)
 
   let entry.name = new_name
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
 endfunction
 
 
@@ -269,10 +269,10 @@ function! myfiler#move() abort
   endfor
 
   call myfiler#selection#clear()
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
   noautocmd execute 'keepjumps buffer' to_bufnr
 
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
   call myfiler#search_name(name)
 endfunction
 
@@ -308,7 +308,7 @@ function! s:delete_single() abort
   if delete(path) != 0
     call s:echo_error('Deletion failed.')
   else
-    call myfiler#buffer#render()
+    call myfiler#buffer#render(v:true)
   endif
 endfunction
 
@@ -327,7 +327,7 @@ function! s:delete_multi(selection) abort
       call s:echo_error('Deletion of ' . name . ' failed.')
     endif
   endfor
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
 endfunction
 
 
@@ -349,6 +349,18 @@ function! myfiler#hide_all() abort
 endfunction
 
 
+function! myfiler#add_sort_key(key) abort
+  call myfiler#sort#add_key(a:key)
+  call myfiler#buffer#render()
+endfunction
+
+
+function! myfiler#delete_sort_key(key) abort
+  call myfiler#sort#delete_key(a:key)
+  call myfiler#buffer#render()
+endfunction
+
+
 function! myfiler#change_directory() abort
   execute 'cd' myfiler#get_dir()
 endfunction
@@ -363,7 +375,7 @@ function! myfiler#add_bookmark() abort
   if v:shell_error
     call s:echo_error('Adding bookmark failed.')
   else
-    call myfiler#buffer#render()
+    call myfiler#buffer#render(v:true)
     " TODO: rerender bookmark directory
   endif
 endfunction

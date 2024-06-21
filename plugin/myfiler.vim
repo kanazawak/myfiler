@@ -120,21 +120,21 @@ nnoremap <silent> <Plug>(myfiler-hide-all)           :<C-u>call myfiler#hide_all
 nnoremap <silent> <Plug>(myfiler-align-arrow)        :<C-u>call myfiler#change_view('+A')<CR>
 nnoremap <silent> <Plug>(myfiler-unalign-arrow)      :<C-u>call myfiler#change_view('-A')<CR>
 
-nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#sort#add_key('b')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#sort#add_key('B')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#sort#delete_key('b')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-directory-first)     :<C-u>call myfiler#sort#add_key('d')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-directory-last)      :<C-u>call myfiler#sort#add_key('D')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-directory-on-sort) :<C-u>call myfiler#sort#delete_key('d')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-time-asc)         :<C-u>call myfiler#sort#add_key('t')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-time-desc)        :<C-u>call myfiler#sort#add_key('T')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-time-on-sort)      :<C-u>call myfiler#sort#delete_key('t')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-size-asc)         :<C-u>call myfiler#sort#add_key('s')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-size-desc)        :<C-u>call myfiler#sort#add_key('S')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#sort#delete_key('s')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#sort#add_key('n')<CR>
-nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#sort#add_key('N')<CR>
-nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#sort#delete_key('n')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-first)      :<C-u>call myfiler#add_sort_key('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-bookmark-last)       :<C-u>call myfiler#add_sort_key('B')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-bookmark-on-sort)  :<C-u>call myfiler#delete_sort_key('b')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-first)     :<C-u>call myfiler#add_sort_key('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-directory-last)      :<C-u>call myfiler#add_sort_key('D')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-directory-on-sort) :<C-u>call myfiler#delete_sort_key('d')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-asc)         :<C-u>call myfiler#add_sort_key('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-time-desc)        :<C-u>call myfiler#add_sort_key('T')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-time-on-sort)      :<C-u>call myfiler#delete_sort_key('t')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-asc)         :<C-u>call myfiler#add_sort_key('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-size-desc)        :<C-u>call myfiler#add_sort_key('S')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-size-on-sort)      :<C-u>call myfiler#delete_sort_key('s')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-asc)         :<C-u>call myfiler#add_sort_key('n')<CR>
+nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#add_sort_key('N')<CR>
+nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#delete_sort_key('n')<CR>
 
 nnoremap <silent> <Plug>(myfiler-toggle-hidden-filter) :<C-u>call myfiler#toggle_hidden_filter()<CR>
 nnoremap <silent> <Plug>(myfiler-add-pattern-filter)   :<C-u>call myfiler#add_pattern_filter()<CR>

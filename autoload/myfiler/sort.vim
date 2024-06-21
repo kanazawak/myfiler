@@ -88,16 +88,16 @@ function! myfiler#sort#get_comparator() abort
 endfunction
 
 
-function! myfiler#sort#add_key(added) abort
+function! myfiler#sort#add_key(key) abort
   " NOTE: Use '!=' instead of '!=#' so that 't' can delete 'T'
-  call filter(b:myfiler_sort_keys, { _, key -> key != a:added })
-  call insert(b:myfiler_sort_keys, a:added, 0)
+  call filter(b:myfiler_sort_keys, { _, k -> k != a:key })
+  call insert(b:myfiler_sort_keys, a:key, 0)
   call myfiler#buffer#render()
 endfunction
 
 
-function! myfiler#sort#delete_key(deleted) abort
-  call filter(b:myfiler_sort_keys, { _, key -> key != a:deleted })
+function! myfiler#sort#delete_key(key) abort
+  call filter(b:myfiler_sort_keys, { _, k -> k != a:key })
   call myfiler#buffer#render()
 endfunction
 

@@ -13,7 +13,7 @@ function! myfiler#buffer#init() abort
   call myfiler#filter#init(path)
   call myfiler#sort#init(path)
 
-  call myfiler#buffer#render()
+  call myfiler#buffer#render(v:true)
 
   setlocal buftype=nowrite
   setlocal bufhidden=hide
@@ -24,7 +24,11 @@ function! myfiler#buffer#init() abort
 endfunction
 
 
-function! myfiler#buffer#render() abort
+function! myfiler#buffer#render(loads_data = v:false) abort
+  if a:loads_data
+    call s:load_data()
+  endif
+
   let selection = myfiler#selection#get()
   if selection.bufnr == bufnr()
     call myfiler#selection#clear()
@@ -43,29 +47,8 @@ endfunction
 
 
 function! s:render() abort
-  let dir = myfiler#get_dir()
-  let dirinfo = readdirex(dir)
-
-  let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
-  let bookmark_dict = {}
-  for finfo in bookmark_dirinfo
-    let path = fnamemodify(g:myfiler_bookmark_directory, ':p') . finfo.name
-    let resolved = fnamemodify(resolve(path), ':p')
-    if isdirectory(resolved)
-      let resolved = fnamemodify(resolved, ':h')
-    endif
-    let bookmark_dict[resolved] = v:true
-  endfor
-
-  let new_entries = []
-  for finfo in dirinfo
-    let path = fnamemodify(dir, ':p') . finfo.name
-    let is_bookmarked = has_key(bookmark_dict, path)
-    call add(new_entries, myfiler#entry#create(finfo, dir, is_bookmarked))
-  endfor
-
+  let new_entries = copy(b:myfiler_loaded_entries)
   call filter(new_entries, myfiler#filter#get_acceptor())
-
   call sort(new_entries, myfiler#sort#get_comparator())
 
   let old_entries = get(b:, 'myfiler_entries', [])
@@ -98,6 +81,31 @@ function! s:render() abort
   endfor
 
   return get(new_lnum, cursor_name, 0)
+endfunction
+
+
+function! s:load_data() abort
+  let dir = myfiler#get_dir()
+  let dirinfo = readdirex(dir)
+
+  let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
+  let bookmark_dict = {}
+  for finfo in bookmark_dirinfo
+    let path = fnamemodify(g:myfiler_bookmark_directory, ':p') . finfo.name
+    let resolved = fnamemodify(resolve(path), ':p')
+    if isdirectory(resolved)
+      let resolved = fnamemodify(resolved, ':h')
+    endif
+    let bookmark_dict[resolved] = v:true
+  endfor
+
+  let loaded = []
+  for finfo in dirinfo
+    let path = fnamemodify(dir, ':p') . finfo.name
+    let is_bookmarked = has_key(bookmark_dict, path)
+    call add(loaded, myfiler#entry#create(finfo, dir, is_bookmarked))
+  endfor
+  let b:myfiler_loaded_entries = loaded
 endfunction
 
 
