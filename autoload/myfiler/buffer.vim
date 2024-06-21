@@ -21,22 +21,6 @@ endfunction
 
 
 function! myfiler#buffer#reload() abort
-  call s:load_data()
-
-  let selection = myfiler#selection#get()
-  if selection.bufnr == bufnr()
-    call myfiler#selection#clear()
-  endif
-
-  call myfiler#view#render()
-
-  if selection.bufnr == bufnr()
-    call myfiler#selection#restore(selection)
-  endif
-endfunction
-
-
-function! s:load_data() abort
   let dir = myfiler#get_dir()
   let dirinfo = readdirex(dir)
 
@@ -58,6 +42,8 @@ function! s:load_data() abort
     call add(loaded, myfiler#entry#create(finfo, dir, is_bookmarked))
   endfor
   let b:myfiler_loaded_entries = loaded
+
+  call myfiler#view#render()
 endfunction
 
 

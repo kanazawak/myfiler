@@ -9,12 +9,13 @@ let s:Entry = {}
 function! myfiler#entry#create(finfo, dir, is_bookmarked) abort
   let entry = deepcopy(s:Entry)
   let entry.name = a:finfo.name
+  let entry.path = fnamemodify(a:dir, ':p') . entry.name
   let entry.size = a:finfo.size
   let entry.time = a:finfo.time
   let entry.isBookmarked = a:is_bookmarked
 
   if s:is_link(a:finfo.type)
-    let resolved = resolve(fnamemodify(a:dir, ':p') . entry.name)
+    let resolved = resolve(entry.path)
     if isdirectory(resolved)
       let entry._type = 'linkd'
       let entry.resolved = fnamemodify(resolved, ':p:h')

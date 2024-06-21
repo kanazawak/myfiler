@@ -14,6 +14,22 @@ endfunction
 function! myfiler#view#render() abort
   setlocal noreadonly modifiable
 
+  let selection = myfiler#selection#get()
+  if selection.bufnr == bufnr()
+    call myfiler#selection#clear()
+  endif
+
+  call s:render()
+
+  if selection.bufnr == bufnr()
+    call myfiler#selection#restore(selection)
+  endif
+
+  setlocal readonly nomodifiable nomodified
+endfunction
+
+
+function! s:render() abort
   let new_entries = copy(b:myfiler_loaded_entries)
   call filter(new_entries, myfiler#filter#get_acceptor())
   call sort(new_entries, myfiler#sort#get_comparator())
@@ -41,8 +57,6 @@ function! myfiler#view#render() abort
   call setline(1, lines)
 
   call myfiler#search_name(cursor_name)
-
-  setlocal readonly nomodifiable nomodified
 endfunction
 
 

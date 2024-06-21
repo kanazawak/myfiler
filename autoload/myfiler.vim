@@ -22,9 +22,9 @@ function! s:echo_error(message) abort
 endfunction
 
 
-function! s:get_entry(lnum = 0) abort
+function! myfiler#get_entry(lnum = 0) abort
   if myfiler#buffer#is_empty()
-    return {}
+    throw 'myfiler#get_entry() must not be called when the buffer is empty'
   else
     let lnum = a:lnum > 0 ? a:lnum : line('.')
     return b:myfiler_entries[lnum - 1]
@@ -32,24 +32,8 @@ function! s:get_entry(lnum = 0) abort
 endfunction
 
 
-function! myfiler#get_name(lnum = 0) abort
-  if myfiler#buffer#is_empty()
-    return ''
-  else
-    let entry = s:get_entry(a:lnum)
-    return entry.name
-  endif
-endfunction
-
-
 function! s:to_path(basename) abort
   return fnamemodify(myfiler#get_dir(), ':p') . a:basename
-endfunction
-
-
-function! s:get_path() abort
-  let basename = myfiler#get_name()
-  return s:to_path(basename)
 endfunction
 
 
@@ -67,7 +51,7 @@ endfunction
 
 function! myfiler#open_current() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_path()
+    let path = myfiler#get_entry().path
     call myfiler#open(path)
   endif
 endfunction
@@ -75,9 +59,9 @@ endfunction
 
 function! myfiler#open_dir() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_path()
-    if (isdirectory(path))
-      call myfiler#open(path)
+    let entry = myfiler#get_entry()
+    if entry.isDirectory()
+      call myfiler#open(entry.path)
     endif
   endif
 endfunction
@@ -93,7 +77,7 @@ function! myfiler#search_name(name, updates_jumplist = v:false) abort
   endif
 
   for lnum in range(1, line('$'))
-    if myfiler#get_name(lnum) ==# a:name
+    if myfiler#get_entry(lnum).name ==# a:name
       if a:updates_jumplist
         execute 'normal!' lnum . 'G'
       else
@@ -140,12 +124,11 @@ endfunction
 
 function! myfiler#execute() abort
   if !myfiler#buffer#is_empty()
-    let path = s:get_path()
+    let path = myfiler#get_entry().path
     call feedkeys(': ' . path . "\<Home>!", 'n')
   endif
 endfunction
 
-" TODO: Handle visual mode
 
 function! s:check_duplication(path) abort
   if filereadable(a:path) || isdirectory(a:path)
@@ -205,7 +188,7 @@ function! myfiler#rename() abort
     return
   endif
 
-  let entry = s:get_entry()
+  let entry = myfiler#get_entry()
   let old_name = entry.name
   let new_name = s:input('New name: ', old_name)
   if empty(new_name) || new_name ==# old_name
@@ -283,8 +266,6 @@ function! myfiler#delete() abort
     return
   endif
 
-  " TODO: Recursive deletion
-
   let selection = myfiler#selection#get()
   if myfiler#selection#is_empty(selection) || selection.bufnr != bufnr()
     call s:delete_single()
@@ -300,7 +281,7 @@ endfunction
 
 
 function! s:delete_single() abort
-  let path = s:get_path()
+  let path = myfiler#get_entry().path
   let confirm = s:input('Delete ' . path . ' ? (y/N): ')
   if confirm != 'y'
     return
@@ -338,9 +319,10 @@ endfunction
 
 
 function! myfiler#add_bookmark() abort
-  let path = s:get_path()
-  let name = fnamemodify(path, ':t')
-  let linkpath = fnamemodify(g:myfiler_bookmark_directory, ':p') . name
+  let entry = myfiler#get_entry()
+  let path = entry.path
+  let dir = g:myfiler_bookmark_directory
+  let linkpath = fnamemodify(dir, ':p') . entry.name
   let command = 'ln -s '
   call system(command . shellescape(path) . ' ' . shellescape(linkpath))
   if v:shell_error
