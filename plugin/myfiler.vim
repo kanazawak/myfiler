@@ -33,13 +33,13 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> S    <Plug>(myfiler-select-backward)
   nmap <silent><buffer><nowait> x    <Plug>(myfiler-execute)
 
-  nmap <silent><buffer><nowait> o    <Plug>(myfiler-new-file)
-  nmap <silent><buffer><nowait> O    <Plug>(myfiler-new-dir)
-  nmap <silent><buffer><nowait> r    <Plug>(myfiler-rename)
-  nmap <silent><buffer><nowait> m    <Plug>(myfiler-move)
-  nmap <silent><buffer><nowait> d    <Plug>(myfiler-delete)
-  nmap <silent><buffer><nowait> p    <Plug>(myfiler-copy)
-  nmap <silent><buffer><nowait> *    <Plug>(myfiler-add-bookmark)
+  nmap <silent><buffer><nowait> o <Plug>(myfiler-new-file)
+  nmap <silent><buffer><nowait> O <Plug>(myfiler-new-dir)
+  nmap <silent><buffer><nowait> r <Plug>(myfiler-rename)
+  nmap <silent><buffer><nowait> m <Plug>(myfiler-move)
+  nmap <silent><buffer><nowait> d <Plug>(myfiler-delete)
+  nmap <silent><buffer><nowait> p <Plug>(myfiler-copy)
+  nmap <silent><buffer><nowait> * <Plug>(myfiler-add-bookmark)
 
   nmap <buffer> + <Nop>
   nmap <buffer> - <Nop>
@@ -76,9 +76,9 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> >n <Plug>(myfiler-sort-by-name-desc)
   nmap <silent><buffer><nowait> =n <Plug>(myfiler-ignore-name-on-sort)
 
-  nmap <silent><buffer><nowait> .  <Plug>(myfiler-toggle-hidden-filter)
-  nmap <silent><buffer><nowait> f/ <Plug>(myfiler-add-pattern-filter)
-  nmap <silent><buffer><nowait> F/ <Plug>(myfiler-clear-pattern-filters)
+  nmap <silent><buffer><nowait> . <Plug>(myfiler-toggle-hidden-filter)
+  nmap <silent><buffer><nowait> f <Plug>(myfiler-add-pattern-filter)
+  nmap <silent><buffer><nowait> F <Plug>(myfiler-clear-pattern-filters)
 endfunction
 
 
