@@ -2,6 +2,34 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
+" Prototype-based OOP
+let s:Selection = {}
+
+
+" TODO: clear if insane
+function! myfiler#selection#get() abort
+  let selection = deepcopy(s:Selection)
+
+  let info = s:get_signinfo()
+  if empty(info.signs)
+    let selection.bufnr = bufnr()
+    let selection._dict = {}
+    return selection
+  endif
+
+  let dict = {}
+  let entries = getbufvar(info.bufnr, 'myfiler_entries', [])
+  for sign in info.signs
+    let entry = entries[sign.lnum - 1]
+    let dict[entry.name] = sign.id
+  endfor
+
+  let selection.bufnr = info.bufnr
+  let selection._dict = dict
+  return selection
+endfunction
+
+
 function! s:add(lnum) abort
   call sign_place(0, '', 'MyFilerSelected', '', #{ lnum: a:lnum })
 endfunction
@@ -12,10 +40,10 @@ function! s:delete(id) abort
 endfunction
 
 
-function! myfiler#selection#toggle(selection) abort
+function! s:Selection.toggle() abort
   let lnum = line('.')
   let name = myfiler#get_entry(lnum).name
-  let sign_id = get(a:selection._dict, name)
+  let sign_id = get(self._dict, name)
   if sign_id > 0
     call s:delete(sign_id)
   else
@@ -24,18 +52,18 @@ function! myfiler#selection#toggle(selection) abort
 endfunction
 
 
-function! myfiler#selection#is_empty(selection) abort
-  return empty(a:selection._dict)
+function! s:Selection.isEmpty() abort
+  return empty(self._dict)
 endfunction
 
 
-function! myfiler#selection#is_single(selection) abort
-  return len(a:selection._dict) == 1
+function! s:Selection.isSingle() abort
+  return len(self._dict) == 1
 endfunction
 
 
-function! myfiler#selection#get_names(selection) abort
-  return keys(a:selection._dict)
+function! s:Selection.getNames() abort
+  return keys(self._dict)
 endfunction
 
 
@@ -50,23 +78,6 @@ function! s:get_signinfo() abort
   else
     return allinfo[0]
   endif
-endfunction
-
-
-" TODO: clear if insane
-function! myfiler#selection#get() abort
-  let info = s:get_signinfo()
-  if empty(info.signs)
-    return #{ bufnr: bufnr(), _dict: {} }
-  endif
-
-  let dict = {}
-  let entries = getbufvar(info.bufnr, 'myfiler_entries', [])
-  for sign in info.signs
-    let entry = entries[sign.lnum - 1]
-    let dict[entry.name] = sign.id
-  endfor
-  return #{ bufnr: info.bufnr, _dict: dict }
 endfunction
 
 

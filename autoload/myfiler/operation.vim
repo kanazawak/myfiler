@@ -2,8 +2,13 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
+function! s:combine(dir, basename) abort
+  return fnamemodify(a:dir, ':p') . a:basename
+endfunction
+
+
 function! s:to_path(basename) abort
-  return fnamemodify(myfiler#get_dir(), ':p') . a:basename
+  return s:combine(myfiler#get_dir(), a:basename)
 endfunction
 
 
@@ -37,7 +42,7 @@ function! myfiler#operation#new_file() abort
     return
   endif
 
-  call writefile([''], path, 'b')
+  call writefile([''], path, 'ab')
   call myfiler#buffer#reload()
   call myfiler#search_name(basename)
 endfunction
@@ -87,7 +92,7 @@ endfunction
 
 function! myfiler#operation#move() abort
   let selection = myfiler#selection#get()
-  if myfiler#selection#is_empty(selection) || selection.bufnr == bufnr()
+  if selection.isEmpty() || selection.bufnr == bufnr()
     return
   endif
 
@@ -99,10 +104,9 @@ function! myfiler#operation#move() abort
 
   let messages = []
   let moves = []
-  let names = myfiler#selection#get_names(selection)
-  for name in names
-    let from_path = fnamemodify(from_dir, ':p') . name
-    let to_path = fnamemodify(to_dir, ':p') . name
+  for name in selection.getNames()
+    let from_path = s:combine(from_dir, name)
+    let to_path = s:combine(to_dir, name)
     if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
       call add(messages, "'" . name . "' is an ancestor of destiation directory.")
     elseif filereadable(to_path) || isdirectory(to_path)
@@ -144,10 +148,10 @@ function! myfiler#operation#delete() abort
   endif
 
   let selection = myfiler#selection#get()
-  if myfiler#selection#is_empty(selection) || selection.bufnr != bufnr()
+  if selection.isEmpty() || selection.bufnr != bufnr()
     call s:delete_single()
-  elseif myfiler#selection#is_single(selection)
-    let name = myfiler#selection#get_names(selection)[0]
+  elseif selection.isSingle()
+    let name = selection.getNames()[0]
     call myfiler#search_name(name, v:true)
     redraw
     call s:delete_single()
@@ -173,7 +177,7 @@ endfunction
 
 
 function! s:delete_multi(selection) abort
-  let names = myfiler#selection#get_names(a:selection)
+  let names = a:selection.getNames()
   let confirm = s:input('Delete ' . join(names, ', ') . ' ? (y/N): ')
   if confirm != 'y'
     return
