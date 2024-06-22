@@ -2,9 +2,9 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#util#echoerr(message) abort
+function! myfiler#util#echoerr(...) abort
   echohl Error
-  echo a:message
+  echo call('printf', a:000)
   echohl None
 endfunction
 

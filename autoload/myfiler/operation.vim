@@ -1,6 +1,7 @@
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
+" TODO: Consider unreadable but writable file
 
 function! s:combine(dir, basename) abort
   return fnamemodify(a:dir, ':p') . a:basename
@@ -96,46 +97,36 @@ function! myfiler#operation#move() abort
     return
   endif
 
-  let to_dir = myfiler#get_dir()
   let to_bufnr = bufnr()
+  let to_dir = myfiler#get_dir(to_bufnr)
+  let from_bufnr = selection.bufnr
+  let from_dir = myfiler#get_dir(from_bufnr)
 
-  noautocmd execute 'keepjumps buffer' selection.bufnr
-  let from_dir = myfiler#get_dir()
-
-  let messages = []
-  let moves = []
+  let moved_name = ''
   for name in selection.getNames()
     let from_path = s:combine(from_dir, name)
     let to_path = s:combine(to_dir, name)
     if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
-      call add(messages, "'" . name . "' is an ancestor of destiation directory.")
+      call myfiler#util#echoerr("'%s' is an ancestor of this directory.", name)
     elseif filereadable(to_path) || isdirectory(to_path)
-      call add(messages, "'" . name . "' " . "already exists.")
+      call myfiler#util#echoerr("'%s' already exists.", name)
+    elseif rename(from_path, to_path)
+      call myfiler#util#echoerr("Moving '%s' failed.", name)
     else
-      call add(moves, [from_path, to_path])
+      let moved_name = name
     endif
   endfor
   
-  if !empty(messages)
-    "Update jumplist to return easily to destination directory)
-    noautocmd execute 'keepjumps buffer' to_bufnr
-    execute 'buffer' selection.bufnr
-    redraw
-
-    for message in messages
-      call myfiler#util#echoerr(message)
-    endfor
-    " TODO: jump
-    return
+  if moved_name !=# ''
+    let name = moved_name
+    call myfiler#selection#clear()
+    noautocmd silent execute 'keepjumps buffer' from_bufnr
+    call myfiler#buffer#reload()
+    noautocmd silent execute 'keepjumps buffer' to_bufnr
+  else
+    call myfiler#buffer#reload()
+    silent execute 'buffer' from_bufnr
   endif
-
-  for [from_path, to_path] in moves
-    call rename(from_path, to_path)
-  endfor
-
-  call myfiler#selection#clear()
-  call myfiler#buffer#reload()
-  noautocmd execute 'keepjumps buffer' to_bufnr
 
   call myfiler#buffer#reload()
   call myfiler#search_name(name)
