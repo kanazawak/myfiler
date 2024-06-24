@@ -14,31 +14,24 @@ function! myfiler#entry#create(finfo, dir, is_bookmarked) abort
   let entry.time = a:finfo.time
   let entry.isBookmarked = a:is_bookmarked
 
-  if s:is_link(a:finfo.type)
-    let resolved = resolve(entry.path)
+  let resolved = resolve(entry.path)
+  if resolved != entry.path
     if isdirectory(resolved)
       let entry._type = 'linkd'
       let entry.resolved = fnamemodify(resolved, ':p:h')
     elseif filereadable(resolved)
+      " TODO: unreadable case
       let entry._type = 'linkf'
       let entry.resolved = resolved
     else
       let entry._type = 'broken'
     endif
   else
+    " TODO: Handle unnormal files (Ex. bdev, socket)
     let entry._type = a:finfo.type
   endif
 
   return entry
-endfunction
-
-
-function! s:is_link(ftype) abort
-  return   a:ftype ==# 'link'
-      \ || a:ftype ==# 'linkd'
-      \ || a:ftype ==# 'junction'
-      \ || a:ftype ==# 'reparse'
-      \ || a:ftype ==# 'broken'
 endfunction
 
 
