@@ -6,7 +6,6 @@ set cpoptions&vim
 let s:Selection = {}
 
 
-" TODO: clear if insane
 function! myfiler#selection#get() abort
   let selection = deepcopy(s:Selection)
 
@@ -17,12 +16,19 @@ function! myfiler#selection#get() abort
     return selection
   endif
 
-  let dict = {}
-  let entries = getbufvar(info.bufnr, 'myfiler_entries', [])
-  for sign in info.signs
-    let entry = entries[sign.lnum - 1]
-    let dict[entry.name] = sign.id
-  endfor
+  try
+    let dict = {}
+    let entries = getbufvar(info.bufnr, 'myfiler_entries', [])
+    for sign in info.signs
+      let entry = entries[sign.lnum - 1]
+      let dict[entry.name] = #{ sign_id: sign.id, entry: entry }
+    endfor
+  catch
+    call myfiler#selection#clear()
+    let selection.bufnr = bufnr()
+    let selection._dict = {}
+    return selection
+  endtry
 
   let selection.bufnr = info.bufnr
   let selection._dict = dict
@@ -41,13 +47,12 @@ endfunction
 
 
 function! s:Selection.toggle() abort
-  let lnum = line('.')
-  let name = myfiler#get_entry(lnum).name
-  let sign_id = get(self._dict, name)
-  if sign_id > 0
-    call s:delete(sign_id)
+  let name = myfiler#get_entry().name
+  if has_key(self._dict, name)
+    let id = self._dict[name].sign_id
+    call s:delete(id)
   else
-    call s:add(lnum)
+    call s:add(line('.'))
   endif
 endfunction
 
@@ -64,6 +69,11 @@ endfunction
 
 function! s:Selection.getNames() abort
   return keys(self._dict)
+endfunction
+
+
+function! s:Selection.getEntries() abort
+  return map(copy(values(self._dict)), { _, x -> x.entry })
 endfunction
 
 

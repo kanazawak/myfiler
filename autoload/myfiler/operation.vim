@@ -99,12 +99,11 @@ function! myfiler#operation#move() abort
 
   let to_bufnr = bufnr()
   let to_dir = myfiler#get_dir(to_bufnr)
-  let from_bufnr = selection.bufnr
-  let from_dir = myfiler#get_dir(from_bufnr)
 
   let moved_name = ''
-  for name in selection.getNames()
-    let from_path = s:combine(from_dir, name)
+  for entry in selection.getEntries()
+    let name = entry.name
+    let from_path = entry.path
     let to_path = s:combine(to_dir, name)
     if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
       call myfiler#util#echoerr("'%s' is an ancestor of this directory.", name)
@@ -120,12 +119,12 @@ function! myfiler#operation#move() abort
   if moved_name !=# ''
     let name = moved_name
     call myfiler#selection#clear()
-    noautocmd silent execute 'keepjumps buffer' from_bufnr
+    noautocmd silent execute 'keepjumps buffer' selection.bufnr
     call myfiler#buffer#reload()
     noautocmd silent execute 'keepjumps buffer' to_bufnr
   else
     call myfiler#buffer#reload()
-    silent execute 'buffer' from_bufnr
+    silent execute 'buffer' selection.bufnr
   endif
 
   call myfiler#buffer#reload()
@@ -168,17 +167,15 @@ endfunction
 
 
 function! s:delete_multi(selection) abort
-  let names = a:selection.getNames()
-  let confirm = s:input('Delete ' . join(names, ', ') . ' ? (y/N): ')
+  let names = join(a:selection.getNames(), ', ')
+  let confirm = s:input('Delete ' . names . ' ? (y/N): ')
   if confirm != 'y'
     return
   endif
 
-  let path_prefix = fnamemodify(myfiler#get_dir(), ':p')
-  for name in names
-    let path = path_prefix . name
-    if delete(path) != 0
-      call myfiler#util#echoerr('Deletion of ' . name . ' failed.')
+  for entry in a:selection.getEntries()
+    if delete(entry.path) != 0
+      call myfiler#util#echoerr("Deletion of '%s' failed.", entry.name)
     endif
   endfor
   call myfiler#buffer#reload()

@@ -7,7 +7,7 @@ function! myfiler#open(path) abort
   if filereadable(resolved) || isdirectory(resolved)
     let ext = fnamemodify(a:path, ':e')
     let command = get(g:myfiler_open_command, ext, 'edit')
-    execute command fnameescape(resolved)
+    execute command resolved
   else
     call myfiler#util#echoerr("Opening failed.")
   endif
@@ -105,7 +105,7 @@ function! myfiler#toggle_selection(moves_forward) abort
   if selection.bufnr != bufnr()
     call myfiler#selection#clear()
   endif
-  call myfiler#selection#toggle(selection)
+  call selection.toggle()
 
   execute 'normal!' a:moves_forward ? 'j' : 'k'
 endfunction
