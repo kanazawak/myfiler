@@ -16,7 +16,7 @@ endfunction
 
 function! myfiler#get_dir(bufnr = 0) abort
   let bufnr = a:bufnr > 0 ? a:bufnr : bufnr()
-  let path = resolve(bufname(bufnr))
+  let path = myfiler#util#resolve(bufname(bufnr))
   try
     if !isdirectory(path)
       echoerr path . ' no longer exists.'
