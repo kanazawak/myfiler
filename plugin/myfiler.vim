@@ -8,6 +8,8 @@ set cpoptions&vim
 let g:loaded_myfiler = 1
 
 
+let g:myfiler_bookmark_directory = get(g:, 'myfiler_bookmark_directory',
+    \ fnamemodify($HOME, ':p') . 'myfiler_bookmarks')
 let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
 let g:myfiler_default_view = get(g:, 'myfiler_default_view', {})
 let g:myfiler_default_sort = get(g:, 'myfiler_default_sort', {})
@@ -38,8 +40,6 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> r <Plug>(myfiler-rename)
   nmap <silent><buffer><nowait> m <Plug>(myfiler-move)
   nmap <silent><buffer><nowait> d <Plug>(myfiler-delete)
-  nmap <silent><buffer><nowait> p <Plug>(myfiler-copy)
-  nmap <silent><buffer><nowait> * <Plug>(myfiler-add-bookmark)
 
   nmap <buffer> + <Nop>
   nmap <buffer> - <Nop>
@@ -61,20 +61,35 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> -A <Plug>(myfiler-unalign-arrow)
 
   nmap <silent><buffer><nowait> <b <Plug>(myfiler-sort-bookmark-first)
+  nmap <silent><buffer><nowait> <B <Plug>(myfiler-sort-bookmark-first)
   nmap <silent><buffer><nowait> >b <Plug>(myfiler-sort-bookmark-last)
+  nmap <silent><buffer><nowait> >B <Plug>(myfiler-sort-bookmark-last)
   nmap <silent><buffer><nowait> =b <Plug>(myfiler-ignore-bookmark-on-sort)
+  nmap <silent><buffer><nowait> =B <Plug>(myfiler-ignore-bookmark-on-sort)
   nmap <silent><buffer><nowait> <d <Plug>(myfiler-sort-directory-first)
+  nmap <silent><buffer><nowait> <D <Plug>(myfiler-sort-directory-first)
   nmap <silent><buffer><nowait> >d <Plug>(myfiler-sort-directory-last)
+  nmap <silent><buffer><nowait> >D <Plug>(myfiler-sort-directory-last)
   nmap <silent><buffer><nowait> =d <Plug>(myfiler-ignore-directory-on-sort)
+  nmap <silent><buffer><nowait> =D <Plug>(myfiler-ignore-directory-on-sort)
   nmap <silent><buffer><nowait> <t <Plug>(myfiler-sort-by-time-asc)
+  nmap <silent><buffer><nowait> <T <Plug>(myfiler-sort-by-time-asc)
   nmap <silent><buffer><nowait> >t <Plug>(myfiler-sort-by-time-desc)
+  nmap <silent><buffer><nowait> >T <Plug>(myfiler-sort-by-time-desc)
   nmap <silent><buffer><nowait> =t <Plug>(myfiler-ignore-time-on-sort)
+  nmap <silent><buffer><nowait> =T <Plug>(myfiler-ignore-time-on-sort)
   nmap <silent><buffer><nowait> <s <Plug>(myfiler-sort-by-size-asc)
+  nmap <silent><buffer><nowait> <S <Plug>(myfiler-sort-by-size-asc)
   nmap <silent><buffer><nowait> >s <Plug>(myfiler-sort-by-size-desc)
+  nmap <silent><buffer><nowait> >S <Plug>(myfiler-sort-by-size-desc)
   nmap <silent><buffer><nowait> =s <Plug>(myfiler-ignore-size-on-sort)
+  nmap <silent><buffer><nowait> =S <Plug>(myfiler-ignore-size-on-sort)
   nmap <silent><buffer><nowait> <n <Plug>(myfiler-sort-by-name-asc)
+  nmap <silent><buffer><nowait> <N <Plug>(myfiler-sort-by-name-asc)
   nmap <silent><buffer><nowait> >n <Plug>(myfiler-sort-by-name-desc)
+  nmap <silent><buffer><nowait> >N <Plug>(myfiler-sort-by-name-desc)
   nmap <silent><buffer><nowait> =n <Plug>(myfiler-ignore-name-on-sort)
+  nmap <silent><buffer><nowait> =N <Plug>(myfiler-ignore-name-on-sort)
 
   nmap <silent><buffer><nowait> . <Plug>(myfiler-toggle-hidden-filter)
   nmap <silent><buffer><nowait> f <Plug>(myfiler-add-pattern-filter)
@@ -97,7 +112,6 @@ nnoremap <silent> <Plug>(myfiler-new-dir)      :<C-u>call myfiler#operation#new_
 nnoremap <silent> <Plug>(myfiler-rename)       :<C-u>call myfiler#operation#rename()<CR>
 nnoremap <silent> <Plug>(myfiler-move)         :<C-u>call myfiler#operation#move()<CR>
 nnoremap <silent> <Plug>(myfiler-delete)       :<C-u>call myfiler#operation#delete()<CR>
-nnoremap <silent> <Plug>(myfiler-copy)         :<C-u>call myfiler#operation#copy()<CR>
 nnoremap <silent> <Plug>(myfiler-add-bookmark) :<C-u>call myfiler#operation#add_bookmark()<CR>
 
 nnoremap <silent> <Plug>(myfiler-show-date)       :<C-u>call myfiler#view#update_item('+t')<CR>

@@ -182,20 +182,4 @@ function! s:delete_multi(selection) abort
 endfunction
 
 
-function! myfiler#operation#add_bookmark() abort
-  let entry = myfiler#get_entry()
-  let path = entry.path
-  let dir = g:myfiler_bookmark_directory
-  let linkpath = fnamemodify(dir, ':p') . entry.name
-  let command = 'ln -s '
-  call system(command . shellescape(path) . ' ' . shellescape(linkpath))
-  if v:shell_error
-    call myfiler#util#echoerr('Adding bookmark failed.')
-  else
-    call myfiler#buffer#reload()
-    " TODO: rerender bookmark directory
-  endif
-endfunction
-
-
 let &cpoptions = s:save_cpo

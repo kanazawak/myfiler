@@ -28,7 +28,7 @@ function! myfiler#view_item#create_line(entry, max_namelen) abort
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
   let mark = s:get_mark_display(a:entry)
-  let name = s:get_name_display(a:entry)
+  let name = s:get_name_display(a:entry, a:max_namelen)
   let link = s:get_link_display(a:entry, a:max_namelen)
   return time . size . mark . name . link
 endfunction
@@ -90,29 +90,22 @@ function! s:get_size_display(entry) abort
 endfunction
 
 
-function! s:get_name_display(entry) abort
-  if !s:shows_last_slash()
-    let suffix = ''
-  elseif a:entry.isDirectory()
-    let suffix = '/'
-  elseif a:entry.isLinkToDir() && !s:shows_link()
-    let suffix = '/'
-  else
-    let suffix = ''
-  endif
-  return a:entry.name . suffix
+function! s:get_name_display(entry, max_namelen) abort
+  let suffix = 
+        \ !s:shows_last_slash() ? '' :
+        \ a:entry.isDirectory() ? '/' :
+        \ a:entry.isLinkToDir() && !s:shows_link() ? '/' :
+        \ ''
+  let format = s:aligns_arrow()
+        \ ? '%-' . a:max_namelen . 's'
+        \ : '%s'
+  return printf(format, a:entry.name . suffix)
 endfunction
 
 
 function! s:get_link_display(entry, max_namelen) abort
   if !a:entry.isLink() || !s:shows_link()
     return ''
-  endif
-
-  let padding = ''
-  if s:aligns_arrow()
-    let pad_len = a:max_namelen - strdisplaywidth(a:entry.name)
-    let padding = repeat(' ', pad_len)
   endif
 
   " TODO: relative path from the directory
@@ -123,7 +116,7 @@ function! s:get_link_display(entry, max_namelen) abort
     let resolved = '(BROKEN LINK)'
   endif
 
-  return padding . ' /=> ' . resolved
+  return ' /=> ' . resolved
 endfunction
 
 
