@@ -28,7 +28,8 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> l    <Plug>(myfiler-open-dir)
   nmap <silent><buffer><nowait> h    <Plug>(myfiler-open-parent)
   nmap <silent><buffer><nowait> <CR> <Plug>(myfiler-open-current)
-  nmap <silent><buffer><nowait> ~    <Plug>(myfiler-open-home)
+  nmap <silent><buffer><nowait> ~    <Plug>(myfiler-go-home)
+  nmap <silent><buffer><nowait> H    <Plug>(myfiler-go-to-cwd)
   nmap <silent><buffer><nowait> C    <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> R    <Plug>(myfiler-reload)
   nmap <silent><buffer><nowait> s    <Plug>(myfiler-select-forward)
@@ -100,7 +101,8 @@ endfunction
 nnoremap <silent> <Plug>(myfiler-open-current)     :<C-u>call myfiler#open_current()<CR>
 nnoremap <silent> <Plug>(myfiler-open-dir)         :<C-u>call myfiler#open_dir()<CR>
 nnoremap <silent> <Plug>(myfiler-open-parent)      :<C-u>call myfiler#open_parent()<CR>
-nnoremap <silent> <Plug>(myfiler-open-home)        :<C-u>call myfiler#open(expand("~"))<CR>
+nnoremap <silent> <Plug>(myfiler-go-home)          :<C-u>call myfiler#open(expand("~"))<CR>
+nnoremap <silent> <Plug>(myfiler-go-to-cwd)        :<C-u>call myfiler#open(getcwd())<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory) :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-reload)           :<C-u>call myfiler#reload()<CR>
 nnoremap <silent> <Plug>(myfiler-select-forward)   :<C-u>call myfiler#toggle_selection(v:true)<CR>
