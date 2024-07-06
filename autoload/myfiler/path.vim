@@ -18,6 +18,11 @@ function! s:Path.ToString() abort
 endfunction
 
 
+function! s:Path.Equals(other) abort
+  return self._path ==# a:other._path
+endfunction
+
+
 function! s:Path.IsReadble() abort
   return filereadable(self._path) || isdirectory(self._path)
 endfunction
@@ -64,6 +69,12 @@ function! s:Path.GetFileExt() abort
 endfunction
 
 
+function! s:Path.IsAncestorOf(other) abort
+  let prefix = fnamemodify(self._path, ':p')
+  return strpart(a:other._path, 0, len(prefix)) ==# prefix
+endfunction
+
+
 function! s:Path.CreateFile() abort
   call writefile([''], self._path, 'ab')
 endfunction
@@ -78,6 +89,11 @@ function! s:Path.RenameFrom(old_name) abort
   let dir = self.GetParent()
   let old_path = dir.Append(a:old_name)._path
   call rename(old_path, self._path)
+endfunction
+
+
+function! s:Path.Move(to) abort
+  return rename(self._path, to._path)
 endfunction
 
 

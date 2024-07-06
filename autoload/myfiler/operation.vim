@@ -1,12 +1,6 @@
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-" TODO: Consider unreadable but writable file
-
-function! s:combine(dir, basename) abort
-  return fnamemodify(a:dir, ':p') . a:basename
-endfunction
-
 
 function! s:to_path(basename) abort
   let dir = myfiler#path#new(myfiler#get_dir())
@@ -90,18 +84,18 @@ function! myfiler#operation#move() abort
   endif
 
   let to_bufnr = bufnr()
-  let to_dir = myfiler#get_dir(to_bufnr)
+  let to_dir = myfiler#path#new(myfiler#get_dir(to_bufnr))
 
   let moved_name = ''
   for entry in selection.getEntries()
     let name = entry.name
-    let from_path = entry.path
-    let to_path = s:combine(to_dir, name)
-    if to_dir ==# from_path || strpart(to_dir, 0, len(from_path) + 1) ==# fnamemodify(from_path, ':p')
-      call myfiler#util#echoerr("'%s' is an ancestor of this directory.", name)
-    elseif filereadable(to_path) || isdirectory(to_path)
+    let from_path = myfiler#path#new(entry.path)
+    let to_path = to_dir.Append(name)
+    if to_dir.Equals(from_path) || from_path.IsAncestorOf(to_dir)
+      call myfiler#util#echoerr("'%s' is an ancestor.", name)
+    elseif to_path.Exists()
       call myfiler#util#echoerr("'%s' already exists.", name)
-    elseif rename(from_path, to_path)
+    elseif from_path.Move(to_path)
       call myfiler#util#echoerr("Moving '%s' failed.", name)
     else
       let moved_name = name
