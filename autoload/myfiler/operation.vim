@@ -9,19 +9,19 @@ endfunction
 
 
 function! s:to_path(basename) abort
-  return s:combine(myfiler#get_dir(), a:basename)
+  let dir = myfiler#path#new(myfiler#get_dir())
+  return dir.Append(a:basename)
 endfunction
 
 
 function! s:check_duplication(path) abort
-  if filereadable(a:path) || isdirectory(a:path)
+  if a:path.Exists()
     call myfiler#util#echoerr("The name already exists.")
     call myfiler#buffer#reload()
-    let basename = fnamemodify(a:path, ':t')
-    call myfiler#search_name(basename, v:true)
-    return v:true
+    call myfiler#search_name(a:path.GetBasename(), v:true)
+    return v:false
   endif
-  return v:false
+  return v:true
 endfunction
 
 
@@ -40,12 +40,10 @@ function! myfiler#operation#new_file() abort
 
   let path = s:to_path(basename)
   if s:check_duplication(path)
-    return
+    call path.CreateFile()
+    call myfiler#buffer#reload()
+    call myfiler#search_name(basename)
   endif
-
-  call writefile([''], path, 'ab')
-  call myfiler#buffer#reload()
-  call myfiler#search_name(basename)
 endfunction
 
 
@@ -57,12 +55,10 @@ function! myfiler#operation#new_dir() abort
 
   let path = s:to_path(basename)
   if s:check_duplication(path)
-    return
+    call path.CreateDir()
+    call myfiler#buffer#reload()
+    call myfiler#search_name(basename)
   endif
-
-  call mkdir(path)
-  call myfiler#buffer#reload()
-  call myfiler#search_name(basename)
 endfunction
 
 
@@ -80,14 +76,10 @@ function! myfiler#operation#rename() abort
 
   let new_path = s:to_path(new_name)
   if s:check_duplication(new_path)
-    return
+    call new_path.RenameFrom(old_name)
+    let entry.name = new_name
+    call myfiler#buffer#reload()
   endif
-
-  let old_path = s:to_path(old_name)
-  call rename(old_path, new_path)
-
-  let entry.name = new_name
-  call myfiler#buffer#reload()
 endfunction
 
 
