@@ -21,25 +21,23 @@ endfunction
 
 
 function! myfiler#buffer#reload() abort
-  let dir = myfiler#get_dir()
-  let dirinfo = readdirex(dir)
-
+  let bookmark_dir = myfiler#path#new(g:myfiler_bookmark_directory)
   let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
   let bookmark_dict = {}
   for finfo in bookmark_dirinfo
-    let path = fnamemodify(g:myfiler_bookmark_directory, ':p') . finfo.name
-    let resolved = fnamemodify(resolve(path), ':p')
-    if isdirectory(resolved)
-      let resolved = fnamemodify(resolved, ':h')
-    endif
-    let bookmark_dict[resolved] = v:true
+    let link = bookmark_dir.Append(finfo.name)
+    let resolved = link.Resolve()
+    let bookmark_dict[resolved.ToString()] = v:true
   endfor
+
+  let dir = myfiler#path#new(myfiler#get_dir())
+  let dirinfo = readdirex(dir.ToString())
 
   let loaded = []
   for finfo in dirinfo
-    let path = fnamemodify(dir, ':p') . finfo.name
-    let is_bookmarked = has_key(bookmark_dict, path)
-    call add(loaded, myfiler#entry#create(finfo, dir, is_bookmarked))
+    let path = dir.Append(finfo.name)
+    let is_bookmarked = has_key(bookmark_dict, path.ToString())
+    call add(loaded, myfiler#entry#create(finfo, dir.ToString(), is_bookmarked))
   endfor
   let b:myfiler_loaded_entries = loaded
 

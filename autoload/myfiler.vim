@@ -3,11 +3,11 @@ set cpoptions&vim
 
 
 function! myfiler#open(path) abort
-  let resolved = resolve(a:path)
-  if filereadable(resolved) || isdirectory(resolved)
-    let ext = fnamemodify(a:path, ':e')
+  let resolved = myfiler#path#new(resolve(a:path))
+  if resolved.IsReadble()
+    let ext = resolved.GetFileExt()
     let command = get(g:myfiler_open_command, ext, 'edit')
-    execute command resolved
+    execute command resolved.ToString()
   else
     call myfiler#util#echoerr("Opening failed.")
   endif
@@ -57,6 +57,7 @@ endfunction
 
 
 function! myfiler#search_name(name, updates_jumplist = v:false) abort
+  " TODO: Consider filters
   if !myfiler#filter#shows_hidden_file() && a:name[0] == '.'
     call myfiler#view#toggle_hidden_filter()
   endif
@@ -79,12 +80,11 @@ endfunction
 
 
 function! myfiler#open_parent() abort
-  let current_dir = myfiler#get_dir()
-  let parent_dir = fnamemodify(current_dir, ':h')
-  if parent_dir !=# current_dir
-    call myfiler#open(parent_dir)
-    let basename = fnamemodify(current_dir, ':t')
-    call myfiler#search_name(basename)
+  let current = myfiler#path#new(myfiler#get_dir())
+  if !current.IsRoot()
+    let parent = current.GetParent()
+    call myfiler#open(parent.ToString())
+    call myfiler#search_name(current.GetBasename())
   endif
 endfunction
 
