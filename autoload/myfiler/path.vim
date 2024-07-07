@@ -23,6 +23,11 @@ function! s:Path.Equals(other) abort
 endfunction
 
 
+function! s:Path.IsDirectory() abort
+  return isdirectory(self._path)
+endfunction
+
+
 function! s:Path.IsReadble() abort
   return filereadable(self._path) || isdirectory(self._path)
 endfunction
@@ -93,7 +98,7 @@ endfunction
 
 
 function! s:Path.Move(to) abort
-  return rename(self._path, to._path)
+  return rename(self._path, a:to._path)
 endfunction
 
 

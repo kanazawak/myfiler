@@ -6,23 +6,20 @@ set cpoptions&vim
 let s:Entry = {}
 
 
-function! myfiler#entry#create(finfo, dir, is_bookmarked) abort
+function! myfiler#entry#new(finfo, dir, is_bookmarked) abort
   let entry = deepcopy(s:Entry)
   let entry.name = a:finfo.name
-  let entry.path = fnamemodify(a:dir, ':p') . entry.name
+  let entry.path = a:dir.Append(a:finfo.name)
   let entry.size = a:finfo.size
   let entry.time = a:finfo.time
   let entry.isBookmarked = a:is_bookmarked
 
-  let resolved = resolve(entry.path)
-  if resolved != entry.path
-    if isdirectory(resolved)
+  let resolved = entry.path.Resolve()
+  if !resolved.Equals(entry.path)
+    if resolved.IsDirectory()
       let entry._type = 'linkd'
-      let entry.resolved = fnamemodify(resolved, ':p:h')
-    elseif filereadable(resolved)
-      " TODO: unreadable case
+    elseif resolved.IsReadble()
       let entry._type = 'linkf'
-      let entry.resolved = resolved
     else
       let entry._type = 'broken'
     endif

@@ -2,8 +2,9 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#filter#init(path) abort
-  let b:myfiler_shows_hidden_file = get(g:myfiler_default_visibility, a:path)
+function! myfiler#filter#init() abort
+  let path = myfiler#util#get_dir().ToString()
+  let b:myfiler_shows_hidden_file = get(g:myfiler_default_visibility, path)
   let b:myfiler_patterns = []
 endfunction
 

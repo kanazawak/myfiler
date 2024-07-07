@@ -2,8 +2,9 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#view_item#init(path) abort
-  let conf = get(g:myfiler_default_view, a:path, 'tsbDl')
+function! myfiler#view_item#init() abort
+  let path = myfiler#util#get_dir().ToString()
+  let conf = get(g:myfiler_default_view, path, 'tsbDl')
   let b:myfiler_view_items = []
   for i in range(len(conf))
     let c = conf[i]
@@ -108,8 +109,9 @@ function! s:get_link_display(entry, max_namelen) abort
     return ''
   endif
 
+  let resolved = a:entry.path.Resolve().ToString()
+  let resolved = fnamemodify(resolved, ':~')
   " TODO: relative path from the directory
-  let resolved = fnamemodify(get(a:entry, 'resolved'), ':~')
   if a:entry.isLinkToDir() && s:shows_last_slash()
     let resolved .= '/'
   elseif a:entry.isBrokenLink()

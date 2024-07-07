@@ -30,14 +30,14 @@ function! myfiler#buffer#reload() abort
     let bookmark_dict[resolved.ToString()] = v:true
   endfor
 
-  let dir = myfiler#path#new(myfiler#get_dir())
+  let dir = myfiler#util#get_dir()
   let dirinfo = readdirex(dir.ToString())
 
   let loaded = []
   for finfo in dirinfo
     let path = dir.Append(finfo.name)
     let is_bookmarked = has_key(bookmark_dict, path.ToString())
-    call add(loaded, myfiler#entry#create(finfo, dir.ToString(), is_bookmarked))
+    call add(loaded, myfiler#entry#new(finfo, dir, is_bookmarked))
   endfor
   let b:myfiler_loaded_entries = loaded
 

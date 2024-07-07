@@ -59,9 +59,10 @@ function! s:_compose(cmp1, cmp2, e1, e2) abort
 endfunction
 
 
-function! myfiler#sort#init(path) abort
+function! myfiler#sort#init() abort
+  let path = myfiler#util#get_dir().ToString()
   let b:myfiler_sort_keys = []
-  let conf = get(g:myfiler_default_sort, a:path, 'bdn')
+  let conf = get(g:myfiler_default_sort, path, 'bdn')
   for i in range(len(conf))
     let c = conf[i]
     if 'dbtsn' =~? c

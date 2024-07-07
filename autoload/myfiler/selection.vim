@@ -47,7 +47,7 @@ endfunction
 
 
 function! s:Selection.toggle() abort
-  let name = myfiler#get_entry().name
+  let name = myfiler#util#get_entry().name
   if has_key(self._dict, name)
     let id = self._dict[name].sign_id
     call s:delete(id)
@@ -106,7 +106,7 @@ function! myfiler#selection#restore(selection) abort
   endif
 
   for lnum in range(1, line('$'))
-    let name = myfiler#get_entry(lnum).name
+    let name = myfiler#util#get_entry(lnum).name
     if has_key(a:selection._dict, name)
       call s:add(lnum)
     endif

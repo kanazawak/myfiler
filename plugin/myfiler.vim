@@ -158,7 +158,7 @@ function! s:on_bufenter() abort
   " Remove netrw autocmds
   autocmd! FileExplorer *
 
-  let path = myfiler#util#resolve(bufname())
+  let path = myfiler#util#normalize(bufname())
   if !isdirectory(path)
     return
   endif

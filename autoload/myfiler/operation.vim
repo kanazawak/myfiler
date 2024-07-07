@@ -3,7 +3,7 @@ set cpoptions&vim
 
 
 function! s:to_path(basename) abort
-  let dir = myfiler#path#new(myfiler#get_dir())
+  let dir = myfiler#util#get_dir()
   return dir.Append(a:basename)
 endfunction
 
@@ -84,12 +84,12 @@ function! myfiler#operation#move() abort
   endif
 
   let to_bufnr = bufnr()
-  let to_dir = myfiler#path#new(myfiler#get_dir(to_bufnr))
+  let to_dir = myfiler#util#get_dir()
 
   let moved_name = ''
   for entry in selection.getEntries()
     let name = entry.name
-    let from_path = myfiler#path#new(entry.path)
+    let from_path = entry.path
     let to_path = to_dir.Append(name)
     if to_dir.Equals(from_path) || from_path.IsAncestorOf(to_dir)
       call myfiler#util#echoerr("'%s' is an ancestor.", name)
@@ -160,7 +160,7 @@ function! s:delete_multi(selection) abort
   endif
 
   for entry in a:selection.getEntries()
-    if delete(entry.path) != 0
+    if delete(entry.path.ToString()) != 0
       call myfiler#util#echoerr("Deletion of '%s' failed.", entry.name)
     endif
   endfor

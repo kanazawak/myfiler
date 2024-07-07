@@ -3,10 +3,9 @@ set cpoptions&vim
 
 
 function! myfiler#view#init() abort
-  let path = myfiler#get_dir()
-  call myfiler#view_item#init(path)
-  call myfiler#filter#init(path)
-  call myfiler#sort#init(path)
+  call myfiler#view_item#init()
+  call myfiler#filter#init()
+  call myfiler#sort#init()
   let b:myfiler_entries = []
 endfunction
 
