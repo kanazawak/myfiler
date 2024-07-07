@@ -20,7 +20,19 @@ function! myfiler#buffer#init() abort
 endfunction
 
 
-function! myfiler#buffer#reload() abort
+function! myfiler#buffer#reload(bufnr = 0) abort
+  if a:bufnr == 0
+    call s:reload()
+  else
+    let current_bufnr = bufnr()
+    noautocmd silent execute 'keepjumps buffer' a:bufnr
+    call s:reload()
+    noautocmd silent execute 'keepjumps buffer' current_bufnr
+  endif
+endfunction
+
+
+function! s:reload() abort
   let bookmark_dir = myfiler#path#new(g:myfiler_bookmark_directory)
   let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
   let bookmark_dict = {}

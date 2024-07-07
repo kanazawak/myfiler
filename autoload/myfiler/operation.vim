@@ -83,10 +83,8 @@ function! myfiler#operation#move() abort
     return
   endif
 
-  let to_bufnr = bufnr()
   let to_dir = myfiler#util#get_dir()
 
-  let moved_name = ''
   for entry in selection.getEntries()
     let name = entry.name
     let from_path = entry.path
@@ -97,22 +95,11 @@ function! myfiler#operation#move() abort
       call myfiler#util#echoerr("'%s' already exists.", name)
     elseif from_path.Move(to_path)
       call myfiler#util#echoerr("Moving '%s' failed.", name)
-    else
-      let moved_name = name
     endif
   endfor
   
-  if moved_name !=# ''
-    let name = moved_name
-    call myfiler#selection#clear()
-    noautocmd silent execute 'keepjumps buffer' selection.bufnr
-    call myfiler#buffer#reload()
-    noautocmd silent execute 'keepjumps buffer' to_bufnr
-  else
-    call myfiler#buffer#reload()
-    silent execute 'buffer' selection.bufnr
-  endif
-
+  call myfiler#selection#clear()
+  call myfiler#buffer#reload(selection.bufnr)
   call myfiler#buffer#reload()
   call myfiler#search_name(name)
 endfunction
