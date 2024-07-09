@@ -125,7 +125,7 @@ endfunction
 
 
 function! s:delete_single() abort
-  let path = myfiler#util#get_entry().path
+  let path = myfiler#util#get_entry().path.ToString()
   let confirm = s:input('Delete ' . path . ' ? (y/N): ')
   if confirm != 'y'
     return
