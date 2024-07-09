@@ -61,7 +61,7 @@ function! myfiler#operation#rename() abort
     return
   endif
 
-  let entry = myfiler#get_entry()
+  let entry = myfiler#util#get_entry()
   let old_name = entry.name
   let new_name = s:input('New name: ', old_name)
   if empty(new_name) || new_name ==# old_name
@@ -125,7 +125,7 @@ endfunction
 
 
 function! s:delete_single() abort
-  let path = myfiler#get_entry().path
+  let path = myfiler#util#get_entry().path
   let confirm = s:input('Delete ' . path . ' ? (y/N): ')
   if confirm != 'y'
     return
