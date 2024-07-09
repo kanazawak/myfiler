@@ -97,10 +97,10 @@ function! s:get_name_display(entry, max_namelen) abort
         \ a:entry.isDirectory() ? '/' :
         \ a:entry.isLinkToDir() && !s:shows_link() ? '/' :
         \ ''
-  let format = s:aligns_arrow()
-        \ ? '%-' . a:max_namelen . 's'
-        \ : '%s'
-  return printf(format, a:entry.name . suffix)
+  let padding = s:aligns_arrow()
+        \ ? repeat(' ', a:max_namelen - strdisplaywidth(a:entry.name))
+        \ : ''
+  return a:entry.name . suffix . padding
 endfunction
 
 
