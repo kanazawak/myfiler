@@ -77,7 +77,7 @@ function! s:get_size_display(entry) abort
         break
       elseif x < 10
         " Ex. 2048 KiloBytes => 2.0M
-        let str = printf("%.1f", x) . unit
+        let str = printf("%.1f", float2nr(x * 10) / 10.0) . unit
         break
       else
         " Ex. 999.9 MegaBytes => 999M
