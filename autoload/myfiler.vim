@@ -58,10 +58,8 @@ endfunction
 
 function! myfiler#open_parent() abort
   let current = myfiler#util#get_dir()
-  " echo current
   if !current.IsRoot()
     let parent = current.GetParent()
-    " echo parent._path
     call myfiler#open(parent.ToString())
     call myfiler#search_name(current.GetBasename())
   endif

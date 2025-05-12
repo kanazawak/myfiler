@@ -106,20 +106,26 @@ endfunction
 
 
 function! myfiler#operation#delete() abort
+  " TODO: ensure exsistence of trashbox
   if myfiler#buffer#is_empty()
     return
   endif
 
-  let path = myfiler#util#get_entry().path.ToString()
-  let confirm = s:input('Delete ' . path . ' ? (y/N): ')
-  if confirm != 'y'
-    return
-  endif
+  let entry = myfiler#util#get_entry()
+  let name = entry.name
+  let from_path = entry.path
+  let to_dir = myfiler#path#new(g:myfiler_trashbox_directory)
+  let to_path = to_dir.Append(name)
 
-  if delete(path) != 0
-    call myfiler#util#echoerr('Deletion failed.')
+  if to_path.Equals(from_path) || to_dir.IsAncestorOf(from_path)
+    return
+  elseif to_path.Exists()
+    call myfiler#util#echoerr("'%s' already exists in trashbox.", name)
+  elseif from_path.Move(to_path)
+    call myfiler#util#echoerr("Deleting '%s' failed.", name)
   else
     call myfiler#buffer#reload()
+    call myfiler#util#echoerr("Deleting '%s' failed.", name)
   endif
 endfunction
 

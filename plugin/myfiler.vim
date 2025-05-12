@@ -10,6 +10,8 @@ let g:loaded_myfiler = 1
 
 let g:myfiler_bookmark_directory = get(g:, 'myfiler_bookmark_directory',
     \ fnamemodify($HOME, ':p') . 'myfiler_bookmarks')
+let g:myfiler_trashbox_directory = get(g:, 'myfiler_trashbox_directory',
+    \ fnamemodify($HOME, ':p') . 'myfiler_trashbox')
 let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
 let g:myfiler_default_view = get(g:, 'myfiler_default_view', {})
 let g:myfiler_default_sort = get(g:, 'myfiler_default_sort', {})
@@ -33,11 +35,11 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> R    <Plug>(myfiler-reload)
   nmap <silent><buffer><nowait> x    <Plug>(myfiler-execute)
 
-  nmap <silent><buffer><nowait> o <Plug>(myfiler-new-file)
-  nmap <silent><buffer><nowait> O <Plug>(myfiler-new-dir)
-  nmap <silent><buffer><nowait> r <Plug>(myfiler-rename)
-  nmap <silent><buffer><nowait> m <Plug>(myfiler-move)
-  nmap <silent><buffer><nowait> d <Plug>(myfiler-delete)
+  nmap <silent><buffer><nowait> o  <Plug>(myfiler-new-file)
+  nmap <silent><buffer><nowait> O  <Plug>(myfiler-new-dir)
+  nmap <silent><buffer><nowait> r  <Plug>(myfiler-rename)
+  nmap <silent><buffer><nowait> m  <Plug>(myfiler-move)
+  nmap <silent><buffer><nowait> dd <Plug>(myfiler-delete)
 
   nmap <buffer> + <Nop>
   nmap <buffer> - <Nop>
