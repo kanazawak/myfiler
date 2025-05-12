@@ -78,30 +78,30 @@ endfunction
 
 
 function! myfiler#operation#move() abort
-  let selection = myfiler#selection#get()
-  if selection.isEmpty() || selection.bufnr == bufnr()
-    return
-  endif
+  " let selection = myfiler#selection#get()
+  " if selection.isEmpty() || selection.bufnr == bufnr()
+  "   return
+  " endif
 
-  let to_dir = myfiler#util#get_dir()
+  " let to_dir = myfiler#util#get_dir()
 
-  for entry in selection.getEntries()
-    let name = entry.name
-    let from_path = entry.path
-    let to_path = to_dir.Append(name)
-    if to_dir.Equals(from_path) || from_path.IsAncestorOf(to_dir)
-      call myfiler#util#echoerr("'%s' is an ancestor.", name)
-    elseif to_path.Exists()
-      call myfiler#util#echoerr("'%s' already exists.", name)
-    elseif from_path.Move(to_path)
-      call myfiler#util#echoerr("Moving '%s' failed.", name)
-    endif
-  endfor
+  " for entry in selection.getEntries()
+  "   let name = entry.name
+  "   let from_path = entry.path
+  "   let to_path = to_dir.Append(name)
+  "   if to_dir.Equals(from_path) || from_path.IsAncestorOf(to_dir)
+  "     call myfiler#util#echoerr("'%s' is an ancestor.", name)
+  "   elseif to_path.Exists()
+  "     call myfiler#util#echoerr("'%s' already exists.", name)
+  "   elseif from_path.Move(to_path)
+  "     call myfiler#util#echoerr("Moving '%s' failed.", name)
+  "   endif
+  " endfor
   
-  call myfiler#selection#clear()
-  call myfiler#buffer#reload(selection.bufnr)
-  call myfiler#buffer#reload()
-  call myfiler#search_name(name)
+  " call myfiler#selection#clear()
+  " call myfiler#buffer#reload(selection.bufnr)
+  " call myfiler#buffer#reload()
+  " call myfiler#search_name(name)
 endfunction
 
 
@@ -110,21 +110,6 @@ function! myfiler#operation#delete() abort
     return
   endif
 
-  let selection = myfiler#selection#get()
-  if selection.isEmpty() || selection.bufnr != bufnr()
-    call s:delete_single()
-  elseif selection.isSingle()
-    let name = selection.getNames()[0]
-    call myfiler#search_name(name, v:true)
-    redraw
-    call s:delete_single()
-  else
-    call s:delete_multi(selection)
-  endif
-endfunction
-
-
-function! s:delete_single() abort
   let path = myfiler#util#get_entry().path.ToString()
   let confirm = s:input('Delete ' . path . ' ? (y/N): ')
   if confirm != 'y'
@@ -136,22 +121,6 @@ function! s:delete_single() abort
   else
     call myfiler#buffer#reload()
   endif
-endfunction
-
-
-function! s:delete_multi(selection) abort
-  let names = join(a:selection.getNames(), ', ')
-  let confirm = s:input('Delete ' . names . ' ? (y/N): ')
-  if confirm != 'y'
-    return
-  endif
-
-  for entry in a:selection.getEntries()
-    if delete(entry.path.ToString()) != 0
-      call myfiler#util#echoerr("Deletion of '%s' failed.", entry.name)
-    endif
-  endfor
-  call myfiler#buffer#reload()
 endfunction
 
 

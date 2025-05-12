@@ -12,18 +12,7 @@ endfunction
 
 function! myfiler#view#render() abort
   setlocal noreadonly modifiable
-
-  let selection = myfiler#selection#get()
-  if selection.bufnr == bufnr()
-    call myfiler#selection#clear()
-  endif
-
   call s:render()
-
-  if selection.bufnr == bufnr()
-    call myfiler#selection#restore(selection)
-  endif
-
   setlocal readonly nomodifiable nomodified
 endfunction
 

@@ -20,7 +20,6 @@ augroup myfiler
   autocmd!
   autocmd FileType myfiler call s:setup_mappings()
   autocmd BufEnter * call s:on_bufenter()
-  autocmd TabLeave * call s:on_tableave()
 augroup END
 
 
@@ -32,8 +31,6 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> H    <Plug>(myfiler-go-to-cwd)
   nmap <silent><buffer><nowait> C    <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> R    <Plug>(myfiler-reload)
-  nmap <silent><buffer><nowait> s    <Plug>(myfiler-select-forward)
-  nmap <silent><buffer><nowait> S    <Plug>(myfiler-select-backward)
   nmap <silent><buffer><nowait> x    <Plug>(myfiler-execute)
 
   nmap <silent><buffer><nowait> o <Plug>(myfiler-new-file)
@@ -103,8 +100,6 @@ nnoremap <silent> <Plug>(myfiler-go-home)          :<C-u>call myfiler#open(expan
 nnoremap <silent> <Plug>(myfiler-go-to-cwd)        :<C-u>call myfiler#open(getcwd())<CR>
 nnoremap <silent> <Plug>(myfiler-change-directory) :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-reload)           :<C-u>call myfiler#reload()<CR>
-nnoremap <silent> <Plug>(myfiler-select-forward)   :<C-u>call myfiler#toggle_selection(v:true)<CR>
-nnoremap <silent> <Plug>(myfiler-select-backward)  :<C-u>call myfiler#toggle_selection(v:false)<CR>
 nnoremap <silent> <Plug>(myfiler-execute)          :<C-u>call myfiler#execute()<CR>
 
 nnoremap <silent> <Plug>(myfiler-new-file)     :<C-u>call myfiler#operation#new_file()<CR>
@@ -166,14 +161,6 @@ function! s:on_bufenter() abort
   " Note that Vim set 'buflisted' when starting to edit a buffer
   setlocal nobuflisted
 endfunction
-
-
-function! s:on_tableave() abort
-  call myfiler#selection#clear()
-endfunction
-
-
-sign define MyFilerSelected text=>>
 
 
 let &cpoptions = s:save_cpo

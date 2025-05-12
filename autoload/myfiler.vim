@@ -69,23 +69,7 @@ endfunction
 
 
 function! myfiler#reload() abort
-  call myfiler#selection#clear()
   call myfiler#buffer#reload()
-endfunction
-
-
-function! myfiler#toggle_selection(moves_forward) abort
-  if myfiler#buffer#is_empty()
-    return
-  endif
-
-  let selection = myfiler#selection#get()
-  if selection.bufnr != bufnr()
-    call myfiler#selection#clear()
-  endif
-  call selection.toggle()
-
-  execute 'normal!' a:moves_forward ? 'j' : 'k'
 endfunction
 
 
