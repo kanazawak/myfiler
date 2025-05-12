@@ -93,8 +93,6 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> =N <Plug>(myfiler-ignore-name-on-sort)
 
   nmap <silent><buffer><nowait> . <Plug>(myfiler-toggle-hidden-filter)
-  nmap <silent><buffer><nowait> f <Plug>(myfiler-add-pattern-filter)
-  nmap <silent><buffer><nowait> F <Plug>(myfiler-clear-pattern-filters)
 endfunction
 
 
@@ -150,8 +148,6 @@ nnoremap <silent> <Plug>(myfiler-sort-by-name-desc)        :<C-u>call myfiler#vi
 nnoremap <silent> <Plug>(myfiler-ignore-name-on-sort)      :<C-u>call myfiler#view#delete_sort_key('n')<CR>
 
 nnoremap <silent> <Plug>(myfiler-toggle-hidden-filter)  :<C-u>call myfiler#view#toggle_hidden_filter()<CR>
-nnoremap <silent> <Plug>(myfiler-add-pattern-filter)    :<C-u>call myfiler#view#add_pattern_filter()<CR>
-nnoremap <silent> <Plug>(myfiler-clear-pattern-filters) :<C-u>call myfiler#view#clear_pattern_filters()<CR>
 
 
 function! s:on_bufenter() abort
