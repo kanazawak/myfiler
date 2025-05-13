@@ -33,12 +33,11 @@ endfunction
 
 
 function! s:reload() abort
-  let bookmark_dir = myfiler#path#new(g:myfiler_bookmark_directory)
-  let bookmark_dirinfo = readdirex(g:myfiler_bookmark_directory)
+  let bookmark_list = readfile(g:myfiler_bookmark_file)
   let bookmark_dict = {}
-  for finfo in bookmark_dirinfo
-    let link = bookmark_dir.Append(finfo.name)
-    let resolved = link.Resolve()
+  for path_str in bookmark_list
+    let path = myfiler#path#new(path_str)
+    let resolved = path.Resolve()
     let bookmark_dict[resolved.ToString()] = v:true
   endfor
 

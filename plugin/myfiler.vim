@@ -8,7 +8,9 @@ set cpoptions&vim
 let g:loaded_myfiler = 1
 
 
-let g:myfiler_bookmark_directory = get(g:, 'myfiler_bookmark_directory',
+" let g:myfiler_bookmark_directory = get(g:, 'myfiler_bookmark_directory',
+"     \ fnamemodify($HOME, ':p') . 'myfiler_bookmarks')
+let g:myfiler_bookmark_file = get(g:, 'myfiler_bookmark_file',
     \ fnamemodify($HOME, ':p') . 'myfiler_bookmarks')
 let g:myfiler_trashbox_directory = get(g:, 'myfiler_trashbox_directory',
     \ fnamemodify($HOME, ':p') . 'myfiler_trashbox')
