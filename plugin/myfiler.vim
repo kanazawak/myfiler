@@ -36,6 +36,7 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> C    <Plug>(myfiler-change-directory)
   nmap <silent><buffer><nowait> R    <Plug>(myfiler-reload)
   nmap <silent><buffer><nowait> x    <Plug>(myfiler-execute)
+  nmap <silent><buffer><nowait> *    <Plug>(myfiler-toggle-bookmark)
 
   nmap <silent><buffer><nowait> o  <Plug>(myfiler-new-file)
   nmap <silent><buffer><nowait> O  <Plug>(myfiler-new-dir)
@@ -106,6 +107,7 @@ nnoremap <silent> <Plug>(myfiler-go-to-cwd)        :<C-u>call myfiler#open(getcw
 nnoremap <silent> <Plug>(myfiler-change-directory) :<C-u>call myfiler#change_directory()<CR>
 nnoremap <silent> <Plug>(myfiler-reload)           :<C-u>call myfiler#reload()<CR>
 nnoremap <silent> <Plug>(myfiler-execute)          :<C-u>call myfiler#execute()<CR>
+nnoremap <silent> <Plug>(myfiler-toggle-bookmark)  :<C-u>call myfiler#toggle_bookmark()<CR>
 
 nnoremap <silent> <Plug>(myfiler-new-file)     :<C-u>call myfiler#operation#new_file()<CR>
 nnoremap <silent> <Plug>(myfiler-new-dir)      :<C-u>call myfiler#operation#new_dir()<CR>

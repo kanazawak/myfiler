@@ -79,9 +79,31 @@ endfunction
 function! myfiler#execute() abort
   if !myfiler#buffer#is_empty()
     let entry = myfiler#util#get_entry()
-    let path = entry.path.ToString()
-    call feedkeys(': ' . path . "\<Home>!", 'n')
+    let path_str = entry.path.ToString()
+    call feedkeys(': ' . path_str . "\<Home>!", 'n')
   endif
+endfunction
+
+
+function! myfiler#toggle_bookmark() abort
+  let bookmark_list = readfile(g:myfiler_bookmark_file)
+  let bookmark_dict = {}
+  for path_str in bookmark_list
+    let path = myfiler#path#new(path_str).Resolve()
+    let bookmark_dict[path.ToString()] = v:true
+  endfor
+
+  let entry = myfiler#util#get_entry()
+  let path_str = entry.path.ToString()
+  if has_key(bookmark_dict, path_str)
+    call filter(bookmark_list, { _, p ->
+          \ myfiler#path#new(p).Resolve().ToString() != path_str })
+  else
+    call add(bookmark_list, fnamemodify(path_str, ':~'))
+  endif
+
+  call writefile(bookmark_list, g:myfiler_bookmark_file)
+  call myfiler#reload()
 endfunction
 
 
