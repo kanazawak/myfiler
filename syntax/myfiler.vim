@@ -9,14 +9,14 @@ syntax match myfilerTime '^\d\d/\d\d/\d\d\( \d\d:\d\d\)\? ' nextgroup=myfilerSiz
 
 syntax match myfilerFile '[^/]*[^/]$' contained contains=myfilerExt
 syntax match myfilerDir  '[^/]\+/$' contained
-syntax match myfilerLinkToFile '[^/]\+ /=> .*[^/]$' contained contains=myfilerName,myfilerArrow,myfilerResolvedFile
-syntax match myfilerLinkToDir  '[^/]\+ /=> .\+/$' contained contains=myfilerName,myfilerArrow,myfilerResolvedDir
+syntax match myfilerLinkToFile '[^/]\+\t/=> .*[^/]$' contained contains=myfilerName,myfilerArrow,myfilerResolvedFile
+syntax match myfilerLinkToDir  '[^/]\+\t/=> .\+/$' contained contains=myfilerName,myfilerArrow,myfilerResolvedDir
 
 syntax match myfilerResolvedFile '.*$' contained contains=myfilerExt
 syntax match myfilerResolvedDir  '.*$' contained
-syntax match myfilerArrow ' \+/=> ' contained nextgroup=myfilerResolved
-syntax match myfilerName '[^/]*[^/ ]\ze \+/' contained nextgroup=myfilerArrow
-syntax match myfilerExt '[^ /]\.\zs[^.]\+$' contained
+syntax match myfilerArrow '\t/=> ' contained
+syntax match myfilerName '[^/]*[^/ ]\ze\t/' contained
+syntax match myfilerExt '[^ /]\.\zs[^./]\+$' contained
 
 highlight! default link myfilerTime        Number
 highlight! default link myfilerSize        Comment

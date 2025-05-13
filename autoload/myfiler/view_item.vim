@@ -8,7 +8,7 @@ function! myfiler#view_item#init() abort
   let b:myfiler_view_items = []
   for i in range(len(conf))
     let c = conf[i]
-    if 'TtsbDlA' =~# c
+    if 'TtsbDl' =~# c
       call add(b:myfiler_view_items, c)
     endif
   endfor
@@ -22,18 +22,22 @@ let s:shows_size       = { -> s:enables('s') }
 let s:shows_bookmark   = { -> s:enables('b') }
 let s:shows_last_slash = { -> s:enables('D') }
 let s:shows_link       = { -> s:enables('l') }
-let s:aligns_arrow     = { -> s:enables('A') }
 
 
-function! myfiler#view_item#create_line(entry, max_namelen) abort
+function! myfiler#view_item#create_line(entry) abort
   let time = s:get_time_display(a:entry)
   let size = s:get_size_display(a:entry)
   let mark = s:get_mark_display(a:entry)
-  let name = s:get_name_display(a:entry, a:max_namelen)
-  let link = s:get_link_display(a:entry, a:max_namelen)
+  let name = s:get_name_display(a:entry)
+  let link = s:get_link_display(a:entry)
   return time . size . mark . name . link
 endfunction
 
+function! myfiler#view_item#header_length() abort
+  return (s:shows_datetime() ? 15 : s:shows_date() ? 9 : 0)
+    \ + (s:shows_size() ? 5 : 0)
+    \ + (s:shows_bookmark() ? 1 : 0)
+endfunction
 
 function! s:get_mark_display(entry) abort
   if s:shows_bookmark()
@@ -91,20 +95,17 @@ function! s:get_size_display(entry) abort
 endfunction
 
 
-function! s:get_name_display(entry, max_namelen) abort
+function! s:get_name_display(entry) abort
   let suffix = 
         \ !s:shows_last_slash() ? '' :
         \ a:entry.isDirectory() ? '/' :
         \ a:entry.isLinkToDir() && !s:shows_link() ? '/' :
         \ ''
-  let padding = s:aligns_arrow()
-        \ ? repeat(' ', a:max_namelen - strdisplaywidth(a:entry.name))
-        \ : ''
-  return a:entry.name . suffix . padding
+  return a:entry.name . suffix
 endfunction
 
 
-function! s:get_link_display(entry, max_namelen) abort
+function! s:get_link_display(entry) abort
   if !a:entry.isLink() || !s:shows_link()
     return ''
   endif
@@ -118,7 +119,7 @@ function! s:get_link_display(entry, max_namelen) abort
     let resolved = '(BROKEN LINK)'
   endif
 
-  return ' /=> ' . resolved
+  return "\t/=> " . resolved
 endfunction
 
 
@@ -131,7 +132,7 @@ function! myfiler#view_item#update(str) abort
     return
   endif
   let item = a:str[1]
-  if match('tTsbDlA', item) < 0
+  if match('tTsbDl', item) < 0
     return
   endif
 
@@ -143,23 +144,13 @@ function! myfiler#view_item#update(str) abort
 endfunction
 
 
-function! s:bulk_update(array) abort
-  let aligns_arrow = s:aligns_arrow()
-  let b:myfiler_view_items = a:array
-  if aligns_arrow
-    let b:myfiler_view_items += ['A']
-  endif
-endfunction
-
-
 function! myfiler#view_item#show_all() abort
   let b:myfiler_view_items = ['T', 's', 'b', 'D', 'l']
-      \ + (s:aligns_arrow() ? ['A'] : [])
 endfunction
 
 
 function! myfiler#view_item#hide_all() abort
-  let b:myfiler_view_items = [] + (s:aligns_arrow() ? ['A'] : [])
+  let b:myfiler_view_items = []
 endfunction
 
 

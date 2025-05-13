@@ -61,8 +61,6 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> -l <Plug>(myfiler-hide-link)
   nmap <silent><buffer><nowait> +a <Plug>(myfiler-show-all)
   nmap <silent><buffer><nowait> -a <Plug>(myfiler-hide-all)
-  nmap <silent><buffer><nowait> +A <Plug>(myfiler-align-arrow)
-  nmap <silent><buffer><nowait> -A <Plug>(myfiler-unalign-arrow)
 
   nmap <silent><buffer><nowait> <b <Plug>(myfiler-sort-bookmark-first)
   nmap <silent><buffer><nowait> <B <Plug>(myfiler-sort-bookmark-first)
@@ -129,8 +127,6 @@ nnoremap <silent> <Plug>(myfiler-show-last-slash) :<C-u>call myfiler#view#update
 nnoremap <silent> <Plug>(myfiler-hide-last-slash) :<C-u>call myfiler#view#update_item('-D')<CR>
 nnoremap <silent> <Plug>(myfiler-show-link)       :<C-u>call myfiler#view#update_item('+l')<CR>
 nnoremap <silent> <Plug>(myfiler-hide-link)       :<C-u>call myfiler#view#update_item('-l')<CR>
-nnoremap <silent> <Plug>(myfiler-align-arrow)     :<C-u>call myfiler#view#update_item('+A')<CR>
-nnoremap <silent> <Plug>(myfiler-unalign-arrow)   :<C-u>call myfiler#view#update_item('-A')<CR>
 nnoremap <silent> <Plug>(myfiler-show-all)        :<C-u>call myfiler#view#show_all()<CR>
 nnoremap <silent> <Plug>(myfiler-hide-all)        :<C-u>call myfiler#view#hide_all()<CR>
 

@@ -37,12 +37,15 @@ function! s:render() abort
   endfor
   let cursor_name = empty(old_entries) ? '' : old_entries[line('.') - 1].name
 
+  let lines = map(copy(new_entries),
+      \ { _, entry -> myfiler#view_item#create_line(entry) })
+  call setline(1, lines)
+
   let max_namelen = max(map(copy(new_entries),
       \ { _, e  -> strdisplaywidth(e.name) }))
-
-  let lines = map(copy(new_entries),
-      \ { _, entry -> myfiler#view_item#create_line(entry, max_namelen) })
-  call setline(1, lines)
+  let header_len = myfiler#view_item#header_length()
+  let ts = header_len + max_namelen + 1
+  execute 'setlocal tabstop=' . ts
 
   call myfiler#search_name(cursor_name)
 endfunction
