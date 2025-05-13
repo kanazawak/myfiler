@@ -77,28 +77,19 @@ function! myfiler#operation#rename() abort
 endfunction
 
 
-function! myfiler#operation#paste() abort
-  let from_path_str = get(g:, 'myfiler_last_copied', '')
-  if from_path_str == ''
+function! myfiler#operation#copy() abort
+  if myfiler#buffer#is_empty()
     return
   endif
 
-  let from_path = myfiler#path#new(from_path_str)
-  let name = from_path.GetBasename()
-  let to_dir = myfiler#util#get_dir()
-  let to_path = to_dir.Append(name)
+  let entry = myfiler#util#get_entry()
+  let path = entry.path
 
-  if from_path.Equals(to_dir) || from_path.IsAncestorOf(to_dir)
-    call myfiler#util#echoerr("'%s' is an ancestor.", name)
-  elseif to_path.Exists()
-    call myfiler#util#echoerr("'%s' already exists.", name)
-  elseif from_path.Move(to_path)
-    call myfiler#util#echoerr("Pasting '%s' failed.", name)
+  if path.IsDirectory()
+    call myfiler#util#echoerr("Direcotries can't be copied.")
   else
-    unlet g:myfiler_last_copied
-    call myfiler#buffer#reload()
-    call myfiler#search_name(name)
-    " TODO: reload from_dir buffer?
+    let g:myfiler_last_copied = path.ToString()
+    let g:myfiler_copied_by_delete = v:false
   endif
 endfunction
 
@@ -122,6 +113,7 @@ function! myfiler#operation#delete() abort
   elseif to_dir.IsAncestorOf(from_path)
     call myfiler#util#echoerr("'%s' is already in the trashbox.", name)
     let g:myfiler_last_copied = from_path.ToString()
+    let g:myfiler_copied_by_delete = v:true
   elseif to_path.Exists()
     call myfiler#util#echoerr("'%s' already exists in the trashbox.", name)
   elseif from_path.Move(to_path)
@@ -129,7 +121,69 @@ function! myfiler#operation#delete() abort
   else
     call myfiler#buffer#reload()
     let g:myfiler_last_copied = to_path.ToString()
+    let g:myfiler_copied_by_delete = v:true
     " TODO: reload trashbox buffer?
+  endif
+endfunction
+
+
+function! myfiler#operation#paste() abort
+  let from_path_str = get(g:, 'myfiler_last_copied', '')
+  if from_path_str == ''
+    return
+  endif
+
+  let from_path = myfiler#path#new(from_path_str)
+  let name = from_path.GetBasename()
+  if !from_path.Exists()
+    call myfiler#util#echoerr("'%s' no longer exists.", name)
+    return
+  endif
+
+  if g:myfiler_copied_by_delete
+    call s:paste_after_delete(from_path)
+  else
+    call s:paste_after_copy(from_path)
+  endif
+endfunction
+
+
+function! s:paste_after_delete(from_path) abort
+  let from_path = a:from_path
+  let name = from_path.GetBasename()
+  let to_dir = myfiler#util#get_dir()
+  let to_path = to_dir.Append(name)
+
+  if from_path.Equals(to_dir) || from_path.IsAncestorOf(to_dir)
+    call myfiler#util#echoerr("'%s' is an ancestor.", name)
+  elseif to_path.Exists()
+    call myfiler#util#echoerr("'%s' already exists.", name)
+  elseif from_path.Move(to_path)
+    call myfiler#util#echoerr("Pasting '%s' failed.", name)
+  else
+    unlet g:myfiler_last_copied
+    call myfiler#buffer#reload()
+    call myfiler#search_name(name)
+    " TODO: reload from_dir buffer?
+  endif
+endfunction
+
+
+function! s:paste_after_copy(from_path) abort
+  let from_path = a:from_path
+  let name = from_path.GetBasename()
+  let to_dir = myfiler#util#get_dir()
+  let to_path = to_dir.Append(name)
+
+  if to_path.Exists()
+    call myfiler#util#echoerr("'%s' already exists.", name)
+  elseif from_path.Copy(to_path)
+    call myfiler#util#echoerr("Pasting '%s' failed.", name)
+  else
+    unlet g:myfiler_last_copied
+    call myfiler#buffer#reload()
+    call myfiler#search_name(name)
+    " TODO: reload from_dir buffer?
   endif
 endfunction
 

@@ -38,6 +38,7 @@ function! s:setup_mappings() abort
   nmap <silent><buffer><nowait> o  <Plug>(myfiler-new-file)
   nmap <silent><buffer><nowait> O  <Plug>(myfiler-new-dir)
   nmap <silent><buffer><nowait> r  <Plug>(myfiler-rename)
+  nmap <silent><buffer><nowait> yy <Plug>(myfiler-copy)
   nmap <silent><buffer><nowait> dd <Plug>(myfiler-delete)
   nmap <silent><buffer><nowait> p  <Plug>(myfiler-paste)
 
@@ -107,6 +108,7 @@ nnoremap <silent> <Plug>(myfiler-execute)          :<C-u>call myfiler#execute()<
 nnoremap <silent> <Plug>(myfiler-new-file)     :<C-u>call myfiler#operation#new_file()<CR>
 nnoremap <silent> <Plug>(myfiler-new-dir)      :<C-u>call myfiler#operation#new_dir()<CR>
 nnoremap <silent> <Plug>(myfiler-rename)       :<C-u>call myfiler#operation#rename()<CR>
+nnoremap <silent> <Plug>(myfiler-copy)         :<C-u>call myfiler#operation#copy()<CR>
 nnoremap <silent> <Plug>(myfiler-delete)       :<C-u>call myfiler#operation#delete()<CR>
 nnoremap <silent> <Plug>(myfiler-paste)        :<C-u>call myfiler#operation#paste()<CR>
 nnoremap <silent> <Plug>(myfiler-add-bookmark) :<C-u>call myfiler#operation#add_bookmark()<CR>

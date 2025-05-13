@@ -102,4 +102,9 @@ function! s:Path.Move(to) abort
 endfunction
 
 
+function! s:Path.Copy(to) abort
+  return !filecopy(self._path, a:to._path)
+endfunction
+
+
 let &cpoptions = s:save_cpo
