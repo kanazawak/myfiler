@@ -156,9 +156,17 @@ function! s:paste_after_delete(from_path) abort
 
   if from_path.Equals(to_dir) || from_path.IsAncestorOf(to_dir)
     call myfiler#util#echoerr("'%s' is an ancestor.", name)
-  elseif to_path.Exists()
-    call myfiler#util#echoerr("'%s' already exists.", name)
-  elseif from_path.Move(to_path)
+    return
+  endif
+
+  while to_path.Exists()
+    call myfiler#search_name(name)
+    redraw
+    let name = input('Name conflict. New name: ', name)
+    let to_path = to_dir.Append(name)
+  endwhile
+
+  if from_path.Move(to_path)
     call myfiler#util#echoerr("Pasting '%s' failed.", name)
   else
     unlet g:myfiler_last_copied
@@ -175,15 +183,19 @@ function! s:paste_after_copy(from_path) abort
   let to_dir = myfiler#util#get_dir()
   let to_path = to_dir.Append(name)
 
-  if to_path.Exists()
-    call myfiler#util#echoerr("'%s' already exists.", name)
-  elseif from_path.Copy(to_path)
+  while to_path.Exists()
+    call myfiler#search_name(name)
+    redraw
+    let name = input('Name conflict. New name: ', name)
+    let to_path = to_dir.Append(name)
+  endwhile
+
+  if from_path.Copy(to_path)
     call myfiler#util#echoerr("Pasting '%s' failed.", name)
   else
     unlet g:myfiler_last_copied
     call myfiler#buffer#reload()
     call myfiler#search_name(name)
-    " TODO: reload from_dir buffer?
   endif
 endfunction
 
