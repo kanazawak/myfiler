@@ -107,9 +107,11 @@ function! myfiler#operation#delete() abort
   let from_path = entry.path
 
   let to_dir = myfiler#path#new(g:myfiler_trashbox_directory)
-  if !to_dir.Exists() && to_dir.CreateDir()
-    call myfiler#util#echoerr("Creating trashbox failed.")
-    return
+  if !to_dir.IsDirectory()
+    if to_dir.Exists() || to_dir.CreateDir()
+      call myfiler#util#echoerr("Creating trashbox failed.")
+      return
+    endif
   endif
   let to_path = to_dir.Append(name)
 
