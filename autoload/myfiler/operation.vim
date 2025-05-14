@@ -162,7 +162,7 @@ function! s:paste_after_delete(from_path) abort
   while to_path.Exists()
     call myfiler#search_name(name)
     redraw
-    let name = input('Name conflict. New name: ', name)
+    let name = s:input('Name conflict. New name: ', name)
     let to_path = to_dir.Append(name)
   endwhile
 
@@ -186,7 +186,7 @@ function! s:paste_after_copy(from_path) abort
   while to_path.Exists()
     call myfiler#search_name(name)
     redraw
-    let name = input('Name conflict. New name: ', name)
+    let name = s:input('Name conflict. New name: ', name)
     let to_path = to_dir.Append(name)
   endwhile
 
