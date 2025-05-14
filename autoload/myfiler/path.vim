@@ -86,14 +86,7 @@ endfunction
 
 
 function! s:Path.CreateDir() abort
-  call mkdir(self._path)
-endfunction
-
-
-function! s:Path.RenameFrom(old_name) abort
-  let dir = self.GetParent()
-  let old_path = dir.Append(a:old_name)._path
-  call rename(old_path, self._path)
+  return !mkdir(self._path)
 endfunction
 
 

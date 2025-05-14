@@ -70,9 +70,12 @@ function! myfiler#operation#rename() abort
 
   let new_path = s:to_path(new_name)
   if s:check_duplication(new_path)
-    call new_path.RenameFrom(old_name)
-    let entry.name = new_name
-    call myfiler#buffer#reload()
+    if entry.path.Move(new_path)
+      call myfiler#util#echoerr("Renaming failed.", name)
+    else
+      let entry.name = new_name " for search_name
+      call myfiler#buffer#reload()
+    endif
   endif
 endfunction
 
@@ -95,7 +98,6 @@ endfunction
 
 
 function! myfiler#operation#delete() abort
-  " TODO: ensure exsistence of trashbox
   if myfiler#buffer#is_empty()
     return
   endif
@@ -103,7 +105,12 @@ function! myfiler#operation#delete() abort
   let entry = myfiler#util#get_entry()
   let name = entry.name
   let from_path = entry.path
+
   let to_dir = myfiler#path#new(g:myfiler_trashbox_directory)
+  if !to_dir.Exists() && to_dir.CreateDir()
+    call myfiler#util#echoerr("Creating trashbox failed.")
+    return
+  endif
   let to_path = to_dir.Append(name)
 
   if from_path.Equals(to_dir)
