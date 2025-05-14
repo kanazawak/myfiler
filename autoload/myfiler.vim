@@ -2,13 +2,18 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 
-function! myfiler#open(pathStr) abort
-  let path = myfiler#path#new(a:pathStr)
+function! s:edit(path_str) abort
+  execute 'edit' fnameescape(a:path_str)
+endfunction
+
+
+function! myfiler#open(path_str) abort
+  let path = myfiler#path#new(a:path_str)
   let resolved = path.Resolve()
   if resolved.IsReadble()
     let ext = resolved.GetFileExt()
-    let command = get(g:myfiler_open_command, ext, 'edit')
-    execute command resolved.ToString()
+    let Func = get(g:myfiler_open_func, ext, funcref('s:edit'))
+    call Func(resolved.ToString())
   else
     call myfiler#util#echoerr("Opening failed.")
   endif

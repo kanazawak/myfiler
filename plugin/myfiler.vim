@@ -14,7 +14,7 @@ let g:myfiler_bookmark_file = get(g:, 'myfiler_bookmark_file',
     \ fnamemodify($HOME, ':p') . 'myfiler_bookmarks')
 let g:myfiler_trashbox_directory = get(g:, 'myfiler_trashbox_directory',
     \ fnamemodify($HOME, ':p') . 'myfiler_trashbox')
-let g:myfiler_open_command = get(g:, 'myfiler_open_command', {})
+let g:myfiler_open_func    = get(g:, 'myfiler_open_func'   , {})
 let g:myfiler_default_view = get(g:, 'myfiler_default_view', {})
 let g:myfiler_default_sort = get(g:, 'myfiler_default_sort', {})
 let g:myfiler_default_visibility = get(g:, 'myfiler_default_visibility', {})
