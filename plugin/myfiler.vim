@@ -28,6 +28,8 @@ augroup END
 
 
 function! s:setup_mappings() abort
+  mapclear <buffer>
+
   nmap <silent><buffer><nowait> l    <Plug>(myfiler-open-dir)
   nmap <silent><buffer><nowait> h    <Plug>(myfiler-open-parent)
   nmap <silent><buffer><nowait> <CR> <Plug>(myfiler-open-current)

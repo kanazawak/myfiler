@@ -39,8 +39,7 @@ endfunction
 
 
 function! myfiler#search_name(name, updates_jumplist = v:false) abort
-  " TODO: Consider filters
-  if !myfiler#filter#shows_hidden_file() && a:name[0] == '.'
+  if myfiler#is_hidden(a:name)
     call myfiler#view#toggle_hidden_filter()
   endif
 
@@ -58,6 +57,24 @@ function! myfiler#search_name(name, updates_jumplist = v:false) abort
       return
     endif
   endfor
+endfunction
+
+
+function! myfiler#is_hidden(name) abort
+  if myfiler#filter#shows_hidden_file()
+        \ || a:name[0] != '.'
+        \ || myfiler#buffer#is_empty()
+    return v:false
+  endif
+
+  for lnum in range(1, line('$'))
+    let entry = myfiler#util#get_entry(lnum)
+    if entry.name ==# a:name
+      return !entry.isBookmarked
+    endif
+  endfor
+
+  return v:false
 endfunction
 
 

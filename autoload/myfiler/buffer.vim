@@ -16,7 +16,6 @@ function! myfiler#buffer#init() abort
   setlocal noswapfile
   setlocal nowrap
   setlocal noexpandtab
-  mapclear <buffer>
   setlocal filetype=myfiler
 endfunction
 
