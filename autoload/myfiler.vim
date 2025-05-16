@@ -67,8 +67,7 @@ function! myfiler#is_hidden(name) abort
     return v:false
   endif
 
-  for lnum in range(1, line('$'))
-    let entry = myfiler#util#get_entry(lnum)
+  for entry in b:myfiler_loaded_entries
     if entry.name ==# a:name
       return !entry.isBookmarked
     endif
