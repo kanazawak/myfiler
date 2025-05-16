@@ -22,7 +22,7 @@ function! myfiler#filter#get_acceptor() abort
   if b:myfiler_shows_hidden_file
     return { _, entry -> v:true }
   else
-    return { _, entry -> entry.name !~ '^\.' }
+    return { _, entry -> entry.name !~ '^\.' || entry.isBookmarked }
   endif
 endfunction
 
