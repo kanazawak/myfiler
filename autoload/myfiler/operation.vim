@@ -196,6 +196,9 @@ function! s:paste_after_copy(from_path) abort
     call myfiler#search_name(name)
     redraw
     let name = s:input('Name conflict. New name: ', name)
+    if name == ''
+      return
+    endif
     let to_path = to_dir.Append(name)
   endwhile
 
