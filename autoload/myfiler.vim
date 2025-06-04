@@ -93,7 +93,7 @@ endfunction
 
 
 function! myfiler#change_directory() abort
-  execute 'cd' myfiler#util#get_dir().ToString()
+  execute 'tcd' myfiler#util#get_dir().ToString()
 endfunction
 
 
